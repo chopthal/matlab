@@ -28,7 +28,7 @@ if app.MainApp.ROICheckBox.Value == 1
 
 
 %     for i = 1:3
-    for i = 1:size(app.MainApp.TgtImg, 3)
+    for i = 1:size(app.MainApp.CropImg, 3)
 
         app.MainApp.TgtImg(app.MainApp.ROIRect.Position(2):app.MainApp.ROIRect.Position(2)+...
                     app.MainApp.ROIRect.Position(4), app.MainApp.ROIRect.Position(1):app.MainApp.ROIRect.Position(1)...

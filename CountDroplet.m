@@ -15,13 +15,19 @@ if progWindow.CancelRequested == 1
     
 end
 
+app.CropImg = [];
+
 if app.ROICheckBox.Value == 0
 
     app.CropImg = app.TgtImg;
 
 else
-
-    app.CropImg = uint16(zeros(app.ROIRect.Position(4)+1, app.ROIRect.Position(3)+1));
+    
+    for i = 1:size(app.TgtImg, 3)
+    
+        app.CropImg(:, :, i) = uint16(zeros(app.ROIRect.Position(4)+1, app.ROIRect.Position(3)+1));
+        
+    end
 
 %     if size(app.CropImg, 3) == 3
     

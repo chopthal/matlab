@@ -7,7 +7,8 @@ try
         app.ROIPosition = app.ROIRect.Position;
 
     end
-
+    
+    app.TgtImg = [];
     app.TgtImg = imread(FullName);
     
     if isa(app.TgtImg, 'double')
