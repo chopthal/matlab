@@ -8,7 +8,8 @@ else
     
     app.MainApp.CropImg = uint16(zeros(app.MainApp.ROIRect.Position(4)+1, app.MainApp.ROIRect.Position(3)+1));
     
-    for i = 1:3
+%     for i = 1:3
+    for i = 1:size(app.MainApp.CropImg, 3)
 
         app.MainApp.CropImg(:, :, i) = app.MainApp.TgtImgOrg(app.MainApp.ROIRect.Position(2):app.MainApp.ROIRect.Position(2)+...
             app.MainApp.ROIRect.Position(4), app.MainApp.ROIRect.Position(1):app.MainApp.ROIRect.Position(1)...
@@ -26,7 +27,8 @@ ProcImg = app.MainApp.CropImg * ConDiff + BrtDiff*2^8;
 if app.MainApp.ROICheckBox.Value == 1
 
 
-    for i = 1:3
+%     for i = 1:3
+    for i = 1:size(app.MainApp.TgtImg, 3)
 
         app.MainApp.TgtImg(app.MainApp.ROIRect.Position(2):app.MainApp.ROIRect.Position(2)+...
                     app.MainApp.ROIRect.Position(4), app.MainApp.ROIRect.Position(1):app.MainApp.ROIRect.Position(1)...

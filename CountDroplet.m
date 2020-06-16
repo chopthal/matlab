@@ -23,7 +23,9 @@ else
 
     app.CropImg = uint16(zeros(app.ROIRect.Position(4)+1, app.ROIRect.Position(3)+1));
 
-    for i = 1:3
+%     if size(app.CropImg, 3) == 3
+    
+    for i = 1:size(app.CropImg, 3)
 
         app.CropImg(:, :, i) = app.TgtImg(app.ROIRect.Position(2):app.ROIRect.Position(2)+...
             app.ROIRect.Position(4), app.ROIRect.Position(1):app.ROIRect.Position(1)...
@@ -48,7 +50,9 @@ try
 
 catch
 
-    disp('RGB to Gray process is failed!')
+%     disp('RGB to Gray process is failed!')
+
+    uialert(progFig, 'Cannot count droplets on the Gray Image!', 'Invalid Image');
     SetButtonStatus(app, 'Loaded')
     close(progWindow)
     return;
