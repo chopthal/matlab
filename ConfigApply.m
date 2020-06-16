@@ -1,12 +1,18 @@
 function ConfigApply(app)
 
+app.MainApp.CropImg = [];
+
 if app.MainApp.ROICheckBox.Value == 0
     
     app.MainApp.CropImg = app.MainApp.TgtImgOrg;
     
 else
     
-    app.MainApp.CropImg = uint16(zeros(app.MainApp.ROIRect.Position(4)+1, app.MainApp.ROIRect.Position(3)+1));
+    for i = 1:size(app.MainApp.TgtImgOrg, 3)
+    
+        app.MainApp.CropImg(:, :, i) = uint16(zeros(app.MainApp.ROIRect.Position(4)+1, app.MainApp.ROIRect.Position(3)+1));
+        
+    end
     
 %     for i = 1:3
     for i = 1:size(app.MainApp.CropImg, 3)
@@ -47,8 +53,12 @@ end
 imshow(app.MainApp.TgtImg, 'Parent', app.MainApp.UIAxes)
 
 if app.MainApp.ROICheckBox.Value == 1
+    
+    delete(app.MainApp.ROIRect)
+    app.MainApp.ROIRect = [];
 
     MakeROIRectangle(app.MainApp)
+    app.MainApp.ROIRect.InteractionsAllowed = 'none';
     
 end
 

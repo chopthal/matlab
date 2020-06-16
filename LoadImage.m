@@ -43,6 +43,3 @@ catch
     disp('Cannot read the file.')
 
 end
-
-
-
