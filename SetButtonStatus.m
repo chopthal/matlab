@@ -47,6 +47,11 @@ if strcmp(status, 'Initial')
     app.Image.Enable = 0;
     app.Image.Visible = 0;
     
+    app.ToClipboardButton.Enable = 0;
+    app.ToClipboardButton.Visible = 0;
+    app.SaveImageButton.Enable = 0;
+    app.SaveImageButton.Visible = 0;
+    
     for i = 1:8
         
         strCheck = sprintf('CheckBox_%d', i);
@@ -86,6 +91,11 @@ elseif strcmp(status, 'Loaded')
     
     app.Image.Enable = 1;
     app.Image.Visible = 1;
+    
+    app.ToClipboardButton.Enable = 1;
+    app.ToClipboardButton.Visible = 1;
+    app.SaveImageButton.Enable = 1;
+    app.SaveImageButton.Visible = 1;
     
     for i = 1:8
         

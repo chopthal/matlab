@@ -13,11 +13,13 @@ try
     
     if isa(app.TgtImg, 'double')
         
-        app.TgtImg = uint16(app.TgtImg) * 2^16 ;
+%         app.TgtImg = uint16(app.TgtImg) * 2^16 ;
+        app.TgtImg = im2uint16(app.TgtImg);
         
     elseif isa(app.TgtImg, 'uint8')
         
-        app.TgtImg = uint16(app.TgtImg) * 2^8;
+%         app.TgtImg = uint16(app.TgtImg) * 2^8;
+        app.TgtImg = im2uint16(app.TgtImg);
         
     elseif isa(app.TgtImg, 'uint16')
         
