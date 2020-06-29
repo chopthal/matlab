@@ -1,0 +1,7 @@
+2020. 06. 29
+
+DropletCounter ver 1.0.0 -> DropletCounter ver 1.1.0
+
+1. Text (counting result of each color) width are enlarged.
+2. Pushbuttons and functions 'To Clipboard', 'Save Image' are added.
+3. Changed the method of unifying the image format. (Using im2uint16).
