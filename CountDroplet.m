@@ -109,24 +109,39 @@ VisRadius = app.CntRes.Radius + VisPitch;
 
 delete(findobj(app.UIAxes, 'Type', 'Line'))
 
-[XGrid, YGrid] = meshgrid(1:size(app.CropImg, 2), 1:size(app.CropImg, 1));
+% [XGrid, YGrid] = meshgrid(1:size(app.CropImg, 2), 1:size(app.CropImg, 1));
 
 RedValue = zeros(size(app.CntRes.Radius, 1), 1);
 GreenValue = zeros(size(app.CntRes.Radius, 1), 1);
 BlueValue = zeros(size(app.CntRes.Radius, 1), 1);
 
+RedRaw = app.CropImg(:,:,1);
+GreenRaw = app.CropImg(:,:,2);
+BlueRaw = app.CropImg(:,:,3);
+
 for i=1:size(app.CntRes.Radius, 1)
 
-    MaskCircle = (XGrid-app.CntRes.Centers(i,1)).^2 + (YGrid-app.CntRes.Centers(i,2)).^2 <= app.CntRes.Radius(i).^2;
+%     MaskCircle = (XGrid-app.CntRes.Centers(i,1)).^2 + (YGrid-app.CntRes.Centers(i,2)).^2 <= app.CntRes.Radius(i).^2;
+    MaskCircle_X = round(app.CntRes.Centers(i,1) - app.CntRes.Radius(i,1) * 0.5 : app.CntRes.Centers(i,1) + app.CntRes.Radius(i,1) * 0.5); 
+    MaskCircle_Y = round(app.CntRes.Centers(i,2) - app.CntRes.Radius(i,1) * 0.5 : app.CntRes.Centers(i,2) + app.CntRes.Radius(i,1) * 0.5); 
+    
+%     RedRaw = app.CropImg(:,:,1);
+%     GreenRaw = app.CropImg(:,:,2);
+%     BlueRaw = app.CropImg(:,:,3);
+%     RedValue(i, 1) = mean(RedRaw(MaskCircle));
+%     GreenValue(i, 1) = mean(GreenRaw(MaskCircle));
+%     BlueValue(i, 1) = mean(BlueRaw(MaskCircle));   
 
-    RedRaw = app.CropImg(:,:,1);
-    GreenRaw = app.CropImg(:,:,2);
-    BlueRaw = app.CropImg(:,:,3);
-    RedValue(i, 1) = mean(RedRaw(MaskCircle));
-    GreenValue(i, 1) = mean(GreenRaw(MaskCircle));
-    BlueValue(i, 1) = mean(BlueRaw(MaskCircle));   
+    MaskCircle_Y(MaskCircle_Y>size(RedRaw, 1)) = [];
+    MaskCircle_Y(MaskCircle_Y<=0) = [];
+    MaskCircle_X(MaskCircle_X>size(RedRaw, 2)) = [];
+    MaskCircle_X(MaskCircle_X<=0) = [];
+    
+    RedValue(i, 1) = mean(mean(RedRaw(MaskCircle_Y, MaskCircle_X)));
+    GreenValue(i, 1) = mean(mean(GreenRaw(MaskCircle_Y, MaskCircle_X)));
+    BlueValue(i, 1) = mean(mean(BlueRaw(MaskCircle_Y, MaskCircle_X)));   
 
-    progWindow.Value = progWindow.Value + 0.5/size(app.CntRes.Radius, 1);
+    progWindow.Value = progWindow.Value + 0.25/size(app.CntRes.Radius, 1);
     
     if progWindow.CancelRequested == 1
     
@@ -153,7 +168,7 @@ app.CntRes.CountColor = zeros(NoColors, 1);
 TextReset(app)
 app.CntRes.ColorIdx = zeros(size(RGBValue, 1), 1);
 
-progWindow.Value = 0.8;
+progWindow.Value = 0.55;
 progWindow.Message = 'Counting colors of Droplets...';
 
 if progWindow.CancelRequested == 1
@@ -198,7 +213,8 @@ for i=1:size(RGBValue, 1)
 
 end
 
-progWindow.Value = 0.9;
+progWindow.Value = 0.65;
+progWindow.Message = 'Drawing circles on the counted droplets...';
 
 if progWindow.CancelRequested == 1
     
@@ -220,22 +236,74 @@ else
 
 end
 
-Ang = 0:0.1:2*pi+0.1;
+Ang = 0:0.03:2*pi+0.1;
+app.ResultImg = app.TgtImg;
 
 for i = 1:size(app.CntRes.ColorIdx, 1)
+    
+    progWindow.Value = progWindow.Value + 0.3/size(app.CntRes.ColorIdx, 1);
+    
+    if progWindow.CancelRequested == 1
+    
+        SetButtonStatus(app, 'Loaded')
+        close(progWindow)
+        return;
 
-    xp = VisRadius(i, 1) .* cos(Ang);
-    yp = VisRadius(i, 1) .* sin(Ang);
+    end
+    
+    for iii = 1:2
+    
+        xp = (VisRadius(i, 1)-iii+1) .* cos(Ang);
+        yp = (VisRadius(i, 1)-iii+1) .* sin(Ang);
 
-    if app.CntRes.ColorIdx(i, 1) ~= 0
+        if app.CntRes.ColorIdx(i, 1) ~= 0
 
-        hold(app.UIAxes, 'on')
-        plot(app.UIAxes, VisCenters(i, 1) + xp, VisCenters(i, 2) + yp, 'Color', app.img.Color{app.CntRes.ColorIdx(i, 1)}(:, 1)')
-        hold(app.UIAxes, 'off')
+    %         hold(app.UIAxes, 'on')
+    %         plot(app.UIAxes, VisCenters(i, 1) + xp, VisCenters(i, 2) + yp,...
+    %             'Color', app.img.Color{app.CntRes.ColorIdx(i, 1)}(:, 1)')
+    %         hold(app.UIAxes, 'off')
+
+            visCirY = floor(VisCenters(i, 2)+yp);
+            visCirY(visCirY > size(app.ResultImg, 1)) = NaN;
+            visCirY(visCirY <= 0) = NaN;
+            visCirX = floor(VisCenters(i, 1)+xp);
+            visCirX(visCirX > size(app.ResultImg, 2)) = NaN;
+            visCirX(visCirX <= 0) = NaN;
+
+            for ii = 1:size(visCirY, 2)
+                
+            if progWindow.CancelRequested == 1
+    
+                SetButtonStatus(app, 'Loaded')
+                close(progWindow)
+                return;
+
+            end
+            
+            if isnan(visCirY(ii)) || isnan(visCirX(ii))
+                
+                continue
+                
+            end
+                
+                app.ResultImg(visCirY(ii), visCirX(ii), 1) =...
+                    uint16(app.img.Color{app.CntRes.ColorIdx(i, 1)}(1, 1)) * 2^8;
+                app.ResultImg(visCirY(ii), visCirX(ii), 2) =...
+                    uint16(app.img.Color{app.CntRes.ColorIdx(i, 1)}(2, 1)) * 2^8;
+                app.ResultImg(visCirY(ii), visCirX(ii), 3) =...
+                    uint16(app.img.Color{app.CntRes.ColorIdx(i, 1)}(3, 1)) * 2^8;
+
+            end
+            
+        end
 
     end
 
 end
+
+% imshow(app.ResultImg, 'Parent', app.UIAxes)
+objImg = findobj(app.UIAxes, 'Type', 'Image');
+objImg.CData = app.ResultImg;
 
 for i = 1:NoColors
 

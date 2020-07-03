@@ -1,5 +1,10 @@
 function SaveImage(app, status)
 
+progFig = app.DropletCounterUIFigure;
+progWindow = uiprogressdlg(progFig, 'Title', ' ', ...
+    'Message', 'Getting a result image...', 'Cancelable', 'off', 'Indeterminate', 'on');
+pause(0.5)
+
 tmpFig = figure;
 tmpFig.Visible = 0;
 tmpFig.WindowState = 'maximized';
@@ -46,12 +51,24 @@ if strcmp(status, 'SaveImage')
 
     end
     
+    progWindow.Message = 'Saving a result image';
     print(tmpFig, fullfile(pathName, fileName), '-dpng', '-r100')
     
 else
     
-    print(tmpFig, '-clipboard', '-dbitmap')
+    try
+    
+        print(tmpFig, '-clipboard', '-dbitmap')
+        uialert(progFig, 'Successfully copied to clipboard!', ' ', 'Icon', 'success')
+        
+    catch
+        
+        message = sprintf('Clipboard copy failed! \n Check system memory..');
+        uialert(progFig, message, ' ', 'Icon', 'error')
+        
+    end
     
 end
 
 close(tmpFig)
+close(progWindow)

@@ -1,3 +1,12 @@
+2020. 07. 02
+
+DropletCounter ver 1.1.0 -> DropletCounter ver 1.2.0
+
+1. Counting area changed : Full circle -> inner square (50% of radius).
+2. Drawing circle method changed : Line plot -> pixel change.
+3. To clipboard progress / warning / success windows are added.
+
+
 2020. 06. 29
 
 DropletCounter ver 1.0.0 -> DropletCounter ver 1.1.0

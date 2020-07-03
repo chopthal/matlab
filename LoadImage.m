@@ -27,6 +27,7 @@ try
         
     end
     
+    cla(app.UIAxes);
     imshow(app.TgtImg, 'Parent', app.UIAxes)
 
     app.ROICheckBox.Value = 0;
