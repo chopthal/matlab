@@ -1,3 +1,12 @@
+2020.07.16
+
+DropletCounter ver 1.2.0 -> D-Finder ver 1.2.0 -> D-Finder ver 1.2.1
+
+1. Renaming the software : DropletCounter -> D-Finder
+2. Add icon (resized to square)
+3. Main window name : DropletCounterUIFigure -> DFinderUIFigure
+	- CountDroplet, app1, app2.
+
 2020. 07. 02
 
 DropletCounter ver 1.1.0 -> DropletCounter ver 1.2.0

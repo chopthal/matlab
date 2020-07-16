@@ -1,6 +1,6 @@
 function SaveData(app)
 
-progFig = app.DropletCounterUIFigure;
+progFig = app.DFinderUIFigure;
 progWindow = uiprogressdlg(progFig, 'Title', 'Please Wait', ...
     'Message', 'Saving Counted Results...', 'Cancelable', 'on');
 pause(0.5)

@@ -1,6 +1,6 @@
 function SaveImage(app, status)
 
-progFig = app.DropletCounterUIFigure;
+progFig = app.DFinderUIFigure;
 progWindow = uiprogressdlg(progFig, 'Title', ' ', ...
     'Message', 'Getting a result image...', 'Cancelable', 'off', 'Indeterminate', 'on');
 pause(0.5)

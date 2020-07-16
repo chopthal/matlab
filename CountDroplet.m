@@ -1,6 +1,6 @@
 function CountDroplet(app)
 
-progFig = app.DropletCounterUIFigure;
+progFig = app.DFinderUIFigure;
 progWindow = uiprogressdlg(progFig, 'Title', 'Please Wait', ...
     'Message', 'Counting the Droplets...', 'Cancelable', 'on');
 pause(0.5)
