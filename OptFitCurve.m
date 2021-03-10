@@ -225,7 +225,7 @@ resultMat(:, 2) = tmpKon;
 resultMat(:, 5) = resultMat(:, 3) ./ resultMat(:, 2); % KD
 resultMat(:, 6) = chi2;
 
-RASOrg = 0;
+RASOrg = zeros(size(rawData, 2), 1);
 
 for i = 1:size(rawData, 2)
     
@@ -240,15 +240,17 @@ for i = 1:size(rawData, 2)
         * (1 - exp(-(resultMat(i, 2) * rawData(i).Concentration + resultMat(i, 3))...
         .* rawData(i).Association.X));
     
-    fitCurve(i).ResiDisso = abs(fitCurve(i).fitDissoY - rawData(i).Dissociation.Y);
-    fitCurve(i).ResiAsso = abs(fitCurve(i).fitAssoY - rawData(i).Association.Y);
+%     fitCurve(i).ResiDisso = abs(fitCurve(i).fitDissoY - rawData(i).Dissociation.Y);
+%     fitCurve(i).ResiAsso = abs(fitCurve(i).fitAssoY - rawData(i).Association.Y);
+    fitCurve(i).ResiDisso = fitCurve(i).fitDissoY - rawData(i).Dissociation.Y;
+    fitCurve(i).ResiAsso = fitCurve(i).fitAssoY - rawData(i).Association.Y;
     fitCurve(i).ResAbsSum = sum(fitCurve(i).ResiDisso, 'all')...
         + sum(fitCurve(i).ResiAsso, 'all');
     
-    RASOrg = RASOrg + fitCurve(i).ResAbsSum;
+    RASOrg(i, 1) = RASOrg(i, 1) + fitCurve(i).ResAbsSum;
     
 end
 
 uVal = CalcUValue(rawData, fitCurve, fitProp, resultMat, RASOrg);
 
-% disp(uVal)
+disp(uVal)
