@@ -21,10 +21,12 @@ for i = 1:size(rawData, 2)
     eval(sprintf('fcnDissoRes = fcnDisso{i}(%s);', xVarDisso{i}));
     eval(sprintf('fcnAssoRes = fcnAsso{i}(%s);', xVarAsso{i}));
     
-    rawChi2(i) = fcnDissoSqSum(i) / size(fcnDissoRes, 1);
+%     rawChi2(i) = fcnDissoSqSum(i) / size(fcnDissoRes, 1);    
+    rawChi2(i) = fcnDissoSqSum(i) / size(fcnDissoRes, 1) + fcnAssoSqSum(i) / size(fcnAssoRes, 1);
     
 end
 
 chi2 = mean(rawChi2, 'all');
 
-f = sum(fcnDissoSqSum) + sum(fcnAssoSqSum);
+% f = sum(fcnDissoSqSum) + sum(fcnAssoSqSum);
+f = chi2;

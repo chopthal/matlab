@@ -125,7 +125,7 @@ for i = 1:size(rawData, 2)
         sprintf('rawDataAssoX{%d})) + %s - rawDataAssoY{%d}', i, BIStr, i)...
         );
     
-    fitFunc(i).Association = funStr;   
+    fitFunc(i).Association = funStr;
     
     tmpMat = [fitProp(i).RmaxInit fitProp(i).KoffInit fitProp(i).KonInit fitProp(i).BIInit];
     initValMat = [initValMat; tmpMat];
@@ -225,7 +225,9 @@ resultMat(:, 2) = tmpKon;
 resultMat(:, 5) = resultMat(:, 3) ./ resultMat(:, 2); % KD
 resultMat(:, 6) = chi2;
 
+RSOrg = zeros(size(rawData, 2), 1);
 RASOrg = zeros(size(rawData, 2), 1);
+RSSOrg = zeros(size(rawData, 2), 1);
 
 for i = 1:size(rawData, 2)
     
@@ -244,13 +246,22 @@ for i = 1:size(rawData, 2)
 %     fitCurve(i).ResiAsso = abs(fitCurve(i).fitAssoY - rawData(i).Association.Y);
     fitCurve(i).ResiDisso = fitCurve(i).fitDissoY - rawData(i).Dissociation.Y;
     fitCurve(i).ResiAsso = fitCurve(i).fitAssoY - rawData(i).Association.Y;
-    fitCurve(i).ResAbsSum = sum(fitCurve(i).ResiDisso, 'all')...
+    fitCurve(i).ResSum = sum(fitCurve(i).ResiDisso, 'all')...
         + sum(fitCurve(i).ResiAsso, 'all');
+    fitCurve(i).ResAbsSum = sum(abs(fitCurve(i).ResiDisso), 'all')...
+        + sum(abs(fitCurve(i).ResiAsso), 'all');
+    fitCurve(i).ResSqrSum = sum(fitCurve(i).ResiDisso.^2, 'all')...
+        + sum(fitCurve(i).ResiAsso.^2, 'all');
     
+    
+    RSOrg(i, 1) = RSOrg(i, 1) + fitCurve(i).ResSum;
     RASOrg(i, 1) = RASOrg(i, 1) + fitCurve(i).ResAbsSum;
+    RSSOrg(i, 1) = RASOrg(i, 1) + fitCurve(i).ResAbsSum;
     
 end
 
-uVal = CalcUValue(rawData, fitCurve, fitProp, resultMat, RASOrg);
+uVal = CalcUValue(rawData, fitCurve, fitProp, resultMat, RSOrg, RASOrg, RSSOrg);
+% uVal = CalcUValue(rawData, fitCurve, fitProp, resultMat, RSOrg);
+% uVal = CalcUValue(rawData, fitCurve, fitProp, resultMat, RASOrg);
 
 disp(uVal)
