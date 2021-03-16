@@ -126,6 +126,8 @@ for i = 1:size(rawData, 2)
         );
     
     fitFunc(i).Association = funStr;
+    disp(fitFunc(i).Association)
+    disp(fitFunc(i).Dissociation)
     
     tmpMat = [fitProp(i).RmaxInit fitProp(i).KoffInit fitProp(i).KonInit fitProp(i).BIInit];
     initValMat = [initValMat; tmpMat];
@@ -186,9 +188,13 @@ for i = 1:size(fitFunc, 2)
     
 end
 
+disp(x0)
 [x, fval] = fmincon(@FitCurve, x0, A, b, Aeq, beq, lb, ub);
+% TODO : constant variable should not be fitted.
+% constant variable should be reduced from x
 
 resultMat = nan(size(varNoAcc));
+% TODO : constant variable should be replace to constant var (line 225)
 
 for i = 1:size(varNoAcc, 1)
     
@@ -215,6 +221,9 @@ for i = 1:size(varNoAcc, 1)
     end
     
 end
+
+resultMat(:, 1) = [16.59; 28.84; 41.33; 53.08; 67.50];
+% but why last var, BI is succesfully get?
 
 % Change Koff, Kon row order
 tmpKon = resultMat(:, 3);
