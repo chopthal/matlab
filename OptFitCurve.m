@@ -14,6 +14,7 @@ varNum.Kon = 1;
 varNum.BI = 1;
 initValMat = [];
 fitCurve = struct;
+constIdx = [];
 
 for i = 1:size(rawData, 2)
     
@@ -23,16 +24,20 @@ for i = 1:size(rawData, 2)
         varRmaxStr = 'Rmax1';
         varNum.Rmax = i;
         
+        if i == 1
+            constIdx(end+1) = 1;
+        end
+        
     elseif strcmp(app.RmaxDropDown.Value, 'Global')
         
         RmaxStr = 'Rmax1';
-        varRmaxStr = RmaxStr;
+        varRmaxStr = RmaxStr;        
         
     elseif strcmp(app.RmaxDropDown.Value, 'Local')
         
         RmaxStr = sprintf('Rmax%d', i);
         varRmaxStr = RmaxStr;
-        varNum.Rmax = i;
+        varNum.Rmax = i;        
         
     end
 
@@ -47,6 +52,10 @@ for i = 1:size(rawData, 2)
             varKoffStr, fitProp(i).R0Init, fitProp(i).KoffInit, i, i);
         fitFunc(i).Dissociation = tmpStr;
         varNum.Koff = i;
+        
+        if i == 1
+            constIdx(end+1) = 3;
+        end
 
     elseif strcmp(app.KoffDropDown.Value, 'Global')
         
@@ -79,6 +88,10 @@ for i = 1:size(rawData, 2)
         varKonStr = 'Kon1';
         varNum.Kon = i;
         
+        if i == 1
+            constIdx(end+1) = 2;
+        end
+        
     elseif strcmp(app.KonDropDown.Value, 'Global')
         
         KonStr = 'Kon1';
@@ -97,6 +110,10 @@ for i = 1:size(rawData, 2)
         BIStr = num2str(fitProp(i).BIInit);
         varBIStr = 'BI1';
         varNum.BI = i;
+        
+        if i == 1
+            constIdx(end+1) = 4;
+        end
         
     elseif strcmp(app.BIDropDown.Value, 'Global')
         
@@ -222,7 +239,8 @@ for i = 1:size(varNoAcc, 1)
     
 end
 
-resultMat(:, 1) = [16.59; 28.84; 41.33; 53.08; 67.50];
+
+% resultMat(:, 1) = [16.59; 28.84; 41.33; 53.08; 67.50];
 % but why last var, BI is succesfully get?
 
 % Change Koff, Kon row order
@@ -230,6 +248,23 @@ tmpKon = resultMat(:, 3);
 tmpKoff = resultMat(:, 2);
 resultMat(:, 3) = tmpKoff;
 resultMat(:, 2) = tmpKon;
+
+disp(constIdx)
+varStr = {'RmaxInit', 'KonInit', 'KoffInit', 'BIInit'};
+
+if ~isempty(constIdx)
+
+    for ii = 1:size(fitFunc, 2)
+
+        for i = 1:size(constIdx, 2)
+
+            resultMat(ii, constIdx(i)) = fitProp(ii).(varStr{constIdx(i)});
+
+        end
+
+    end
+    
+end
 
 resultMat(:, 5) = resultMat(:, 3) ./ resultMat(:, 2); % KD
 resultMat(:, 6) = chi2;
