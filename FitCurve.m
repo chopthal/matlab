@@ -13,6 +13,7 @@ for i = 1:size(rawData, 2)
     rawDataAssoY{i} = rawData(i).Association.Y;
     rawDataConcen{i} = rawData(i).Concentration;
     
+    % fcn = fit curve - raw curve
     eval(sprintf('fcnDisso{i} = %s;', fitFunc(i).Dissociation));
     eval(sprintf('fcnAsso{i} = %s;', fitFunc(i).Association));    
     eval(sprintf('fcnDissoSqSum(i) = sum(fcnDisso{i}(%s).^2);', xVarDisso{i}));
