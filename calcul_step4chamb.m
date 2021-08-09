@@ -1,30 +1,43 @@
-% 2020. 09. 29
+% 2021. 08. 04
 
-% iMeasy-m_v1.3.0 -> iMeasy_Multi_v1.0.0
-
-% handles -> app (but no handles)
+% iMeasy_Multi_v1.0.0 -> easySCAN_v2.0.0
 
 function calcul_step4chamb
 
 % global StageList NoofChip step_per_um_X step_per_um_Y frame_W_um frame_H_um...    
-%     Z_L_um im_W_um im_H_um C_Manual_X_um C_Manual_Y_um MAIN_handles...
+%     Z_L_um im_W_um im_H_um C_Manual_X_um C_Manual_Y_um...
 %     step_per_um_Z C_Manual_Z_um MovDiff_um;
 
-global StageList NoofChip step_per_um_X step_per_um_Y frame_W_um frame_H_um...    
-    Z_L_um im_W_um im_H_um C_Manual_X_um C_Manual_Y_um...
-    step_per_um_Z C_Manual_Z_um MovDiff_um;
-     
-% handles = MAIN_handles;
+global step_per_um_X step_per_um_Y...
+ Z_L_um C_Manual_X_um C_Manual_Y_um...
+ step_per_um_Z C_Manual_Z_um MovDiff_um ChipInform...
+ step_Coarse_X_um step_Medium_X_um step_Fine_X_um...
+ step_Coarse_Y_um step_Medium_Y_um step_Fine_Y_um...
+ max_step_X max_step_Y max_step_Z...
+ frame_W_um frame_H_um
 
-for i = 1:length(StageList)
-    
-    Stage = StageList{i};
-    
-    eval(sprintf(...
-        'global step_Coarse_%s_um step_Medium_%s_um step_Fine_%s_um max_step_%s;',...
-        Stage, Stage, Stage, Stage));
-    
-end
+% frame_W_um = 86000;
+% frame_H_um = 128000;
+
+currentChipInform = ChipInform(1);
+
+% Default ROI : Droplet chip (non-square, 1920x1200)
+% im_W_um = ChipInform(2).ROI(3) * Pixel2um;
+% im_H_um = ChipInform(2).ROI(4) * Pixel2um;
+
+observeArea = [currentChipInform.ChamberRange{chambNo, 1}(2) - currentChipInform.ChamberRange{chambNo, 1}(1),...
+    currentChipInform.ChamberRange{chambNo, 2}(2) - currentChipInform.ChamberRange{chambNo, 2}(1)]; % [X, Y]
+gapFrame = observeArea ./ (currentChipInform.FrameNum - 1); % [X, Y]
+
+% for i = 1:length(StageList)
+%     
+%     Stage = StageList{i};
+%     
+%     eval(sprintf(...
+%         'global step_Coarse_%s_um step_Medium_%s_um step_Fine_%s_um max_step_%s;',...
+%         Stage, Stage, Stage, Stage));
+%     
+% end
 
 step_per_um_X = max_step_X/(frame_W_um-MovDiff_um);
 step_per_um_Y = max_step_Y/(frame_H_um-MovDiff_um);
@@ -42,12 +55,18 @@ fprintf('Frame width = %d\n', frame_W_um)
 fprintf('Frame height = %d\n', frame_H_um)
 fprintf('Z Length = %d\n', Z_L_um)
 
-step_Coarse_X_um = im_W_um*5;
-step_Medium_X_um = im_W_um;
-step_Fine_X_um = im_W_um*0.1;
-step_Coarse_Y_um = im_H_um*5;
-step_Medium_Y_um = im_H_um;
-step_Fine_Y_um = im_H_um*0.1;
+% step_Coarse_X_um = im_W_um*5;
+% step_Medium_X_um = im_W_um;
+% step_Fine_X_um = im_W_um*0.1;
+% step_Coarse_Y_um = im_H_um*5;
+% step_Medium_Y_um = im_H_um;
+% step_Fine_Y_um = im_H_um*0.1;
+step_Coarse_X_um = gapFrame(1)*5;
+step_Medium_X_um = gapFrame(1);
+step_Fine_X_um = gapFrame(1)*0.1;
+step_Coarse_Y_um = gapFrame(2)*5;
+step_Medium_Y_um = gapFrame(2);
+step_Fine_Y_um = gapFrame(2)*0.1;
 step_Coarse_Z_um = 100;
 step_Medium_Z_um = 10;
 step_Fine_Z_um = 10/3;
@@ -63,21 +82,19 @@ fprintf('Medium Z = %d\n', step_Medium_Z_um)
 fprintf('Fine Z = %d\n', step_Fine_Z_um)
 
 
-for i = 1:NoofChip
-    
-    eval(sprintf('global C%d_NoofChamb;', i));
-    
-    eval(sprintf('C_NoofChamb = C%d_NoofChamb;', i));
-    
-    for j = 1:C_NoofChamb
-        
-        eval(sprintf(...
-            'global C%d_Chamb%d_X_um C%d_Chamb%d_Y_um;', i, j, i, j));
-        
-        
-    end
-    
-end
+% for i = 1:NoofChip
+%     
+%     eval(sprintf('global C%d_NoofChamb;', i));    
+%     eval(sprintf('C_NoofChamb = C%d_NoofChamb;', i));
+%     
+%     for j = 1:C_NoofChamb
+%         
+%         eval(sprintf(...
+%             'global C%d_Chamb%d_X_um C%d_Chamb%d_Y_um;', i, j, i, j));        
+%         
+%     end
+%     
+% end
         
 C_Manual_X_um = [0, frame_W_um];
 C_Manual_Y_um = [0, frame_H_um];

@@ -1,25 +1,24 @@
-% 2021. 03. 18
+% 2021. 08. 04
 
-% iMeasy_Multi_v1.0.0 -> easySCAN_v1_1_3
+% easySCAN_v1_1_3 -> easySCAN_v2_0_0
 
-% Fast capture process.
+% 
 
 function Stage_Control(app, stage, dir, inq_um)
 
-% startMove = tic;
-
 % global Main_port NoofChip cur_Chamb cur_Chip Run_flag...
-%     AF_flag Z_BM cur_Channel Z_diff Z_L_um MovDiff_um Reset_flag StageFlag
-
-global Main_port NoofChip cur_Chamb cur_Chip Run_flag...
-    AF_flag Z_BM cur_Channel Z_diff Z_L_um MovDiff_um Reset_flag StageFlag CamInform
+%     AF_flag Z_BM cur_Channel Z_diff Z_L_um MovDiff_um Reset_flag StageFlag CamInform
+global Main_port CurrentChip CurrentChamber Run_flag...
+    AF_flag Z_BM cur_Channel Z_diff Z_L_um MovDiff_um Reset_flag StageFlag CamInform ChipInform...
+    X_abs_um Y_abs_um Z_abs_um X_curDir Y_curDir Z_curDir step_per_um_X step_per_um_Y step_per_um_Z...
+    step_Coarse_X step_Medium_X step_Fine_X step_Coarse_Y step_Medium_Y step_Fine_Y step_Coarse_Z step_Medium_Z step_Fine_Z
 
 StageFlag = 1;
 
-eval(sprintf('global %s_abs_um;', stage));
-eval(sprintf('global %s_curDir;', stage));
-eval(sprintf('curDir = %s_curDir;', stage));
-eval(sprintf('global step_per_um_%s;', stage));
+% eval(sprintf('global %s_abs_um;', stage));
+% eval(sprintf('global %s_curDir;', stage));
+% eval(sprintf('curDir = %s_curDir;', stage));
+% eval(sprintf('global step_per_um_%s;', stage));
 
 backLash_X_um = 0;
 backLash_Y_um = 0;
@@ -42,7 +41,7 @@ if isempty(inq_um)
         
     end
     
-    eval(sprintf('global step_%s_%s_um;', StageUnit, stage));
+    % eval(sprintf('global step_%s_%s_um;', StageUnit, stage));
     eval(sprintf('inq_um = step_%s_%s_um;', StageUnit, stage));
     
 end
@@ -55,20 +54,47 @@ end
 
 if strcmp(stage, 'X')||strcmp(stage, 'Y')
 
-    if cur_Chip==(NoofChip+1)
+    if CurrentChip==(size(ChipInform, 2)+1) % Manual
 
-        eval(sprintf('global C_Manual_%s_um;', stage));
-        C_Chamb_stg = strcat('C_Manual_', stage, '_um');
+        if strcmp(stage, 'X')
+        
+            stg_min_um = C_Manual_X_um(1);
+            stg_max_um = C_Manual_X_um(2);
+            
+        elseif strcmp(stage, 'Y')
+            
+            stg_min_um = ChipInform(CurrentChip).ChamberRange{CurrentChamber, 2}(1);
+            stg_max_um = ChipInform(CurrentChip).ChamberRange{CurrentChamber, 2}(2);
+            
+        end
+
+        % eval(sprintf('global C_Manual_%s_um;', stage));
+        % C_Chamb_stg = strcat('C_Manual_', stage, '_um');
+        % eval(sprintf('stg_min_um = %s(1);', C_Chamb_stg));
+        % eval(sprintf('stg_max_um = %s(2);', C_Chamb_stg)); 
 
     else
 
-        C_Chamb_stg = strcat('C', num2str(cur_Chip), '_Chamb', num2str(cur_Chamb), '_', stage, '_um');
-        eval(sprintf('global %s;', C_Chamb_stg));            
+        if strcmp(stage, 'X')
+        
+            stg_min_um = ChipInform(CurrentChip).ChamberRange{CurrentChamber, 1}(1);
+            stg_max_um = ChipInform(CurrentChip).ChamberRange{CurrentChamber, 1}(2);
+            
+        elseif strcmp(stage, 'Y')
+            
+            stg_min_um = ChipInform(CurrentChip).ChamberRange{CurrentChamber, 2}(1);
+            stg_max_um = ChipInform(CurrentChip).ChamberRange{CurrentChamber, 2}(2);
+            
+        end
 
-    end        
+    end
 
-    eval(sprintf('stg_min_um = %s(1);', C_Chamb_stg));
-    eval(sprintf('stg_max_um = %s(2);', C_Chamb_stg)); 
+%         C_Chamb_stg = strcat('C', num2str(CurrentChip), '_Chamb', num2str(CurrentChamber), '_', stage, '_um');
+%         eval(sprintf('global %s;', C_Chamb_stg));
+
+%     eval(sprintf('stg_min_um = %s(1);', C_Chamb_stg));
+%     eval(sprintf('stg_max_um = %s(2);', C_Chamb_stg)); 
+    
 
 elseif strcmp(stage, 'Z')
 
@@ -151,32 +177,23 @@ end
 
 eval(sprintf('set(app.edit_%s, ''Value'', %s_abs_um);', stage, stage));    
 
-if cur_Chip==(NoofChip+1)
+if CurrentChip==(size(ChipInform, 2)+1)
         
     disp_Manual_inform(app);
 
 else
 
     str1 = get(app.popupmenu_chip, 'Value');
-    chambName = idx2name(cur_Chamb);
+    chambName = idx2name(CurrentChamber);
     eval(sprintf('str2 = ''Chamber: %s'';', chambName));
     stStr = sprintf('Chip: %s,   %s', str1, str2);
     set(app.text_Status, 'Text', stStr)
     disp_Manual_inform_canvas(app)
 
 end         
-
-% if (Run_flag==0)&&(AF_flag==0)&&(Reset_flag==0)
-% 
-%     
-% end
        
 eval(sprintf('%s_curDir = dir;', stage));
 
 StageFlag = 0;
-
-% timeMove = toc(startMove);
-%             
-% fprintf('Move time = %d\n', timeMove)
 
 CamInform.Pos.Tic = tic; % 위치 이동 완료 후 코드 삽입

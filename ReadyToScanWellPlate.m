@@ -1,14 +1,13 @@
-% 2020. 10. 21
+% 2021.08.04
+% iMeasy_Multi_v1.0.0 -> easySCAN_v2.0.0
 
-% iMeasy_Multi_v1.0.0
+% Scan function name is changed : StartScan -> ScanWellPlate
+% ReadyToScan function name is changed to ReadyToScanWellPlate
 
-% function ReadyToScan(DataStruct, AppObject, hidFig)
-function ReadyToScan(mainApp, DataStruct, AppObject, hidFig)
-
-% global MAIN_handles
+% function ReadyToScan(mainApp, DataStruct, AppObject, hidFig)
+function ReadyToScanWellPlate(mainApp, DataStruct, AppObject, hidFig)
 
 delete(AppObject)
-% set(mainApp.pushbutton_Stop, 'Enable', 'On');
    
 grpList = fieldnames(DataStruct);
 chList = [];
@@ -46,5 +45,5 @@ if isempty(selTogNum)
 
 end
 
-% startScan(selTogStr, selTogNum, hidFig, grpName)
-startScan(mainApp, selTogStr, selConStr, selTogNum, hidFig, grpName)
+% startScan(mainApp, selTogStr, selConStr, selTogNum, hidFig, grpName)
+ScanWellPlate(mainApp, selTogStr, selConStr, selTogNum, hidFig, grpName)

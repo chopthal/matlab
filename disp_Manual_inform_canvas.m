@@ -1,26 +1,24 @@
-% 2020. 09. 29
+% 2021. 08. 09
 
-% iMeasy-m_v1.1.0 -> iMeasy_Multi_v1.0.0
+% iMeasy_Multi_v1.0.0 -> easySCAN_v2.0.0
 
-% handles -> app
+% 
 
-% function disp_Manual_inform_canvas
 function disp_Manual_inform_canvas(app)
 
-% global MAIN_app X_abs_um Y_abs_um step_per_um_X step_per_um_Y cur_Chamb cur_Chip
-global X_abs_um Y_abs_um step_per_um_X step_per_um_Y cur_Chamb cur_Chip
+% global X_abs_um Y_abs_um step_per_um_X step_per_um_Y cur_Chamb cur_Chip
+global X_abs_um Y_abs_um CurrentChamber CurrentChip ChipInform
 
-eval(sprintf('global C%d_Chamb%d_X_um C%d_Chamb%d_Y_um', cur_Chip, cur_Chamb, cur_Chip, cur_Chamb));
+% eval(sprintf('global C%d_Chamb%d_X_um C%d_Chamb%d_Y_um', cur_Chip, cur_Chamb, cur_Chip, cur_Chamb));
+% 
+% eval(sprintf('C_Chamb_X_um = C%d_Chamb%d_X_um;', cur_Chip, cur_Chamb));
+% eval(sprintf('C_Chamb_Y_um = C%d_Chamb%d_Y_um;', cur_Chip, cur_Chamb));
 
-% app = MAIN_app;
-
-eval(sprintf('C_Chamb_X_um = C%d_Chamb%d_X_um;', cur_Chip, cur_Chamb));
-eval(sprintf('C_Chamb_Y_um = C%d_Chamb%d_Y_um;', cur_Chip, cur_Chamb));
+C_Chamb_X_um = ChipInform(CurrentChip).Range{CurrentChamber, 1};
+C_Chamb_Y_um = ChipInform(CurrentChip).Range{CurrentChamber, 2};
 
 if (C_Chamb_X_um(2) - C_Chamb_X_um(1) == 0) || (C_Chamb_Y_um(2) - C_Chamb_Y_um(1) == 0)
-    
-%     cla(app.axes_Canvas)
-%     set(app.axes_Canvas, 'Visible', 'off')
+
     cla(app.axes_Canvas)
     set(app.axes_Canvas, 'Visible', 'off')
     return;

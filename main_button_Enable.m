@@ -1,12 +1,15 @@
-% 2021. 01. 12
+% 2021. 08. 09
 
-% iMeasy_Multi_v1.0.3 -> easySCAN_v1.1.0
+% easySCAN_v1.1.0 -> easySCAN_v2.0.0
 
-% Delete AF interval edit
+% 
 
 function main_button_Enable(app, on_off)
 
-global cur_Chip NoofChip NoofChannel;
+% global cur_Chip NoofChip NoofChannel;
+global CurrentChip ChipInform NoofChannel;
+
+NoofChip = size(ChipInform, 2);
 
 set(app.pushbutton_connect, 'Enable', on_off);
 
@@ -41,15 +44,18 @@ end
 
 set(app.popupmenu_chip, 'Enable', on_off);
 
-if cur_Chip~=(NoofChip+1)
+% if cur_Chip~=(NoofChip+1)
+if chipNo~=(NoofChip+1)
     
-    eval(sprintf('global C%d_NoofChamb;', cur_Chip));
+%     eval(sprintf('global C%d_NoofChamb;', cur_Chip));
+%     eval(sprintf('C_NoofChamb = C%d_NoofChamb;', cur_Chip));
+    C_NoofChamb = CurrentChip(chipNo).ChambNum(1) * CurrentChip(chipNo).ChambNum(2);
     
-    eval(sprintf('C_NoofChamb = C%d_NoofChamb;', cur_Chip));
-    
-    for i = 1:C_NoofChamb
+%     for i = 1:C_NoofChamb
+    for chambNo = 1:C_NoofChamb
         
-        toggleStr = sprintf('togglebutton_C%d_Chamb%d', cur_Chip, i);
+%         toggleStr = sprintf('togglebutton_C%d_Chamb%d', cur_Chip, i);
+        toggleStr = sprintf('togglebutton_C%d_Chamb%d', CurrentChip, chambNo);
         set(app.(toggleStr), 'Enable', on_off)
         
     end
@@ -69,14 +75,12 @@ set(app.pushbutton_Z_out, 'Enable', on_off);
 
 set(app.edit_Range, 'Enable', on_off);
 set(app.RangeLabel, 'Enable', on_off);
-% set(app.edit_Interval, 'Enable', on_off);
-% set(app.IntervalLabel, 'Enable', on_off);
-
 set(app.DefaultButton, 'Enable', on_off);
 
 if strcmp(on_off, 'on')
     
-    if cur_Chip == 1
+%     if cur_Chip == 1
+    if CurrentChip == 1
         
         set(app.checkbox_withAF, 'Enable', 'on');
         set(app.pushbutton_RunSave, 'Enable', 'on');
