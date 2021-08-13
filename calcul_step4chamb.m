@@ -19,14 +19,19 @@ global step_per_um_X step_per_um_Y...
 % frame_W_um = 86000;
 % frame_H_um = 128000;
 
-currentChipInform = ChipInform(1);
+chipNo = 1;
+chambNo = 1;
+
+currentChipInform = ChipInform(chipNo);
 
 % Default ROI : Droplet chip (non-square, 1920x1200)
 % im_W_um = ChipInform(2).ROI(3) * Pixel2um;
 % im_H_um = ChipInform(2).ROI(4) * Pixel2um;
 
-observeArea = [currentChipInform.ChamberRange{chambNo, 1}(2) - currentChipInform.ChamberRange{chambNo, 1}(1),...
-    currentChipInform.ChamberRange{chambNo, 2}(2) - currentChipInform.ChamberRange{chambNo, 2}(1)]; % [X, Y]
+observeArea = [currentChipInform.ChamberRange{chambNo, 1}(2) -...
+    currentChipInform.ChamberRange{chambNo, 1}(1),...
+    currentChipInform.ChamberRange{chambNo, 2}(2) -...
+    currentChipInform.ChamberRange{chambNo, 2}(1)]; % [X, Y]
 gapFrame = observeArea ./ (currentChipInform.FrameNum - 1); % [X, Y]
 
 % for i = 1:length(StageList)

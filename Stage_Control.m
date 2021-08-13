@@ -9,15 +9,18 @@ function Stage_Control(app, stage, dir, inq_um)
 % global Main_port NoofChip cur_Chamb cur_Chip Run_flag...
 %     AF_flag Z_BM cur_Channel Z_diff Z_L_um MovDiff_um Reset_flag StageFlag CamInform
 global Main_port CurrentChip CurrentChamber Run_flag...
-    AF_flag Z_BM cur_Channel Z_diff Z_L_um MovDiff_um Reset_flag StageFlag CamInform ChipInform...
-    X_abs_um Y_abs_um Z_abs_um X_curDir Y_curDir Z_curDir step_per_um_X step_per_um_Y step_per_um_Z...
-    step_Coarse_X step_Medium_X step_Fine_X step_Coarse_Y step_Medium_Y step_Fine_Y step_Coarse_Z step_Medium_Z step_Fine_Z
+    AF_flag Z_BM cur_Channel Z_diff Z_L_um MovDiff_um Reset_flag StageFlag...
+    CamInform ChipInform X_abs_um Y_abs_um Z_abs_um X_curDir Y_curDir...
+    Z_curDir step_per_um_X step_per_um_Y step_per_um_Z step_Coarse_X_um...
+    step_Medium_X_um step_Fine_X_um step_Coarse_Y_um step_Medium_Y_um...
+    step_Fine_Y_um step_Coarse_Z_um step_Medium_Z_um step_Fine_Z_um...
+    C_Manual_X_um C_Manual_Y_um
 
 StageFlag = 1;
 
 % eval(sprintf('global %s_abs_um;', stage));
 % eval(sprintf('global %s_curDir;', stage));
-% eval(sprintf('curDir = %s_curDir;', stage));
+eval(sprintf('curDir = %s_curDir;', stage));
 % eval(sprintf('global step_per_um_%s;', stage));
 
 backLash_X_um = 0;
@@ -63,8 +66,8 @@ if strcmp(stage, 'X')||strcmp(stage, 'Y')
             
         elseif strcmp(stage, 'Y')
             
-            stg_min_um = ChipInform(CurrentChip).ChamberRange{CurrentChamber, 2}(1);
-            stg_max_um = ChipInform(CurrentChip).ChamberRange{CurrentChamber, 2}(2);
+            stg_min_um = C_Manual_Y_um(1);
+            stg_max_um = C_Manual_Y_um(2);
             
         end
 

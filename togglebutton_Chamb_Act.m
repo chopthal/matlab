@@ -19,8 +19,8 @@ global CurrentChamber tog_in_color tog_out_color X_abs_um...
 % eval(sprintf('C_Chamb_Y_um = C%d_Chamb%d_Y_um(1);', cur_Chip, Chamb_No));
 CurrentChamber = chambNo;
 
-C_Chamb_X_um = currentChipInform.ChamberRange{chambNo, 1};
-C_Chamb_Y_um = currentChipInform.ChamberRange{chambNo, 2};
+C_Chamb_X_um = currentChipInform.ChamberRange{chambNo, 1}(1);
+C_Chamb_Y_um = currentChipInform.ChamberRange{chambNo, 2}(1);
 C_NoofChamb = currentChipInform.ChamberNum(1) * currentChipInform.ChamberNum(2);
 
 for i = 1:C_NoofChamb

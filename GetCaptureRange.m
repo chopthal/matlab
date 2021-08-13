@@ -1,6 +1,6 @@
 function [frameNumber, chamberRange] =...
     GetCaptureRange(camROI, pixel2um, chamberArea, observeRate,...
-    overlabRate, chamberNum, measuredCoordinate)
+    overlabRate, chamberNum, measuredCoordinate, chipType)
 
 frameSizeUm = [camROI(3), camROI(4)] * pixel2um;                
 observeArea = frameSizeUm; % width, height
@@ -36,32 +36,46 @@ for i=1:4
 
 end
 
-if node2 == 0
-    chamberGapHor = [0 0]; % [X, Y]
-elseif node4 == 0
-    chamberGapHor = node2-node1;
-else        
+% Center of each node.
+node1 = node1/4;
+node2 = node2/4;
+node3 = node3/4;
+node4 = node4/4;
+
+if strcmp(chipType, 'WellPlate') % 4 nodes & rect position (vertical, horizontal)
+    
     chamberGapHor = (node2 - node1 + node4 - node3) /...
         (chamberNum(1, 1) - 1) / 2;
-end
-
-if node3 == 0
-    chamberGapVer = [0 0];
-elseif node4 == 0
-    chamberGapVer = node3-node1;
-else
     chamberGapVer = (node3 - node1 + node4 - node2) /...
         (chamberNum(1, 2) - 1) / 2;
+    
+elseif strcmp(chipType, 'Droplet') % 1~4 nodes & vertical only position (nodeNum = chamberNum)
+    
+    chamberGapHor = [0 0];
+    
+    if node2 == 0
+        chamberGapVer = [0 0];
+    elseif node3 == 0        
+        chamberGapVer = node2 - node1;
+    elseif node4 == 0        
+        chamberGapVer = (node2 - node1 + node3 - node2) / 2;
+    else        
+        chamberGapVer = (node2 - node1 + node4 - node3) / 2;
+    end
+    
 end
 
 % TODO : find node1 center coordinat
-nodeCoorSum = [];
-for i = 0:3
-    nodeCoorSum(end+1, :) = sum(measuredCoordinate(i*4+1:i*4+4, :), 1);
-end
 
-chamberCenter = [sum(nodeCoorSum(:, 1), 'all') / sum(nodeCoorSum(:, 1)~=0, 'all'),...
-    sum(nodeCoorSum(:, 2), 'all') / sum(nodeCoorSum(:, 2)~=0, 'all')];
+chamberCenter = node1;
+
+% nodeCoorSum = [];
+% for i = 0:3
+%     nodeCoorSum(end+1, :) = sum(measuredCoordinate(i*4+1:i*4+4, :), 1);
+% end
+
+% chamberCenter = [sum(nodeCoorSum(:, 1), 'all') / sum(nodeCoorSum(:, 1)~=0, 'all'),...
+%     sum(nodeCoorSum(:, 2), 'all') / sum(nodeCoorSum(:, 2)~=0, 'all')];
 
 for i = 1:chamberNum(1)*chamberNum(2)
 
@@ -72,7 +86,7 @@ for i = 1:chamberNum(1)*chamberNum(2)
         chamberRange{i, 2} =...
             [chamberCenter(2) - observeArea(2)/2, chamberCenter(2) + observeArea(2)/2];
 
-    elseif mod(i-1, chamberNum(2)) == 0 % Vertical
+    elseif mod(i-1, chamberNum(1)) == 0 % Vertical
 
         chamberRange{i, 1} = chamberRange{i-chamberNum(1), 1} + chamberGapVer(1); % X
         chamberRange{i, 2} = chamberRange{i-chamberNum(1), 2} + chamberGapVer(2); % Y

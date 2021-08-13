@@ -14,8 +14,8 @@ global X_abs_um Y_abs_um CurrentChamber CurrentChip ChipInform
 % eval(sprintf('C_Chamb_X_um = C%d_Chamb%d_X_um;', cur_Chip, cur_Chamb));
 % eval(sprintf('C_Chamb_Y_um = C%d_Chamb%d_Y_um;', cur_Chip, cur_Chamb));
 
-C_Chamb_X_um = ChipInform(CurrentChip).Range{CurrentChamber, 1};
-C_Chamb_Y_um = ChipInform(CurrentChip).Range{CurrentChamber, 2};
+C_Chamb_X_um = ChipInform(CurrentChip).ChamberRange{CurrentChamber, 1};
+C_Chamb_Y_um = ChipInform(CurrentChip).ChamberRange{CurrentChamber, 2};
 
 if (C_Chamb_X_um(2) - C_Chamb_X_um(1) == 0) || (C_Chamb_Y_um(2) - C_Chamb_Y_um(1) == 0)
 

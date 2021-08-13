@@ -45,11 +45,11 @@ end
 set(app.popupmenu_chip, 'Enable', on_off);
 
 % if cur_Chip~=(NoofChip+1)
-if chipNo~=(NoofChip+1)
+if CurrentChip~=(NoofChip+1)
     
 %     eval(sprintf('global C%d_NoofChamb;', cur_Chip));
 %     eval(sprintf('C_NoofChamb = C%d_NoofChamb;', cur_Chip));
-    C_NoofChamb = CurrentChip(chipNo).ChambNum(1) * CurrentChip(chipNo).ChambNum(2);
+    C_NoofChamb = ChipInform(CurrentChip).ChamberNum(1) * ChipInform(CurrentChip).ChamberNum(2);
     
 %     for i = 1:C_NoofChamb
     for chambNo = 1:C_NoofChamb

@@ -5,7 +5,7 @@
 function PopupChipCallback(app)
 
 % global NoofChip cur_Chip
-global ChipInform CurrentChip
+global ChipInform CurrentChip vid
 
 chipItems = get(app.popupmenu_chip, 'Items');
 chipVal = get(app.popupmenu_chip, 'Value');
@@ -14,16 +14,18 @@ chipVal = get(app.popupmenu_chip, 'Value');
 chipNo = 0;
 chipNum = size(ChipInform, 2);
 
-for i = 1:size(chipItems, 2)
-    
-    if strcmp(chipVal, chipItems{1, i})
-        
-        chipNo = i;
-        break
-        
-    end
-    
-end
+chipNo = find(strcmp(chipVal, chipItems));  
+
+% for i = 1:size(chipItems, 2)
+%     
+%     if strcmp(chipVal, chipItems{1, i})
+%         
+%         chipNo = i;
+%         break
+%         
+%     end
+%     
+% end
 
 if chipNo == CurrentChip
     
@@ -50,6 +52,9 @@ if CurrentChip==(chipNum+1)
     set(app.uibuttongroup_Manual, 'Visible', 'on');    
     set(app.pushbutton_RunSave, 'Enable', 'off');
     disp_Manual_inform(app)
+    
+    tmpROI = ChipInform(2).ROI; % Use a Droplet chip ROI
+    
 
 else
     
@@ -60,13 +65,50 @@ else
     set(app.(togStr), 'Value', 1)
     tag = sprintf('togglebutton_C%d_Chamb', CurrentChip);
 %     togglebutton_Chamb_Act(app, Tag, 1)
-    togglebutton_Chamb_Act(app, tag, CurrentChip, ChipInform(CurrentChiip))
+    togglebutton_Chamb_Act(app, tag, 1, ChipInform(CurrentChip))
     set(app.pushbutton_RunSave, 'Enable', 'on');
     
-    if CurrentChip == 1
-
-    elseif CurrentChip == 2
-
-    end
+%     if CurrentChip == 1
+% 
+%     elseif CurrentChip == 2
+% 
+%     end
+    
+    tmpROI = ChipInform(chipNo).ROI;
 
 end    
+
+% Setting Camera ROI
+currentROI = vid.ROIPosition;
+if currentROI == tmpROI
+    
+    return
+    
+end
+
+stop(vid)
+vid.ROIPosition = tmpROI;
+scrPos = get(0, 'ScreenSize');
+% tmpROI = vid.ROIPosition;
+vidRes = [tmpROI(3), tmpROI(4)];
+
+if vidRes(1)/2 > scrPos(3) && vidRes(2)/2 > scrPos(4)
+
+    app.MainApp.figure_camera.Position(3) = scrPos(3)/2 - 10;
+    app.MainApp.figure_camera.Position(4) = scrPos(4)/2 - 10;
+    app.MainApp.figure_camera.Position(1) = 10;
+    app.MainApp.figure_camera.Position(2) = 50;
+
+else
+
+    app.figure_camera.Position(3) = vidRes(1)/2;
+    app.figure_camera.Position(4) = vidRes(2)/2;
+    app.figure_camera.Position(1) = app.figure1.Position(1) - app.figure_camera.Position(3) - 10;
+    app.figure_camera.Position(2) = scrPos(4) - app.figure_camera.Position(4) - 50;        
+
+end
+
+nBands = get(vid, 'NumberOfBands');
+previewImage = image(zeros(vidRes(2), vidRes(1), nBands), 'parent', app.axes_camera);
+preview(vid, previewImage);
+start(vid)

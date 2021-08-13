@@ -74,7 +74,7 @@ for i = 1:size(sorted_selTogNum, 1)
     imNo = 1;
 
     curChambStr = sprintf('togglebutton_C%d_Chamb', CurrentChip);
-    togglebutton_Chamb_Act(mainApp, curChambStr, sorted_selTogNum(i, 1));
+    togglebutton_Chamb_Act(mainApp, curChambStr, sorted_selTogNum(i, 1), currentChipInform);
 
     % TODO
     % eval(sprintf('global C%d_Chamb%d_X_um C%d_Chamb%d_Y_um',...
@@ -90,9 +90,9 @@ for i = 1:size(sorted_selTogNum, 1)
         currentChipInform.ChamberRange{sorted_selTogNum(i, 1), 2}(2) - currentChipInform.ChamberRange{sorted_selTogNum(i, 1), 2}(1)]; % [X, Y]
     gapFrame = observeArea / (noFrame - 1); % [X, Y]
 
-    for iii = 1:noFrame % vertical    
+    for verNo = 1:noFrame % vertical    
 
-        for ii = 1:noFrame % Horizontal        
+        for horNo = 1:noFrame % Horizontal        
 
             % scanCoorMat{iii, ii} = [C_Chamb_X_um(1) + step_Medium_X_um * (iii-1),...
             % C_Chamb_Y_um(1) + step_Medium_Y_um * (ii-1)];    

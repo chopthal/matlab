@@ -22,54 +22,55 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
         
     end
 
-    tag = sprintf('C%d_Chamber%d_um', CurrentChip, CurrentChamber);
+    tag = sprintf('togglebutton_C%d_Chamb', CurrentChip);
     togglebutton_Chamb_Act(mainApp, tag, CurrentChamber, currentChipInform);
 
     observeArea = [currentChipInform.ChamberRange{chambNo, 1}(2) - currentChipInform.ChamberRange{chambNo, 1}(1),...
         currentChipInform.ChamberRange{chambNo, 2}(2) - currentChipInform.ChamberRange{chambNo, 2}(1)]; % [X, Y]
     gapFrame = observeArea ./ (currentChipInform.FrameNum - 1); % [X, Y]
 
-    scanCoorMat = cell(currentChipInform.FrameNum(1), currentChipInform.FrameNum(2)); % {vertical, horizontal}
+    scanCoorMat = cell(currentChipInform.FrameNum(2), currentChipInform.FrameNum(1)); % {vertical, horizontal}
 
-    childDir = sprintf('%s%s', currentChipInform.Name, chambNo);
+    childDir = sprintf('%s_%d', currentChipInform.Name, chambNo);
     savDir = strcat(parentDir, '\', childDir);
     mkdir(savDir)
 
-    for horNo = 1:currentChipInform.FrameNum(2) % Horizontal
+    for horNo = 1:currentChipInform.FrameNum(1) % Horizontal
         
         if mainApp.ScanProgDlg.CancelRequested
         
             break
         
         end
-
-        for verNo = 1:currentChipInform.FrameNum(1) % Vertical
-
-            scanCoorMat{verNo, horNo} = [currentChipInform.ChamberRange{chambNo, 1}(1) + gapFrame(1) * (verNo-1),...
-                currentChipInform.ChamberRange{chambNo, 2}(1) + gapFrame(2) * (horNo-1)];    
-
-        end
-
+        
         ordIdx = 1;
         ordResult = zeros(currentChipInform.FrameNum(1)*currentChipInform.FrameNum(2), 2);
 
-        if mod(horNo, 2) == 0
+        for verNo = 1:currentChipInform.FrameNum(2) % Vertical
 
-            for verNo = flip(1:currentChipInform.FrameNum(1))
+            scanCoorMat{verNo, horNo} = [currentChipInform.ChamberRange{chambNo, 1}(1) +...
+                gapFrame(1) * (horNo-1), currentChipInform.ChamberRange{chambNo, 2}(1) +...
+                gapFrame(2) * (verNo-1)]; 
+            
+            if mod(verNo, 2) == 0
 
-                ordResult(ordIdx, 1) = horNo;
-                ordResult(ordIdx, 2) = verNo;
-                ordIdx = ordIdx+1;
+                for horNoOrd = flip(1:currentChipInform.FrameNum(1))
 
-            end
+                    ordResult(ordIdx, 1) = horNoOrd;
+                    ordResult(ordIdx, 2) = verNo;
+                    ordIdx = ordIdx+1;
 
-        else
+                end
 
-            for verNo = 1:currentChipInform.FrameNum(1)
+            else
 
-                ordResult(ordIdx, 1) = horNo;
-                ordResult(ordIdx, 2) = verNo;
-                ordIdx = ordIdx+1;
+                for horNoOrd = 1:currentChipInform.FrameNum(1)
+
+                    ordResult(ordIdx, 1) = horNoOrd;
+                    ordResult(ordIdx, 2) = verNo;
+                    ordIdx = ordIdx+1;
+
+                end
 
             end
 
@@ -85,7 +86,9 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
 
         end
 
-        coorXY = scanCoorMat{ordResult(1, 1), ordResult(1, 2)};
+        coorXY = scanCoorMat{ordResult(imNo, 2), ordResult(imNo, 1)}; % {Vertical, Horizontal}
+        distCoorX = abs(X_abs_um - coorXY(1));
+        distCoorY = abs(Y_abs_um - coorXY(2));
 
         if X_abs_um > coorXY(1)
 
