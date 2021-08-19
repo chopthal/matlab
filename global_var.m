@@ -31,8 +31,11 @@ global DeviceName CamName MainPortNo...
      C_folder scanCh  chName AFPropFile...
     AFRangeDefault AFRange defaultRefZ Reset_flag...
     refZ Stop_flag StageFlag LogPath CaptureFlag ...
-    Pixel2um ObserveRateDefault OverlabRateDefault...
-    CurrentChamber CurrentChip ChipInform frame_W_um frame_H_um
+    Pixel2umDefault ObserveRateDefault OverlabRateDefault...
+    CurrentChamber CurrentChip ChipInform frame_W_um frame_H_um...
+    MainChipNo
+
+MainChipNo = 2;
 
 CurrentChamber = 1;
 CurrentChip = 1;
@@ -155,7 +158,8 @@ chipROI = {[360 0 1200 1200]; % [X-offset, Y-offset, Width, Height]
 ObserveRateDefault = 1.1; 
 OverlabRateDefault = [0.1, 0.1]; % horizontal, vertical
 % pix2um = 250/774 * 1.2; % 20x lens
-Pixel2um = 250/774 * 1.2; % 20x lens
+% Pixel2umDefault = 250/774 * 1.2; % 20x lens
+Pixel2umDefault = 1000/260 * 4/20; % 20x lens
 
 % im_W_um_default = ROIPosition(3) * pix2um;
 % im_H_um_default = ROIPosition(4) * pix2um;
@@ -445,7 +449,7 @@ else
 
 end
 
-Pixel2um = Pixel2um * LensMagDefault/lensMag;
+pixel2um = Pixel2umDefault * LensMagDefault/lensMag;
 
 set(app.edit_Z_diff, 'Visible', size(scanCh, 2) == 2)
 set(app.DiffLabel, 'Visible', size(scanCh, 2) == 2)
@@ -465,7 +469,7 @@ else
         chipInformStruct = CalculateChamberCoordinate(...
             chipType{chipNumi, 1}, chipName{chipNumi, 1}, defaultCoor{chipNumi, 1},...
             defaultCoor{chipNumi, 1}, chipROI{chipNumi, 1}, chamberNum{chipNumi, 1},...
-            Pixel2um, ObserveRateDefault, OverlabRateDefault);
+            pixel2um, ObserveRateDefault, OverlabRateDefault);
 
         structField = fieldnames(chipInformStruct);
 
@@ -512,7 +516,7 @@ else
 
     if lensMag == 4
     
-        defaultRefZ = 18000;
+        defaultRefZ = 8600;
 
     elseif lensMag == 10
 
@@ -606,7 +610,7 @@ catch
     
     if lensMag == 4
 
-        Z_default_um = 18000;
+        Z_default_um = 8600;
 
     elseif lensMag == 10
 

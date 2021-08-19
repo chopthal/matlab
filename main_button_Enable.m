@@ -44,23 +44,23 @@ end
 
 set(app.popupmenu_chip, 'Enable', on_off);
 
-% if cur_Chip~=(NoofChip+1)
-if CurrentChip~=(NoofChip+1)
-    
-%     eval(sprintf('global C%d_NoofChamb;', cur_Chip));
-%     eval(sprintf('C_NoofChamb = C%d_NoofChamb;', cur_Chip));
-    C_NoofChamb = ChipInform(CurrentChip).ChamberNum(1) * ChipInform(CurrentChip).ChamberNum(2);
-    
-%     for i = 1:C_NoofChamb
-    for chambNo = 1:C_NoofChamb
-        
-%         toggleStr = sprintf('togglebutton_C%d_Chamb%d', cur_Chip, i);
-        toggleStr = sprintf('togglebutton_C%d_Chamb%d', CurrentChip, chambNo);
-        set(app.(toggleStr), 'Enable', on_off)
-        
-    end
-    
-end 
+% % if cur_Chip~=(NoofChip+1)
+% if CurrentChip~=(NoofChip+1)
+%     
+% %     eval(sprintf('global C%d_NoofChamb;', cur_Chip));
+% %     eval(sprintf('C_NoofChamb = C%d_NoofChamb;', cur_Chip));
+%     C_NoofChamb = ChipInform(CurrentChip).ChamberNum(1) * ChipInform(CurrentChip).ChamberNum(2);
+%     
+% %     for i = 1:C_NoofChamb
+%     for chambNo = 1:C_NoofChamb
+%         
+% %         toggleStr = sprintf('togglebutton_C%d_Chamb%d', cur_Chip, i);
+%         toggleStr = sprintf('togglebutton_C%d_Chamb%d', CurrentChip, chambNo);
+%         set(app.(toggleStr), 'Enable', on_off)
+%         
+%     end
+%     
+% end 
 
 set(app.pushbutton_Set_Folder, 'Enable', on_off);
 set(app.pushbutton_Open, 'Enable', on_off);
@@ -79,8 +79,15 @@ set(app.DefaultButton, 'Enable', on_off);
 
 if strcmp(on_off, 'on')
     
-%     if cur_Chip == 1
-    if CurrentChip == 1
+    if CurrentChip == (NoofChip+1)
+        
+        set(app.checkbox_withAF, 'Enable', 'off');
+        set(app.pushbutton_RunSave, 'Enable', 'off');
+        set(app.edit_RefZ, 'Enable', 'off');
+        set(app.RefZLabel, 'Enable', 'off');      
+        set(app.pushbutton_Ref, 'Enable', 'off');
+        
+    elseif CurrentChip == 1
         
         set(app.checkbox_withAF, 'Enable', 'on');
         set(app.pushbutton_RunSave, 'Enable', 'on');
@@ -91,12 +98,31 @@ if strcmp(on_off, 'on')
     else
         
         set(app.checkbox_withAF, 'Enable', 'off');
-        set(app.pushbutton_RunSave, 'Enable', 'off');
+        set(app.pushbutton_RunSave, 'Enable', 'on');
         set(app.edit_RefZ, 'Enable', 'off');
-        set(app.RefZLabel, 'Enable', 'off');      
+        set(app.RefZLabel, 'Enable', 'off');        
         set(app.pushbutton_Ref, 'Enable', 'off');
         
     end
+    
+%     if cur_Chip == 1
+%     if CurrentChip == 1
+%         
+%         set(app.checkbox_withAF, 'Enable', 'on');
+%         set(app.pushbutton_RunSave, 'Enable', 'on');
+%         set(app.edit_RefZ, 'Enable', 'on');
+%         set(app.RefZLabel, 'Enable', 'on');        
+%         set(app.pushbutton_Ref, 'Enable', 'on');
+%         
+%     else
+%         
+%         set(app.checkbox_withAF, 'Enable', 'off');
+%         set(app.pushbutton_RunSave, 'Enable', 'off');
+%         set(app.edit_RefZ, 'Enable', 'off');
+%         set(app.RefZLabel, 'Enable', 'off');      
+%         set(app.pushbutton_Ref, 'Enable', 'off');
+%         
+%     end
     
 else
     

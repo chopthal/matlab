@@ -65,7 +65,7 @@ end
 
 % TODO : Need confirm
 % if CurrentChip~=(NoofChip+1)
-% 
-%     disp_Manual_inform_canvas(app)
+
+% disp_Manual_inform_canvas(app)
 %     
 % end

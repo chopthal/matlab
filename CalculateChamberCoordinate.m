@@ -19,38 +19,39 @@ function chipInformStruct = ...
 %     chipInformStruct.DefaultCoordinate(1:size(defaultCoor, 1), 1:size(defaultCoor, 2)) = defaultCoor;   
     chipInformStruct.MeasuredCoordinate(1:size(measuredCoor, 1), 1:size(measuredCoor, 2)) = measuredCoor;   
 
-    if strcmp(chipType, 'WellPlate') % left, right, top, bottom
-
-        wellDiameter = zeros(8, 1);
-
-        for i = 1:8
-            distMatrix = squareform(pdist(chipInformStruct.MeasuredCoordinate));
-            wellDiameter(i, 1) = distMatrix(2*i, 2*i-1);
-        end
-        wellDiameterAvg = mean(wellDiameter, 'all');
-        chamberArea = ones(1, 2) * wellDiameterAvg*cos(deg2rad(45));
-        
-    elseif strcmp(chipType, 'Droplet') % left-top, right-top, left-bottom, right-bottom
-
-        tmp = zeros(8, 1);
-        tmp2 = zeros(8, 1);
-
-        for i=1:4
-
-            tmp(2*i-1, 1) = chipInformStruct.MeasuredCoordinate(4*i-2, 1)...
-                - chipInformStruct.MeasuredCoordinate(4*i-3, 1);            
-            tmp(2*i, 1) = chipInformStruct.MeasuredCoordinate(4*i, 1)...
-                - chipInformStruct.MeasuredCoordinate(4*i-1, 1);            
-            tmp2(2*i-1, 1) = chipInformStruct.MeasuredCoordinate(4*i-1, 2)...
-                - chipInformStruct.MeasuredCoordinate(4*i-3, 2);
-            tmp2(2*i, 1) = chipInformStruct.MeasuredCoordinate(4*i, 2)...
-                - chipInformStruct.MeasuredCoordinate(4*i-2, 2);
-
-        end         
-        
-        chamberArea = [sum(tmp(tmp~=0))/sum(tmp~=0), sum(tmp2(tmp2~=0))/sum(tmp2~=0)];
-
-    end
+    chamberArea = CalculateChamberArea(chipType, chipInformStruct.MeasuredCoordinate);
+%     if strcmp(chipType, 'WellPlate') % left, right, top, bottom
+% 
+%         wellDiameter = zeros(8, 1);
+% 
+%         for i = 1:8
+%             distMatrix = squareform(pdist(chipInformStruct.MeasuredCoordinate));
+%             wellDiameter(i, 1) = distMatrix(2*i, 2*i-1);
+%         end
+%         wellDiameterAvg = mean(wellDiameter, 'all');
+%         chamberArea = ones(1, 2) * wellDiameterAvg*cos(deg2rad(45));
+%         
+%     elseif strcmp(chipType, 'Droplet') % left-top, right-top, left-bottom, right-bottom
+% 
+%         tmp = zeros(8, 1);
+%         tmp2 = zeros(8, 1);
+% 
+%         for i=1:4
+% 
+%             tmp(2*i-1, 1) = chipInformStruct.MeasuredCoordinate(4*i-2, 1)...
+%                 - chipInformStruct.MeasuredCoordinate(4*i-3, 1);            
+%             tmp(2*i, 1) = chipInformStruct.MeasuredCoordinate(4*i, 1)...
+%                 - chipInformStruct.MeasuredCoordinate(4*i-1, 1);            
+%             tmp2(2*i-1, 1) = chipInformStruct.MeasuredCoordinate(4*i-1, 2)...
+%                 - chipInformStruct.MeasuredCoordinate(4*i-3, 2);
+%             tmp2(2*i, 1) = chipInformStruct.MeasuredCoordinate(4*i, 2)...
+%                 - chipInformStruct.MeasuredCoordinate(4*i-2, 2);
+% 
+%         end         
+%         
+%         chamberArea = [sum(tmp(tmp~=0))/sum(tmp~=0), sum(tmp2(tmp2~=0))/sum(tmp2~=0)];
+% 
+%     end
 
     [chipInformStruct.FrameNum, chipInformStruct.ChamberRange] = ... 
         GetCaptureRange(chipInformStruct.ROI, pixel2um, chamberArea,...

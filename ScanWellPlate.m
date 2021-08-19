@@ -102,8 +102,10 @@ for i = 1:size(sorted_selTogNum, 1)
         end
 
     end
-
-    scanOrderMat = SqrOrderMat(noFrame);
+    
+    if noFrame>1
+        scanOrderMat = SqrOrderMat(noFrame);
+    end
     
     coorBlock = refZ;
     Z_Focused = refZ;
@@ -136,7 +138,11 @@ for i = 1:size(sorted_selTogNum, 1)
             'Auto Scanning...\n - Chamber : %d / %d\n - Image : %d / %d',...
             i, size(sorted_selTogNum, 1), imNo, noFrame^2);
         
-        coorXY = scanCoorMat{scanOrderMat' == imNo};
+        if noFrame == 1
+            coorXY = scanCoorMat{1, 1};            
+        else
+            coorXY = scanCoorMat{scanOrderMat' == imNo};
+        end
         distCoorX = abs(X_abs_um - coorXY(1));
         distCoorY = abs(Y_abs_um - coorXY(2));
 
@@ -314,16 +320,16 @@ fclose(infoFileID);
 fileNameCodeNum = fullfile(parentDir, 'CodeNum.mat');
 save(fileNameCodeNum, 'CodeNum')
 
-for i = 1:size(focInform, 2)
-    
-    tmp(3*i-2, :) = focInform(i).isBlock;
-    tmp(3*i-1, :) = focInform(i).isCode;
-    tmp(3*i, :) = focInform(i).Time;
-    
-end
+% for i = 1:size(focInform, 2)
+%     
+%     tmp(3*i-2, :) = focInform(i).isBlock;
+%     tmp(3*i-1, :) = focInform(i).isCode;
+%     tmp(3*i, :) = focInform(i).Time;
+%     
+% end
 
-fileNameScanInform = fullfile(parentDir, 'ScanInform.xls');
-writematrix(tmp, fileNameScanInform)
+% fileNameScanInform = fullfile(parentDir, 'ScanInform.xls');
+% writematrix(tmp, fileNameScanInform)
 
 Run_flag = 0;
 

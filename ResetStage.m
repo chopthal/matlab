@@ -11,13 +11,14 @@ function ResetStage(app, stageMatrix)
 
 % global X_curDir X_abs_um MovDiff_um Y_curDir Y_abs_um Reset_flag
 global X_curDir X_abs_um MovDiff_um Y_curDir Y_abs_um Reset_flag...
-    Z_curDir Z_abs_um
+    Z_curDir Z_abs_um max_step
 
 Reset_flag = 1;
 
 if stageMatrix(1) == 1
 
-    TX = strcat('$S#', 'X', '#', 'F', '#', '999999');
+%     TX = strcat('$S#', 'X', '#', 'F', '#', '999999');
+    TX = strcat('$S#', 'X', '#', 'F', '#', num2str(max_step));
     [~] = comm2port(app, 'Main_port', TX, []);                
     X_curDir = 'B';
     X_abs_um = MovDiff_um;
@@ -27,7 +28,7 @@ end
 
 if stageMatrix(2) == 1
 
-    TX = strcat('$S#', 'Y', '#', 'F', '#', '999999');
+    TX = strcat('$S#', 'Y', '#', 'F', '#', num2str(max_step));
     [~] = comm2port(app, 'Main_port', TX, []);        
     Y_curDir = 'B';
     Y_abs_um = MovDiff_um;
@@ -37,7 +38,7 @@ end
 
 if stageMatrix(3) == 1
     
-    TX = strcat('$S#', 'Z', '#', 'F', '#', '999999');
+    TX = strcat('$S#', 'Z', '#', 'F', '#', num2str(max_step));
     [~] = comm2port(app, 'Main_port', TX, []);        
     Z_curDir = 'B';
     Z_abs_um = MovDiff_um;

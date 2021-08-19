@@ -55,6 +55,28 @@ if CurrentChip==(chipNum+1)
     
     tmpROI = ChipInform(2).ROI; % Use a Droplet chip ROI
     
+    set(app.checkbox_withAF, 'Enable', 'off');    
+    set(app.edit_RefZ, 'Enable', 'off');
+    set(app.RefZLabel, 'Enable', 'off');      
+    set(app.pushbutton_Ref, 'Enable', 'off');    
+    
+elseif CurrentChip == 1
+    
+    set(app.axes_Canvas, 'Visible', 'on')
+    btnGrpStr = sprintf('uibuttongroup_C%d', CurrentChip);
+    set(app.(btnGrpStr), 'Visible', 'on')
+    togStr = sprintf('togglebutton_C%d_Chamb1', CurrentChip);
+    set(app.(togStr), 'Value', 1)
+    tag = sprintf('togglebutton_C%d_Chamb', CurrentChip);
+    togglebutton_Chamb_Act(app, tag, 1, ChipInform(CurrentChip))
+    set(app.pushbutton_RunSave, 'Enable', 'on');
+    
+    set(app.checkbox_withAF, 'Enable', 'on');    
+    set(app.edit_RefZ, 'Enable', 'on');
+    set(app.RefZLabel, 'Enable', 'on');        
+    set(app.pushbutton_Ref, 'Enable', 'on');
+    
+    tmpROI = ChipInform(chipNo).ROI;
 
 else
     
@@ -64,15 +86,13 @@ else
     togStr = sprintf('togglebutton_C%d_Chamb1', CurrentChip);
     set(app.(togStr), 'Value', 1)
     tag = sprintf('togglebutton_C%d_Chamb', CurrentChip);
-%     togglebutton_Chamb_Act(app, Tag, 1)
     togglebutton_Chamb_Act(app, tag, 1, ChipInform(CurrentChip))
     set(app.pushbutton_RunSave, 'Enable', 'on');
     
-%     if CurrentChip == 1
-% 
-%     elseif CurrentChip == 2
-% 
-%     end
+    set(app.checkbox_withAF, 'Enable', 'off');    
+    set(app.edit_RefZ, 'Enable', 'off');
+    set(app.RefZLabel, 'Enable', 'off');        
+    set(app.pushbutton_Ref, 'Enable', 'off');    
     
     tmpROI = ChipInform(chipNo).ROI;
 

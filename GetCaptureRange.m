@@ -4,7 +4,7 @@ function [frameNumber, chamberRange] =...
 
 frameSizeUm = [camROI(3), camROI(4)] * pixel2um;                
 observeArea = frameSizeUm; % width, height
-frameNumber = [0 0]; % horizontal, vertical
+frameNumber = [1 1]; % horizontal, vertical
 
 while observeArea(1) <= chamberArea(1)*sqrt(observeRate)
 
@@ -80,6 +80,18 @@ chamberCenter = node1;
 for i = 1:chamberNum(1)*chamberNum(2)
 
     if i == 1
+        
+        if frameNumber(1) == 1
+            
+            observeArea(1) = 0;
+            
+        end
+        
+        if frameNumber(2) == 1
+            
+            observeArea(2) = 0;
+            
+        end
 
         chamberRange{i, 1} =...
             [chamberCenter(1) - observeArea(1)/2, chamberCenter(1) + observeArea(1)/2];
