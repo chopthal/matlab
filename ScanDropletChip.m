@@ -44,14 +44,13 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
         continue
         
     end
-
+    
     tag = sprintf('togglebutton_C%d_Chamb', CurrentChip);
     togglebutton_Chamb_Act(mainApp, tag, chambNo, currentChipInform);
 
     observeArea = [currentChipInform.ChamberRange{chambNo, 1}(2) - currentChipInform.ChamberRange{chambNo, 1}(1),...
         currentChipInform.ChamberRange{chambNo, 2}(2) - currentChipInform.ChamberRange{chambNo, 2}(1)]; % [X, Y]
     gapFrame = observeArea ./ (currentChipInform.FrameNum - 1); % [X, Y]
-
     scanCoorMat = cell(currentChipInform.FrameNum(2), currentChipInform.FrameNum(1)); % {vertical, horizontal}
 
     childDir = sprintf('%s_%d', currentChipInform.Name, chambNo);
@@ -118,6 +117,11 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
             break
 
         end
+        
+        mainApp.ScanProgDlg.Message = sprintf(...
+            'Auto Scanning...\n - Chamber : %d / %d\n - Image : %d / %d',...
+            chambNo, currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2),...
+            imNo, currentChipInform.FrameNum(1)*currentChipInform.FrameNum(2));
 
         coorXY = scanCoorMat{ordResult(imNo, 2), ordResult(imNo, 1)}; % {Vertical, Horizontal}
         distCoorX = abs(X_abs_um - coorXY(1));
@@ -164,10 +168,16 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
             imgNameFM = natsort(imgName(contains(imgName, 'FM')));
 
             montageFig = figure('Visible', 'Off');
-            monBM = montage(fullfile(savDir, imgNameBM), 'Size', flip(currentChipInform.FrameNum));
+            % For save full size image, add 'ThumbnailSize', [H, W] option.            
+            thumbnailSize = round([currentChipInform.ROI(4), currentChipInform.ROI(3)] / 5);
+            monBM = montage(fullfile(savDir, imgNameBM),...
+                'Size', flip(currentChipInform.FrameNum),...
+                'ThumbnailSize', thumbnailSize);            
             imwrite(monBM.CData, fullfile(savDir, 'Stitched_BM.png'))
             cla(montageFig);
-            monFM = montage(fullfile(savDir, imgNameFM), 'Size', flip(currentChipInform.FrameNum));
+            monFM = montage(fullfile(savDir, imgNameFM),...
+                'Size', flip(currentChipInform.FrameNum), ...
+                'ThumbnailSize', thumbnailSize);
             imwrite(monFM.CData, fullfile(savDir, 'Stitched_FM.png'))
             delete(montageFig);
             

@@ -63,7 +63,7 @@ end
 
 % Reset
 % startReset = tic;
-ResetStage(MainApp, [0 0 1])
+% ResetStage(MainApp, [0 0 1])
 % timeReset = toc(startReset);
 % fprintf('Reset time = %d\n', timeReset)
 
@@ -108,7 +108,7 @@ end
 
 % Reset
 % startReset = tic;
-ResetStage(MainApp, [0 0 1])
+% ResetStage(MainApp, [0 0 1])
 % timeReset = toc(startReset);
 % fprintf('Reset time = %d\n', timeReset)
 

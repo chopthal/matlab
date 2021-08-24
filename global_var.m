@@ -33,7 +33,7 @@ global DeviceName CamName MainPortNo...
     refZ Stop_flag StageFlag LogPath CaptureFlag ...
     Pixel2umDefault ObserveRateDefault OverlabRateDefault...
     CurrentChamber CurrentChip ChipInform frame_W_um frame_H_um...
-    MainChipNo
+    MainChipNo ROIDefault
 
 MainChipNo = 2;
 
@@ -150,16 +150,20 @@ PS2Hole = 6500;
 
 Z_L_um = PSUp2Up - PSHole2Hole*(PSHoleUp-1) + PSHole2Hole*(PSHoleDn-1) - PS2Hole*2 - PSGuideLen;
 
-% ROIPosition = [360 0 1200 1200]; % Offset X, Y, Width, Height
-% Unit : pixel
-chipROI = {[360 0 1200 1200]; % [X-offset, Y-offset, Width, Height]
-    [0 0 1920 1200];
-    [0 0 1920 1200]};   
-ObserveRateDefault = 1.1; 
+% chipROI = {[360 0 1200 1200]; % [X-offset, Y-offset, Width, Height]
+%     [0 0 1920 1200];
+%     [710 350 500 500]};  
+% ROIDefault = [0 0 1920 1200];
+chipROI = {[0 0 5496 3672]; % [X-offset, Y-offset, Width, Height]
+    [0 0 5496 3672];
+    [0 0 5496 3672]};  
+ROIDefault = [0 0 5496 3672];
+ObserveRateDefault = 1.0; 
 OverlabRateDefault = [0.1, 0.1]; % horizontal, vertical
 % pix2um = 250/774 * 1.2; % 20x lens
 % Pixel2umDefault = 250/774 * 1.2; % 20x lens
-Pixel2umDefault = 1000/260 * 4/20; % 20x lens
+% Pixel2umDefault = 1000/260 * 4/20; % 20x lens
+Pixel2umDefault = 1000/630 * 4/20; % 20x lens
 
 % im_W_um_default = ROIPosition(3) * pix2um;
 % im_H_um_default = ROIPosition(4) * pix2um;
@@ -231,24 +235,24 @@ defaultCoor{1, 1} = [...
     75286.0855441256 114554.324756505
     ];
 defaultCoor{2, 1} = [...
-    11170.2219815918 14500.7509812473;
-    14648.4028153763 14500.7509812473;
-    11180.3595018950 16000.9012937927;
-    14658.2652950731 16000.3994766681;    
-    11170.2219815918 18000.7509812473;
-    14648.4028153763 18000.7509812473;
-    11180.3595018950 19500.9012937927;
-    14658.2652950731 19500.3994766681;
-    11170.2219815918 21500.7509812473;
-    14648.4028153763 21500.7509812473;
-    11180.3595018950 23000.9012937927;
-    14658.2652950731 23000.3994766681;
+    25818.0643076426,17900.9157079127;
+    61265.7941509129,18817.5628081709;
+    25822.6961813971,31740.7842216483;
+    61265.7941509129,32657.4313219066;
+    23622.5561480045,56929.7957266964;
+    59065.6541175203,56929.7957266964;
+    23622.5561480045,70311.3406903029;
+    59065.6541175203,70769.6642404320;
+    23622.5561480045,94790.3263676920;
+    59065.6541175204,94790.3263676920;
+    23622.5561480046,108171.871331298;
+    59065.6541175204,108630.194881428    
     ];
 defaultCoor{3, 1} = [...
-    11170.2219815918 14446.7509812473;
-    14648.4028153763 14446.7509812473;
-    11180.3595018950 20000.9012937927;
-    14658.2652950731 20000.3994766681    
+    23628.0059269948,56843.7180908282;
+    27000,56843.7180908282;
+    23628.0059269948,70225.2630544347;
+    27000,70225.2630544347  
     ];
 
 % ChipInform = struct;

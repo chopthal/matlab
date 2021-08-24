@@ -34,7 +34,8 @@ Run_flag = 1;
 sorted_selConStr = selConStr(sorted_selTogNum(:, 2));
 sorted_grpName = grpName(sorted_selTogNum(:, 2));
 sorted_selTogStr = selTogStr(sorted_selTogNum(:, 2));
-noFrame = currentChipInform.FrameNum(1); % FrameNum(1) = FrameNum(2)
+% noFrame = currentChipInform.FrameNum(1); % FrameNum(1) = FrameNum(2)
+noFrame = currentChipInform.FrameNum(max(currentChipInform.FrameNum));
 
 resetPeroid = 5;
 

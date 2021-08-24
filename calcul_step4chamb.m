@@ -8,47 +8,60 @@ function calcul_step4chamb
 %     Z_L_um im_W_um im_H_um C_Manual_X_um C_Manual_Y_um...
 %     step_per_um_Z C_Manual_Z_um MovDiff_um;
 
+% global step_per_um_X step_per_um_Y...
+%  Z_L_um C_Manual_X_um C_Manual_Y_um...
+%  step_per_um_Z C_Manual_Z_um MovDiff_um ChipInform...
+%  step_Coarse_X_um step_Medium_X_um step_Fine_X_um...
+%  step_Coarse_Y_um step_Medium_Y_um step_Fine_Y_um...
+%  step_Coarse_Z_um step_Medium_Z_um step_Fine_Z_um...
+%  max_step_X max_step_Y max_step_Z...
+%  frame_W_um frame_H_um Pixel2umDefault lensMag LensMagDefault
+
 global step_per_um_X step_per_um_Y...
  Z_L_um C_Manual_X_um C_Manual_Y_um...
- step_per_um_Z C_Manual_Z_um MovDiff_um ChipInform...
+ step_per_um_Z C_Manual_Z_um MovDiff_um ...
  step_Coarse_X_um step_Medium_X_um step_Fine_X_um...
  step_Coarse_Y_um step_Medium_Y_um step_Fine_Y_um...
  step_Coarse_Z_um step_Medium_Z_um step_Fine_Z_um...
  max_step_X max_step_Y max_step_Z...
- frame_W_um frame_H_um Pixel2umDefault lensMag LensMagDefault
+ frame_W_um frame_H_um ChipInform
+
+ROI = ChipInform(2).ROI;
+
+DefineGlobalMovingStep(ROI);
 
 % frame_W_um = 86000;
 % frame_H_um = 128000;
 
-chipNo = 1;
-chambNo = 1;
+% chipNo = 1;
+% chambNo = 1;
 
-currentChipInform = ChipInform(chipNo);
+% currentChipInform = ChipInform(chipNo);
 
-pixel2um = Pixel2umDefault * LensMagDefault/lensMag;
+% pixel2um = Pixel2umDefault * LensMagDefault/lensMag;
 
 % Default ROI : Droplet chip (non-square, 1920x1200)
-im_W_um = ChipInform(2).ROI(3) * pixel2um;
-im_H_um = ChipInform(2).ROI(4) * pixel2um;
+% im_W_um = ChipInform(2).ROI(3) * pixel2um;
+% im_H_um = ChipInform(2).ROI(4) * pixel2um;
 
-observeArea = [currentChipInform.ChamberRange{chambNo, 1}(2) -...
-    currentChipInform.ChamberRange{chambNo, 1}(1),...
-    currentChipInform.ChamberRange{chambNo, 2}(2) -...
-    currentChipInform.ChamberRange{chambNo, 2}(1)]; % [X, Y]
+% observeArea = [currentChipInform.ChamberRange{chambNo, 1}(2) -...
+%     currentChipInform.ChamberRange{chambNo, 1}(1),...
+%     currentChipInform.ChamberRange{chambNo, 2}(2) -...
+%     currentChipInform.ChamberRange{chambNo, 2}(1)]; % [X, Y]
 
-gapFrame = [0 0];
-
-if currentChipInform.FrameNum(1) >= 2    
-    gapFrame(1) = observeArea(1) / (currentChipInform.FrameNum(1)-1);
-% else
-%     gapFrame(1) = 0;    
-end
-
-if currentChipInform.FrameNum(2) >= 2    
-    gapFrame(2) = observeArea(2) / (currentChipInform.FrameNum(1)-1);
-% else
-%     gapFrame(2) = 0;    
-end
+% gapFrame = [0 0];
+% 
+% if currentChipInform.FrameNum(1) >= 2    
+%     gapFrame(1) = observeArea(1) / (currentChipInform.FrameNum(1)-1);
+% % else
+% %     gapFrame(1) = 0;    
+% end
+% 
+% if currentChipInform.FrameNum(2) >= 2    
+%     gapFrame(2) = observeArea(2) / (currentChipInform.FrameNum(1)-1);
+% % else
+% %     gapFrame(2) = 0;    
+% end
 
 
 % gapFrame = observeArea ./ (frameNum - 1); % [X, Y]
@@ -79,21 +92,21 @@ fprintf('Frame width = %d\n', frame_W_um)
 fprintf('Frame height = %d\n', frame_H_um)
 fprintf('Z Length = %d\n', Z_L_um)
 
-step_Coarse_X_um = im_W_um*5;
-step_Medium_X_um = im_W_um;
-step_Fine_X_um = im_W_um*0.1;
-step_Coarse_Y_um = im_H_um*5;
-step_Medium_Y_um = im_H_um;
-step_Fine_Y_um = im_H_um*0.1;
-% step_Coarse_X_um = gapFrame(1)*5;
-% step_Medium_X_um = gapFrame(1);
-% step_Fine_X_um = gapFrame(1)*0.1;
-% step_Coarse_Y_um = gapFrame(2)*5;
-% step_Medium_Y_um = gapFrame(2);
-% step_Fine_Y_um = gapFrame(2)*0.1;
-step_Coarse_Z_um = 100;
-step_Medium_Z_um = 10;
-step_Fine_Z_um = 10/3;
+% step_Coarse_X_um = im_W_um*5;
+% step_Medium_X_um = im_W_um;
+% step_Fine_X_um = im_W_um*0.1;
+% step_Coarse_Y_um = im_H_um*5;
+% step_Medium_Y_um = im_H_um;
+% step_Fine_Y_um = im_H_um*0.1;
+% % step_Coarse_X_um = gapFrame(1)*5;
+% % step_Medium_X_um = gapFrame(1);
+% % step_Fine_X_um = gapFrame(1)*0.1;
+% % step_Coarse_Y_um = gapFrame(2)*5;
+% % step_Medium_Y_um = gapFrame(2);
+% % step_Fine_Y_um = gapFrame(2)*0.1;
+% step_Coarse_Z_um = 100;
+% step_Medium_Z_um = 10;
+% step_Fine_Z_um = 10/3;
 
 fprintf('Coarse X = %d\n', step_Coarse_X_um)
 fprintf('Medium X = %d\n', step_Medium_X_um)

@@ -101,7 +101,7 @@ if strcmp(on_off, 'on')
         set(app.pushbutton_RunSave, 'Enable', 'on');
         set(app.edit_RefZ, 'Enable', 'off');
         set(app.RefZLabel, 'Enable', 'off');        
-        set(app.pushbutton_Ref, 'Enable', 'off');
+        set(app.pushbutton_Ref, 'Enable', 'on');
         
     end
     

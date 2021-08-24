@@ -3,23 +3,12 @@ function [frameNumber, chamberRange] =...
     overlabRate, chamberNum, measuredCoordinate, chipType)
 
 frameSizeUm = [camROI(3), camROI(4)] * pixel2um;                
-observeArea = frameSizeUm; % width, height
-frameNumber = [1 1]; % horizontal, vertical
-
-while observeArea(1) <= chamberArea(1)*sqrt(observeRate)
-
-    observeArea(1) = observeArea(1) + frameSizeUm(1)*(1-overlabRate(1));
-    frameNumber(1) = frameNumber(1)+1;
-    
-end
-
-while observeArea(2) <= chamberArea(2)*sqrt(observeRate)
-    
-    observeArea(2) = observeArea(2) + frameSizeUm(2)*(1-overlabRate(2));
-    frameNumber(2) = frameNumber(2)+1;
-    
-end
-
+tmpObsArea = chamberArea .* (ones(1, 2) * sqrt(observeRate));
+% frameNumber  = round(tmpObsArea ./ frameSizeUm) + 1;
+unitNumber = round((tmpObsArea - frameSizeUm .* overlabRate) ./ (frameSizeUm .* (1-overlabRate)));
+frameNumber = unitNumber + 1;
+% observeArea = (frameNumber-1) .* frameSizeUm;
+observeArea = frameSizeUm .* unitNumber - frameSizeUm .* overlabRate .* (unitNumber-1);
 chamberRange = cell(chamberNum(1)*chamberNum(2), 2); % {X, Y}
 
 node1 = [0 0];
@@ -65,17 +54,7 @@ elseif strcmp(chipType, 'Droplet') % 1~4 nodes & vertical only position (nodeNum
     
 end
 
-% TODO : find node1 center coordinat
-
 chamberCenter = node1;
-
-% nodeCoorSum = [];
-% for i = 0:3
-%     nodeCoorSum(end+1, :) = sum(measuredCoordinate(i*4+1:i*4+4, :), 1);
-% end
-
-% chamberCenter = [sum(nodeCoorSum(:, 1), 'all') / sum(nodeCoorSum(:, 1)~=0, 'all'),...
-%     sum(nodeCoorSum(:, 2), 'all') / sum(nodeCoorSum(:, 2)~=0, 'all')];
 
 for i = 1:chamberNum(1)*chamberNum(2)
 

@@ -1,13 +1,14 @@
-% 2021. 04. 01
+% 2021. 08. 20
 
-% easySCAN_v1.1.3 -> easySCAN_v1.1.4
+% easySCAN_v1.1.4 -> easySCAN_v2.0.0
 
 % Don't display time for scanning anymore.
 
 
 function Img = Get_Snapshot(MainApp, ch)
 
-global vid src CamName ROIPosition CamInform
+% global vid src CamName ROIPosition CamInform
+global vid src CamName CamInform CurrentChip ChipInform
 
 Progress = [];
 
@@ -36,7 +37,8 @@ while 1
 
             end
 
-            [cam_err, tmpVid, tmpSrc, vidRes, CamInform] = CamConnect(CamName, ROIPosition);
+%             [cam_err, tmpVid, tmpSrc, vidRes, CamInform] = CamConnect(CamName, ROIPosition);
+            [cam_err, tmpVid, tmpSrc, vidRes, CamInform] = CamConnect(CamName, ChipInform(CurrentChip).ROI);
 
             if cam_err == 0
 
@@ -62,7 +64,9 @@ while 1
 
         end
 
-        [cam_err, tmpVid, tmpSrc, vidRes, CamInform] = CamConnect(CamName, ROIPosition);
+%         [cam_err, tmpVid, tmpSrc, vidRes, CamInform] = CamConnect(CamName, ROIPosition);
+        [cam_err, tmpVid, tmpSrc, vidRes, CamInform] = CamConnect(CamName, ChipInform(CurrentChip).ROI);
+        
 
         if cam_err == 0
 

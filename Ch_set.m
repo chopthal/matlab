@@ -1,15 +1,16 @@
-% 2021. 04. 01
+% 2021. 08. 20
 
-% easySCAN_v1.1.3 -> easySCAN_v1.1.4
+% easySCAN_v1.1.4 -> easySCAN_v2.0.0
 
-% Don't display time for scanning anymore.
+% 
 
 
 function Ch_set(app, ch)
 
 % startChSet = tic;
 
-global src Run_flag cur_Channel Z_abs_um vid CamName ROIPosition
+% global src Run_flag cur_Channel Z_abs_um vid CamName ROIPosition
+global src Run_flag cur_Channel Z_abs_um vid CamName CurrentChip ChipInform
 
 prev_ch = cur_Channel;
 cur_Channel = ch;
@@ -111,7 +112,8 @@ while 1
 
             end
 
-            [cam_err, tmpVid, tmpSrc, vidRes] = CamConnect(CamName, ROIPosition);
+%             [cam_err, tmpVid, tmpSrc, vidRes] = CamConnect(CamName, ROIPosition);
+            [cam_err, tmpVid, tmpSrc, vidRes] = CamConnect(CamName, ChipInform(CurrentChip).ROI);
 
             if cam_err == 0
 
@@ -135,7 +137,8 @@ while 1
 
         end
 
-        [cam_err, tmpVid, tmpSrc, vidRes] = CamConnect(CamName, ROIPosition);
+%         [cam_err, tmpVid, tmpSrc, vidRes] = CamConnect(CamName, ROIPosition);
+        [cam_err, tmpVid, tmpSrc, vidRes] = CamConnect(CamName, ChipInform(CurrentChip).ROI);
 
         if cam_err == 0
 

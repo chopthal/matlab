@@ -4,28 +4,16 @@
 
 function PopupChipCallback(app)
 
-% global NoofChip cur_Chip
-global ChipInform CurrentChip vid
+global ChipInform CurrentChip
 
 chipItems = get(app.popupmenu_chip, 'Items');
 chipVal = get(app.popupmenu_chip, 'Value');
 
-% Chip_No = 0;
 chipNo = 0;
 chipNum = size(ChipInform, 2);
 
 chipNo = find(strcmp(chipVal, chipItems));  
 
-% for i = 1:size(chipItems, 2)
-%     
-%     if strcmp(chipVal, chipItems{1, i})
-%         
-%         chipNo = i;
-%         break
-%         
-%     end
-%     
-% end
 
 if chipNo == CurrentChip
     
@@ -92,43 +80,12 @@ else
     set(app.checkbox_withAF, 'Enable', 'off');    
     set(app.edit_RefZ, 'Enable', 'off');
     set(app.RefZLabel, 'Enable', 'off');        
-    set(app.pushbutton_Ref, 'Enable', 'off');    
+    set(app.pushbutton_Ref, 'Enable', 'on');    
     
     tmpROI = ChipInform(chipNo).ROI;
 
 end    
 
-% Setting Camera ROI
-currentROI = vid.ROIPosition;
-if currentROI == tmpROI
-    
-    return
-    
-end
-
-stop(vid)
-vid.ROIPosition = tmpROI;
-scrPos = get(0, 'ScreenSize');
-% tmpROI = vid.ROIPosition;
-vidRes = [tmpROI(3), tmpROI(4)];
-
-if vidRes(1)/2 > scrPos(3) && vidRes(2)/2 > scrPos(4)
-
-    app.MainApp.figure_camera.Position(3) = scrPos(3)/2 - 10;
-    app.MainApp.figure_camera.Position(4) = scrPos(4)/2 - 10;
-    app.MainApp.figure_camera.Position(1) = 10;
-    app.MainApp.figure_camera.Position(2) = 50;
-
-else
-
-    app.figure_camera.Position(3) = vidRes(1)/2;
-    app.figure_camera.Position(4) = vidRes(2)/2;
-    app.figure_camera.Position(1) = app.figure1.Position(1) - app.figure_camera.Position(3) - 10;
-    app.figure_camera.Position(2) = scrPos(4) - app.figure_camera.Position(4) - 50;        
-
-end
-
-nBands = get(vid, 'NumberOfBands');
-previewImage = image(zeros(vidRes(2), vidRes(1), nBands), 'parent', app.axes_camera);
-preview(vid, previewImage);
-start(vid)
+isConnection = 0;
+SettingCameraROI(app, tmpROI, isConnection);
+DefineGlobalMovingStep(tmpROI)

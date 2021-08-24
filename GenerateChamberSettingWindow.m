@@ -2,15 +2,15 @@ function GenerateChamberSettingWindow(mainApp, chamberNum, mainFigPosition, curr
 
     global ChambSetApp
 
-    % chamberNum = 3;
-    % mainFigPosition = [500 500 400 400];
-
     ChambSetApp = struct;
     ChambSetApp.mainApp = mainApp;
 %     ChambSetApp.currentChipInform = 'modal';
     ChambSetApp.chamberNum = chamberNum;
+    ChambSetApp.currentChipInform = currentChipInform;
 
     ChambSetApp.mainFig = uifigure;
+    ChambSetApp.mainFig.WindowStyle = 'modal';
+    ChambSetApp.mainFig.Name = 'Select Chamber(s)';
     ChambSetApp.mainFig.Position = mainFigPosition;
     ChambSetApp.WindowStyle = mainFigPosition;
     ChambSetApp.btnPanel = uipanel(ChambSetApp.mainFig);
@@ -86,6 +86,8 @@ function GenerateChamberSettingWindow(mainApp, chamberNum, mainFigPosition, curr
 
         btnStr = sprintf('btn%d', btnNo);
         ChambSetApp.(btnStr) = uibutton(ChambSetApp.btnPanel, 'state');
+        textStr = sprintf('Chamber %d', btnNo);
+        ChambSetApp.(btnStr).Text = textStr;
         ChambSetApp.(btnStr).Position =...
             [btnPanelMargin(1),...
             btnPanelMargin(4) + btnHeight*(chamberNum-btnNo) + btnGap*(chamberNum-btnNo),...
@@ -124,12 +126,20 @@ function StartBtnClicked(obj, event)
         
     end
     
-    ScanDropletChip(ChambSetApp.mainApp, ChambSetApp.currentChipInform, selBtnNo)
-    delete(ChambSetApp.mainFig)
+    if sum(selBtnNo, 'all') == 0        
+        
+        uialert(ChambSetApp.mainFig, 'Please select chamber(s).', 'Run Error');
+        
+        return;
+        
+    end
     
     ChambSetApp.mainApp.ScanProgDlg = uiprogressdlg(ChambSetApp.mainApp.figure1,...
-                'Message', 'Auto Scanning...',...
-                'Cancelable', 'on',...
-                'Indeterminate', 'on');
-
+            'Message', 'Auto Scanning...',...
+            'Cancelable', 'on',...
+            'Indeterminate', 'on');
+        
+    delete(ChambSetApp.mainFig)    
+    ScanDropletChip(ChambSetApp.mainApp, ChambSetApp.currentChipInform, selBtnNo)    
+    
 end

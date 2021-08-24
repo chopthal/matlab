@@ -187,8 +187,14 @@ if CurrentChip==(size(ChipInform, 2)+1)
 else
 
     str1 = get(app.popupmenu_chip, 'Value');
-    chambName = idx2name(CurrentChamber);
-    eval(sprintf('str2 = ''Chamber: %s'';', chambName));
+    chambName = num2str(CurrentChamber);
+    
+    if strcmp(ChipInform(CurrentChip).Type, 'WellPlate')    
+        chambName = idx2name(CurrentChamber);        
+    end
+    
+    str2 = sprintf('Chamber: %s', chambName);    
+%     eval(sprintf('str2 = ''Chamber: %s'';', chambName));
     stStr = sprintf('Chip: %s,   %s', str1, str2);
     set(app.text_Status, 'Text', stStr)
     disp_Manual_inform_canvas(app)
