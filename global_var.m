@@ -163,7 +163,8 @@ OverlabRateDefault = [0.1, 0.1]; % horizontal, vertical
 % pix2um = 250/774 * 1.2; % 20x lens
 % Pixel2umDefault = 250/774 * 1.2; % 20x lens
 % Pixel2umDefault = 1000/260 * 4/20; % 20x lens
-Pixel2umDefault = 1000/630 * 4/20; % 20x lens
+% Pixel2umDefault = 1000/630 * 4/20; % 20x lens
+Pixel2umDefault = 1000/866 * 4/20; % 20x lens
 
 % im_W_um_default = ROIPosition(3) * pix2um;
 % im_H_um_default = ROIPosition(4) * pix2um;
