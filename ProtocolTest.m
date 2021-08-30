@@ -4,7 +4,8 @@ etx = char(3);
 delete(instrfind)
 
 % Connect to device
-portName = seriallist;
+% portName = seriallist;
+portName = "COM10";
 portDevice = serialport(portName, 9600);
 configureTerminator(portDevice, "CR")
 flush(portDevice)
