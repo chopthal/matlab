@@ -22,14 +22,15 @@ pfc = "1001";
 pfcResetError = "0156";
 while ~strcmp(rx, wantedRX) && tEnd < timeOut    
     value = "000152";
-    rx = AliasCommunication(portDevice, [], [], [], [], pfc, value);                    
+    rx = AliasCommunication(portDevice, [], [], [], [], pfc, value);  
+%     sprintf('Status : %s', rx(end-2:end))
     
     % Error code
     value = "000155";
     rxError = AliasCommunication(portDevice, [], [], [], [], pfc, value);
 
     if ~strcmp(rxError(end-2:end), '000')
-        errorCode = sprintf('Error Code : %s', rx(end-2:end));    
+        errorCode = sprintf('Error Code : %s', rxError(end-2:end));    
         disp(errorCode)
         % UIConfirm
         % Reset Error
