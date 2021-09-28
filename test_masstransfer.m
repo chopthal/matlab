@@ -1,19 +1,6 @@
+clear
+
 %% Without mass transfer
-% Use R(t)
-% Association phase
-% syms R(t) ka A Rmax kd
-% 
-% ode = diff(R,t) == ka*A*Rmax - R*(ka*A-kd);
-% cond = R(0) == 0;
-% ySol = dsolve(ode, cond);
-% disp(ySol)
-% 
-% % Dissociation phase (C1 = R(0))
-% syms R(t) kd
-% 
-% ode = diff(R, t) == -kd*R;
-% ySol = dsolve(ode);
-% disp(ySol)
 
 % From rate eq
 % Rmax = 78.22;
@@ -32,7 +19,6 @@
 %     dy(2)= ka*C*y(1)-kd*y(2); % AB
 % end
 
-
 %% with mass transfer
 % From rate eq
 tAssoEnd = 120;
@@ -48,6 +34,7 @@ figure(1);
 hold on;
 plot(sol.x, sol.y(3, :))
 
+% Association
 function dy = func(t,y)
     ka = 2.04*10^6;
     kd = 2.95*10^(-3);
@@ -60,6 +47,7 @@ function dy = func(t,y)
     dy(3) = ka *y(1)*y(2) - kd*y(3); % AB
 end
 
+% Dissociation
 function dy = func2(t,y)
     ka = 2.04*10^6;
     kd = 2.95*10^(-3);
@@ -72,4 +60,3 @@ function dy = func2(t,y)
     dy(3) = ka *y(1)*y(2) - kd*y(3); % AB
 end
 
-% Dissociation
