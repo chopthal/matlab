@@ -87,7 +87,7 @@ if strcmp(type, 'Asso')
     dy(1) = C; % A
     dy(2) = -ka*y(1)*y(2) + kd*y(3); % B
     dy(3) = ka *y(1)*y(2) - kd*y(3); % AB    
-elseif strcmp(type, 'AssoMass')    
+elseif strcmp(type, 'AssoMass')
     kt = k(1);
     kd = k(2);
     ka = k(3);
@@ -110,6 +110,23 @@ end
 
 % With mass transfer (ka)
 function dy = AssociationRateEquationODE(t, y, k)
+
+global C
+
+kt = k(1);
+kd = k(2);
+ka = k(3);
+
+dy = zeros(3, 1);
+
+dy(1) = kt*(C-y(1)) - (ka*y(1)*y(2) - kd*y(3)); % A (mass transfer)
+dy(2) = -ka*y(1)*y(2) + kd*y(3); % B
+dy(3) = ka *y(1)*y(2) - kd*y(3); % AB
+
+end
+
+% TODO : Solve 2 separated diff eqs for local variable
+function dy = AssociationRateEquationODE2(t, y, k)
 
 global C
 
