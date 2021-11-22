@@ -4,7 +4,7 @@ global C
 C = 32*10^(-9);
 
 fileName =...
-    'C:\Users\tjckd\OneDrive\바탕 화면\icluebio\Kinetics\MultiKinetics\TestSet\Biacore2000_CM5_antiB2M_B2M\32nM_man.txt';
+    'TestSet\Biacore2000_CM5_antiB2M_B2M\32nM_man.txt';
 data = load(fileName);
 xdata = data(:, 1);
 ydata = data(:, 2);
