@@ -1,13 +1,23 @@
-concentration = [2*10^(-9); 4*10^(-9); 8*10^(-9); 16*10^(-9); 32e-9];
-assoStart = 10; assoEnd = 310; dissoStart = 311; dissoEnd = 610;
+% concentration = [2*10^(-9); 4*10^(-9); 8*10^(-9); 16*10^(-9); 32e-9];
+concentration = [32*10^(-9); 16*10^(-9); 8*10^(-9); 4*10^(-9); 2e-9];
+% assoStart = 10; assoEnd = 310; dissoStart = 311; dissoEnd = 610;
+assoStart = 60; assoEnd = 104; dissoStart = 118; dissoEnd = 354;
 eventTime = [assoStart, assoEnd, dissoStart, dissoEnd];
 
+% fileName = {
+%     'TestSet\BiaSimul_Kt\2n.txt';
+%     'TestSet\BiaSimul_Kt\4n.txt';
+%     'TestSet\BiaSimul_Kt\8n.txt';
+%     'TestSet\BiaSimul_Kt\16n.txt';
+%     'TestSet\BiaSimul_Kt\32n.txt';
+%     };
+
 fileName = {
-    'TestSet\BiaSimul_Kt\2n.txt';
-    'TestSet\BiaSimul_Kt\4n.txt';
-    'TestSet\BiaSimul_Kt\8n.txt';
-    'TestSet\BiaSimul_Kt\16n.txt';
-    'TestSet\BiaSimul_Kt\32n.txt';
+    'result1.txt';
+    'result2.txt';
+    'result3.txt';
+    'result4.txt';
+    'result5.txt';
     };
 
 xdata = []; ydata = [];
@@ -23,12 +33,13 @@ pause(0.01)
 kmass = [1*10^8  1*10^8  1*10^8  1*10^8  2*10^8];
 koff  = [10^(-3) 10^(-3) 10^(-3) 10^(-3) 10^(-3)]; 
 kon   = [10^6    10^6    10^6    10^6    10^6];
-Rmax  = [240     240     240     240     240];
+% Rmax  = [240     240     240     240     240];
+Rmax  = [50      50      50      50      50];
 BI    = [0       0       0       0       0];
 drift = [0       0       0       0       0];
 
 fittingVariables.Name = {'kt';    'koff';   'kon';    'Rmax';   'BI';    'drift'};
-fittingVariables.Type = {'Local'; 'Global'; 'Global'; 'Global'; 'Local'; 'Constant'};
+fittingVariables.Type = {'Local'; 'Global'; 'Global'; 'Global'; 'Constant'; 'Constant'};
 fittingVariables.InitialValue = cell(length(fittingVariables.Type), 1);
 fittingVariables.UpperBound = cell(length(fittingVariables.Type), 1);
 fittingVariables.LowerBound = cell(length(fittingVariables.Type), 1);
@@ -54,8 +65,10 @@ fittingVariables.LowerBound{4, 1} = fittingVariables.InitialValue{4, 1} / 10;
 fittingVariables.LowerBound{5, 1} = -inf(size(fittingVariables.InitialValue{5, 1}));
 fittingVariables.LowerBound{6, 1} = -inf(size(fittingVariables.InitialValue{6, 1}));
 
-isMassTransfer = true;
-[k, kName, chi2, T, R] = OneToOneKineticsFitting(concentration, eventTime, xdata, ydata, isMassTransfer, fittingVariables);
+% isMassTransfer = true;
+isMassTransfer = false;
+[k, kName, chi2, T, R] = OneToOneKineticsFitting(...
+    concentration, eventTime, xdata, ydata, isMassTransfer, fittingVariables);
 disp([char(kName) num2str(k')])
 disp(chi2)
 
