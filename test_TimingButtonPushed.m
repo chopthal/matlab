@@ -1,6 +1,7 @@
-function TimingButtonPushed(app)
+function TimingButtonPushed(app, analyte)
 
 src = app.UIButtonTimingSet;
+analyteNo = find(strcmp(app.UIDropdownName.Items, app.UIDropdownName.Value));
 
 % Disable buttons and dropdowns
 set(findobj(app.UIFigure, 'type', 'uibutton'), 'Enable', 'Off')
@@ -12,16 +13,19 @@ app.UIButtonOK.Visible = 'On'; app.UIButtonOK.Enable = 'On';
 UIAxes = app.UIAxes;
 xLim = UIAxes.XLim; yLim = UIAxes.YLim;
 
-% asStartPos = [xLim(1), yLim(1); xLim(1), yLim(2)];
-% asEndPos = [(xLim(1)+xLim(2))*1/3, yLim(1);...
-%     (xLim(1)+xLim(2))*1/3, yLim(2)];
-% disStartPos = [(xLim(1)+xLim(2))*2/3, yLim(1);...
-%     (xLim(1)+xLim(2))*2/3, yLim(2)];
-% disEndPos = [xLim(2), yLim(1); xLim(2), yLim(2)];
-asStartPos = [app.UIFigure.UserData.EventTime(1), yLim(1); app.UIFigure.UserData.EventTime(1), yLim(2)];
-asEndPos = [app.UIFigure.UserData.EventTime(2), yLim(1); app.UIFigure.UserData.EventTime(2), yLim(2)];
-disStartPos = [app.UIFigure.UserData.EventTime(3), yLim(1); app.UIFigure.UserData.EventTime(3), yLim(2)];
-disEndPos = [app.UIFigure.UserData.EventTime(4), yLim(1); app.UIFigure.UserData.EventTime(4), yLim(2)];
+% asStartPos = [app.UIFigure.UserData.EventTime(1), yLim(1); app.UIFigure.UserData.EventTime(1), yLim(2)];
+% asEndPos = [app.UIFigure.UserData.EventTime(2), yLim(1); app.UIFigure.UserData.EventTime(2), yLim(2)];
+% disStartPos = [app.UIFigure.UserData.EventTime(3), yLim(1); app.UIFigure.UserData.EventTime(3), yLim(2)];
+% disEndPos = [app.UIFigure.UserData.EventTime(4), yLim(1); app.UIFigure.UserData.EventTime(4), yLim(2)];
+
+asStartPos = [analyte(analyteNo).EventTime(1), yLim(1);...
+    analyte(analyteNo).EventTime(1), yLim(2)]; %#ok<*FNDSB>
+asEndPos = [analyte(analyteNo).EventTime(2), yLim(1);...
+    analyte(analyteNo).EventTime(2), yLim(2)];
+disStartPos = [analyte(analyteNo).EventTime(3), yLim(1);...
+    analyte(analyteNo).EventTime(3), yLim(2)];
+disEndPos = [analyte(analyteNo).EventTime(4), yLim(1);...
+    analyte(analyteNo).EventTime(4), yLim(2)];
 
 src.UserData.lineAsStart = drawline('Parent', UIAxes,...
      'Position', asStartPos, ...

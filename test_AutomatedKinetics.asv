@@ -245,6 +245,11 @@ app.UIButtonOK.Visible = 'On'; app.UIButtonOK.Enable = 'On';
 UIAxes = app.UIAxes;
 xLim = UIAxes.XLim; yLim = UIAxes.YLim;
 
+% asStartPos = [app.UIFigure.UserData.EventTime(1), yLim(1); app.UIFigure.UserData.EventTime(1), yLim(2)];
+% asEndPos = [app.UIFigure.UserData.EventTime(2), yLim(1); app.UIFigure.UserData.EventTime(2), yLim(2)];
+% disStartPos = [app.UIFigure.UserData.EventTime(3), yLim(1); app.UIFigure.UserData.EventTime(3), yLim(2)];
+% disEndPos = [app.UIFigure.UserData.EventTime(4), yLim(1); app.UIFigure.UserData.EventTime(4), yLim(2)];
+
 asStartPos = [analyte(analyteNo).EventTime(1), yLim(1);...
     analyte(analyteNo).EventTime(1), yLim(2)]; %#ok<*FNDSB>
 asEndPos = [analyte(analyteNo).EventTime(2), yLim(1);...
@@ -316,6 +321,9 @@ function SetDrawingArea(UserData, xLim)
         [UserData.lineDisStart.Position(1)+1, 0,...
         floor(xLim(2) - UserData.lineDisStart.Position(1)), 0];
 end
+
+% set(findobj(app.UIFigure, 'type', 'uibutton'), 'Enable', 'On')
+% set(findobj(app.UIFigure, 'type', 'uidropdown'), 'Enable', 'On')
 
 end
 
