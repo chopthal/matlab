@@ -22,7 +22,7 @@ app.UIAxes.XLabel.String = 'Time (s)';
 app.UIAxes.YLabel.String = 'Response (RU)';
 
 app.UILabel = uilabel(app.UIMainGrid); 
-app.UILabel.Text = "1:1 Langmuir binding model (Global parameters)";
+app.UILabel.Text = "1:1 Langmuir binding model";
 app.UILabel.VerticalAlignment = 'bottom';
 
 app.UITable = uitable(app.UIMainGrid);
@@ -68,22 +68,24 @@ app.UIButtonTimingSet.Layout.Row = 1; app.UIButtonTimingSet.Layout.Column = 1;
 % Current flow rate (ul/min)
 % Calcuate Current Injection delay (sec)
 % concentration = [32*10^(-9); 16*10^(-9); 8*10^(-9); 4*10^(-9); 2e-9];
-assoStart = 90; assoEnd = 219; dissoStart = 220; dissoEnd = 470;
+assoStart = 90; assoEnd = 280; dissoStart = 281; dissoEnd = 650;
 app.UIFigure.UserData.EventTime = [assoStart, assoEnd, dissoStart, dissoEnd];
 
 getframe(app.UIAxes);
 
-parentPath = 'D:\Working\Newly\icluebio\Software\icluebio\Kinetics\MultiKinetics\TestSet\iMSPR_test_failed\PathTest';
+% parentPath = 'D:\Working\Newly\icluebio\Software\icluebio\Kinetics\MultiKinetics\TestSet\iMSPR_test_failed\PathTest';
+parentPath = 'D:\Working\Newly\icluebio\Software\icluebio\Kinetics\MultiKinetics\TestSet\20211224_SMF_2-34,49,59,54_kinetics\20211224_SMF_2-34,49,59,54_kinetics\2021-12-24 14-36-56';
 app.UIFigure.UserData.Analyte = test_path_parsing(parentPath, app.UIFigure.UserData.EventTime);
 app.UIDropdownName.Items = {app.UIFigure.UserData.Analyte.Name};
 
-disp(app.UIFigure.UserData.Analyte)
+% disp(app.UIFigure.UserData.Analyte)
 
 % Button Pushed functions
 app.UIDropdownName.ValueChangedFcn = @(src, event) UIDropdownNameValueChangedFunction(src, event, app.UIFigure.UserData.Analyte, app);
 app.UIButtonOK.ButtonPushedFcn = @(src, event) OKButtonPushedFunction(src, event, app);
 app.UIButtonTimingSet.ButtonPushedFcn = @(src, event) TimingButtonPushed(src, event, app, app.UIFigure.UserData.Analyte);
 app.UIButtonFit.ButtonPushedFcn = @(src, event) FitButtonPushed(src, event);
+app.UIButtonFittingSet.ButtonPushedFcn = @(src, event) FittingSetButtonPushed(src, event, app);
 
 UIProgressDialog = ...
     uiprogressdlg(app.UIFigure, 'Title', 'Please wait', ...
@@ -98,51 +100,30 @@ for i = 1:size(app.UIFigure.UserData.Analyte, 2)
         app.UIFigure.UserData.Analyte(i).FittedR]...
             = ReadyForCurveFitting(...
                 app.UIFigure.UserData.Analyte(i).Concentration,...
-                app.UIFigure.UserData.Analyte(i).EventTime,...
+                app.UIFigure.UserData.Analyte(i).EventTime,...            
                 app.UIFigure.UserData.Analyte(i).XData,...
                 app.UIFigure.UserData.Analyte(i).YData,...
-                app.UIFigure.UserData.Analyte(i).RmaxCandidate);
+                app.UIFigure.UserData.Analyte(i).DefaultFittingVariable);
 end
         
 UIDropdownNameValueChangedFunction(app.UIDropdownName, [], app.UIFigure.UserData.Analyte, app)
+
+%% Set Fitting variables to Default
+for i = 1:size(app.UIFigure.UserData.Analyte, 2)
+    app.UIFigure.UserData.Analyte(i).FittingVariable = struct;
+    app.UIFigure.UserData.Analyte(i).FittingVariable = app.UIFigure.UserData.Analyte(i).DefaultFittingVariable;
+end
+
 close(UIProgressDialog)
 
-function [k, kName, chi2, fittedT, fittedR] = ReadyForCurveFitting(concentration, eventTime, xdata, ydata, rmaxCandidate)    
+function [k, kName, chi2, fittedT, fittedR] = ReadyForCurveFitting(concentration, eventTime, xdata, ydata, fittingVariable)    
 
-koff = ones(1, size(concentration, 1)) * 10^(-3);
-kon = ones(1, size(concentration, 1)) * 10^6;
-Rmax = ones(1, size(concentration, 1));
-if max(rmaxCandidate)>0; Rmax = Rmax * rmaxCandidate; end
-BI = zeros(1, size(concentration, 1));
-drift = zeros(1, size(concentration, 1));
-
-fittingVariables.Name = {'koff';   'kon';    'Rmax';   'BI';    'drift'};
-fittingVariables.Type = {'Global'; 'Global'; 'Global'; 'Constant'; 'Constant'};
-fittingVariables.InitialValue = cell(length(fittingVariables.Type), 1);
-fittingVariables.UpperBound = cell(length(fittingVariables.Type), 1);
-fittingVariables.LowerBound = cell(length(fittingVariables.Type), 1);
-
-fittingVariables.InitialValue{1, 1} = koff;
-fittingVariables.InitialValue{2, 1} = kon;
-fittingVariables.InitialValue{3, 1} = Rmax;
-fittingVariables.InitialValue{4, 1} = BI;
-fittingVariables.InitialValue{5, 1} = drift;
-
-fittingVariables.UpperBound{1, 1} = fittingVariables.InitialValue{1, 1} * 10;
-fittingVariables.UpperBound{2, 1} = fittingVariables.InitialValue{2, 1} * 10;
-fittingVariables.UpperBound{3, 1} = fittingVariables.InitialValue{3, 1} * 10;
-fittingVariables.UpperBound{4, 1} = inf(size(fittingVariables.InitialValue{4, 1}));
-fittingVariables.UpperBound{5, 1} = inf(size(fittingVariables.InitialValue{5, 1}));
-
-fittingVariables.LowerBound{1, 1} = fittingVariables.InitialValue{1, 1} / 10;
-fittingVariables.LowerBound{2, 1} = fittingVariables.InitialValue{2, 1} / 10;
-fittingVariables.LowerBound{3, 1} = fittingVariables.InitialValue{3, 1} / 10;
-fittingVariables.LowerBound{4, 1} = -inf(size(fittingVariables.InitialValue{4, 1}));
-fittingVariables.LowerBound{5, 1} = -inf(size(fittingVariables.InitialValue{5, 1}));
-
-[k, kName, chi2, T, R] = OneToOneStandardFitting(...
-    concentration, eventTime, xdata, ydata, fittingVariables);
-
+fitTimer = tic;
+if strcmp(fittingVariable.FittingModel, 'OneToOneStandard')
+    [k, kName, chi2, T, R] = OneToOneStandardFitting(...
+        concentration, eventTime, xdata, ydata, fittingVariable.OneToOneStandard);
+end
+fitTime = toc(fitTimer); disp(fitTime)
 fittedT = reshape(T, size(R, 1)/length(concentration), length(concentration));
 fittedR = reshape(R(:, 3), size(R, 1)/length(concentration), length(concentration));
 
@@ -175,7 +156,7 @@ delete(app.UIButtonTimingSet.UserData.lineAsEnd)
 delete(app.UIButtonTimingSet.UserData.lineDisStart)
 delete(app.UIButtonTimingSet.UserData.lineDisEnd)
 
-disp(app.UIFigure.UserData.Analyte(analyteNo).EventTime)
+% disp(app.UIFigure.UserData.Analyte(analyteNo).EventTime)
 
 end
 
@@ -220,14 +201,66 @@ for i = 1:size(analyte(analyteNo).FittedR, 2)
         'Color', 'Red');
 end
 % Table display (koff, kon, Rmax, KA, KD)
-koff = analyte(analyteNo).k(1);
-kon = analyte(analyteNo).k(2);
-Rmax = analyte(analyteNo).k(3);
-KD = koff / kon; KA = kon / koff;
-if isempty(analyte(analyteNo).chi2); analyte(analyteNo).chi2 = NaN; end
-chi2 = analyte(analyteNo).chi2;
-app.UITable.Data = table(koff, kon, Rmax, KA, KD, chi2);
+% kResult = {[koff], [kon], [Rmax], [BI]};
+kVars = {'koff', 'kon', 'Rmax', 'BI'};
+kResult = cell(size(kVars, 2), 1);
+for i = 1:size(kResult, 1)    
+    kResult{i, 1} = zeros(size(analyte(analyteNo).Concentration, 1), 1);
+    tmpIdx = contains(analyte(1).kName, analyte(1).kName{i});
+    kResult{i, 1}(:, 1) = analyte(analyteNo).k(tmpIdx);    
+end
 
+numericKD = kResult{1, 1} ./ kResult{2, 1};
+numericKA = kResult{2, 1} ./ kResult{1, 1};
+numericChi2 = ones(size(analyte(analyteNo).Concentration, 1), 1) * analyte(analyteNo).chi2;
+
+[concentration, concentrationUnit] = FindConcentrationUnit(analyte(analyteNo).Concentration);
+koff = cell(size(analyte(analyteNo).Concentration, 1), 1);
+kon = cell(size(analyte(analyteNo).Concentration, 1), 1);
+Rmax = cell(size(analyte(analyteNo).Concentration, 1), 1);
+BI = cell(size(analyte(analyteNo).Concentration, 1), 1);
+KD = cell(size(analyte(analyteNo).Concentration, 1), 1);
+KA = cell(size(analyte(analyteNo).Concentration, 1), 1);
+for i = 1:size(analyte(analyteNo).Concentration, 1)
+%     concentration{i, 1} = sprintf('%0.2f', analyte(analyteNo).Concentration(i, 1));
+    koff{i, 1} = sprintf('%0.2e', kResult{1, 1}(i, 1));
+    kon{i, 1} = sprintf('%0.2e', kResult{2, 1}(i, 1));
+    Rmax{i, 1} = sprintf('%0.2f', kResult{3, 1}(i, 1));
+    BI{i, 1} = sprintf('%0.2f', kResult{4, 1}(i, 1));
+    KD{i, 1} = sprintf('%0.2e', numericKD(i, 1));
+    KA{i, 1} = sprintf('%0.2e', numericKA(i, 1));
+    chi2{i, 1} = sprintf('%0.2f', numericChi2(i, 1));
+end
+
+if isempty(analyte(analyteNo).chi2); analyte(analyteNo).chi2 = NaN; end
+app.UITable.Data = table(concentration, KD, kon, koff, Rmax, KA, BI, chi2);
+app.UITable.ColumnName{1} = strcat('Concentration (', concentrationUnit, ')');
+app.UITable.ColumnName{2} = 'KD (M)';
+app.UITable.ColumnName{3} = 'kon (1/(M*s))';
+app.UITable.ColumnName{4} = 'koff (1/s)';
+app.UITable.ColumnName{5} = 'Rmax (RU)';
+app.UITable.ColumnName{6} = 'KA (1/M)';
+app.UITable.ColumnName{7} = 'BI (RU)';
+app.UITable.ColumnName{8} = 'Chi2 (RU^2)';
+
+end
+
+function [concStr, unit] = FindConcentrationUnit(concentration)
+    logConc = log10(concentration);
+    digitConc = round(round(min(logConc(~isinf(logConc))))/3) * 3;
+
+    % Giga ~ ato    
+    unitNames = {'GM', 'MM', 'KM', 'M', 'mM', 'uM', 'nM', 'pM', 'fM', 'aM'};
+    unitDigitCriteria = [9 6 3 0 -3 -6 -9 -12 -15 -18];    
+    [~, idx] = min(abs(digitConc - unitDigitCriteria));
+    unitDigit = unitDigitCriteria(idx);        
+    unit = (unitNames{idx});
+    concNum = concentration / 10^unitDigit;
+    concStr = cell(length(concNum), 1);
+    
+    for i = 1:length(concNum)
+        concStr{i, 1} = sprintf('%0.2f', concNum(i));
+    end
 end
 
 function TimingButtonPushed(src, event, app, analyte)
@@ -322,4 +355,11 @@ end
 function FitButtonPushed(src, event)
 disp(src)
 disp(event)
+end
+
+function FittingSetButtonPushed(src, event, app)
+fittingSetApp = test_FittingSet(app);
+waitfor(fittingSetApp.UIFigure)
+disp(fittingSetApp)
+
 end

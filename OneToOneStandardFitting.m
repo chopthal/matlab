@@ -22,7 +22,7 @@ idxVar{1} = 1:numLocal+numGlobal+numConstant;
 lastIdx = idxVar{1}(end);
 
 % kt, kd, ka, Rmax, BI, drift
-for i = 2 : numCurve    
+for i = 2 : numCurve
     for j = 1:length(varType)
         if strcmp(varType{j}, 'Global')
             idxVar{i}(j) = idxVar{i-1}(j);
@@ -62,10 +62,10 @@ options = optimoptions('lsqcurvefit',...
     'Algorithm', 'levenberg-marquardt',...
     'FiniteDifferenceType', 'central',...
     'MaxIterations', 100, ...
-    'FunctionTolerance', 1e-10, ...
+    'FunctionTolerance', 1e-7, ...
     'MaxFunctionEvaluations', 2e3, ...
-    'StepTolerance', 1e-9, ...
-    'FiniteDifferenceStepSize', eps^(1/3));
+    'StepTolerance', 1e-6);
+%     'FiniteDifferenceStepSize', eps^(1/3));
 %     'Display', 'iter-detailed',...
 %     'PlotFcn', 'optimplotstepsize',...
 
@@ -107,9 +107,9 @@ function dy = AssociationRateEquationODE(t, y, k, C)
     ka = k(2);
 
     dy = zeros(3, 1);
-    dy(1) = 0;
-    dy(2) = -ka*C*y(1) + kd*y(2); % B
-    dy(3) = ka *C*y(1) - kd*y(2); % AB
+    dy(1) = 0; % A
+    dy(2) = -ka*C*y(2) + kd*y(3); % B
+    dy(3) = ka *C*y(2) - kd*y(3); % AB
 
 end
 
@@ -118,12 +118,13 @@ function dy = DissociationRateEquationODE(t, y, k)
 
     kd = k(1);
     ka = k(2);
+    C = 0;
 
     dy = zeros(3,1);
 
     dy(1) = 0; % A = 0
-    dy(2) = -ka*0*y(2) + kd*y(3); % B
-    dy(3) =  ka*0*y(2) - kd*y(3); % AB
+    dy(2) = -ka*C*y(2) + kd*y(3); % B
+    dy(3) =  ka*C*y(2) - kd*y(3); % AB
 
 end
 
@@ -160,8 +161,9 @@ function [X, Y] = ODESolve(k, xdata, pfuncAsso, pfuncDisso, eventTime, concentra
         y0Disso = [0; Rmax; YAsso(end, 3)];  
         [XDisso, YDisso] = ode15s(@(x, y) pfuncDisso (x, y, kInput), tspanDisso, y0Disso, options);
         X = [X; XAsso; XDisso];        
-        YAsso = YAsso + kInput(5) * (XAsso-XAsso(1)) + kInput(4); % Bulky index (kInput(4)) and Drift (kInput(5))
-        YDisso = YDisso + kInput(5) * (XDisso-XAsso(1)); % Drift (kInput(5))
+%         YAsso = YAsso + kInput(5) * (XAsso-XAsso(1)) + kInput(4); % Bulky index (kInput(4)) and Drift (kInput(5))        
+%         YDisso = YDisso + kInput(5) * (XDisso-XAsso(1)); % Drift (kInput(5))
+        YAsso = YAsso + kInput(4); % Bulky index (kInput(4)) and W/O Drift (kInput(5))        
         Y = [Y; YAsso; YDisso];
     end
 
