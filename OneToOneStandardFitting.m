@@ -21,7 +21,7 @@ idxVar = cell(numCurve, 1);
 idxVar{1} = 1:numLocal+numGlobal+numConstant;
 lastIdx = idxVar{1}(end);
 
-% kt, kd, ka, Rmax, BI, drift
+% ka(on), kd(off), Rmax, BI, drift
 for i = 2 : numCurve
     for j = 1:length(varType)
         if strcmp(varType{j}, 'Global')
@@ -35,10 +35,10 @@ end
 
 idxEachVar = mat2cell(cell2mat(idxVar)', ones(1, length(varType)), numCurve);
 
-k0 = zeros(1, numK); % kd1, ka1, Rmax1, kt2, kd2, ka2, Rmax2, ...
+k0 = zeros(1, numK); % ka1, kd1, Rmax1, ka2, kd2, Rmax2, ...
 lb = zeros(1, numK); ub = zeros(1, numK); kName = cell(1, numK);
 
-% Initial Values (kt, kd, ka, Rmax, kt2, kd2, kt3, kd3)
+% Initial Values (ka, ka, Rmax, kt2, kd2, kt3, kd3)
 for i = 1:length(varType)
     if strcmp(varType{i}, 'Global')
         k0(i) = fittingVariables.InitialValue{i}(1);
@@ -103,8 +103,8 @@ end
 
 function dy = AssociationRateEquationODE(t, y, k, C)
 
-    kd = k(1);
-    ka = k(2);
+    kd = k(2);
+    ka = k(1);
 
     dy = zeros(3, 1);
     dy(1) = 0; % A
@@ -116,8 +116,8 @@ end
 
 function dy = DissociationRateEquationODE(t, y, k)
 
-    kd = k(1);
-    ka = k(2);
+    kd = k(2);
+    ka = k(1);
     C = 0;
 
     dy = zeros(3,1);

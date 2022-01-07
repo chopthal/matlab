@@ -105,8 +105,10 @@ for i = 1:size(parNum, 1)
     analyte(analyteNo).DefaultFittingVariable = struct;
     analyte(analyteNo).DefaultFittingVariable.FittingModel = 'OneToOneStandard';
     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard = struct;
-    analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.Name = {'koff';   'kon';    'Rmax';   'BI'};
+%     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.Name = {'koff';   'kon';    'Rmax';   'BI'};
+    analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.Name = {'kon';   'koff';    'Rmax';   'BI'};
     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.Type = {'Global'; 'Global'; 'Global'; 'Local'};
+%     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.Type = {'Local'; 'Local'; 'Local'; 'Local'};
     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.InitialValue =...
         cell(length(analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.Type), 1);
     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.UpperBound =...
@@ -114,8 +116,8 @@ for i = 1:size(parNum, 1)
     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.LowerBound =...
         cell(length(analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.Type), 1);
 
-    analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.InitialValue{1, 1} = koff;
-    analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.InitialValue{2, 1} = kon;
+    analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.InitialValue{1, 1} = kon;
+    analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.InitialValue{2, 1} = koff;
     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.InitialValue{3, 1} = Rmax;
     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.InitialValue{4, 1} = BI;
 

@@ -84,7 +84,7 @@ app.UIDropdownName.Items = {app.UIFigure.UserData.Analyte.Name};
 app.UIDropdownName.ValueChangedFcn = @(src, event) UIDropdownNameValueChangedFunction(src, event, app.UIFigure.UserData.Analyte, app);
 app.UIButtonOK.ButtonPushedFcn = @(src, event) OKButtonPushedFunction(src, event, app);
 app.UIButtonTimingSet.ButtonPushedFcn = @(src, event) TimingButtonPushed(src, event, app, app.UIFigure.UserData.Analyte);
-app.UIButtonFit.ButtonPushedFcn = @(src, event) FitButtonPushed(src, event);
+app.UIButtonFit.ButtonPushedFcn = @(src, event) FitButtonPushed(src, event, app);
 app.UIButtonFittingSet.ButtonPushedFcn = @(src, event) FittingSetButtonPushed(src, event, app);
 
 UIProgressDialog = ...
@@ -352,14 +352,42 @@ end
 
 end
 
-function FitButtonPushed(src, event)
-disp(src)
-disp(event)
+function FitButtonPushed(src, event, app)
+
+UIProgressDialog = ...
+    uiprogressdlg(app.UIFigure, 'Title', 'Please wait', ...
+    'Message', 'Fitting Curve(s)...', ...
+    'Indeterminate', 'on');
+pause(0.01)
+
+analyteNo = find(strcmp(app.UIDropdownName.Items, app.UIDropdownName.Value));
+
+[app.UIFigure.UserData.Analyte(analyteNo).k,...
+    app.UIFigure.UserData.Analyte(analyteNo).kName,...
+    app.UIFigure.UserData.Analyte(analyteNo).chi2,...
+    app.UIFigure.UserData.Analyte(analyteNo).FittedT,...
+    app.UIFigure.UserData.Analyte(analyteNo).FittedR]...
+        = ReadyForCurveFitting(...
+            app.UIFigure.UserData.Analyte(analyteNo).Concentration,...
+            app.UIFigure.UserData.Analyte(analyteNo).EventTime,...            
+            app.UIFigure.UserData.Analyte(analyteNo).XData,...
+            app.UIFigure.UserData.Analyte(analyteNo).YData,...
+            app.UIFigure.UserData.Analyte(analyteNo).FittingVariable);
+        
+UIDropdownNameValueChangedFunction(app.UIDropdownName, [], app.UIFigure.UserData.Analyte, app)
+close(UIProgressDialog)
+
 end
 
 function FittingSetButtonPushed(src, event, app)
 fittingSetApp = test_FittingSet(app);
 waitfor(fittingSetApp.UIFigure)
 disp(fittingSetApp)
+
+analyteNo = find(strcmp(app.UIDropdownName.Items, app.UIDropdownName.Value));
+currentAnalyte = getappdata(app.UIFigure, 'currentAnalyte');
+app.UIFigure.UserData.Analyte(analyteNo) = currentAnalyte;
+
+disp(app.UIFigure.UserData.Analyte(analyteNo).FittingVariable.OneToOneStandard.Type)
 
 end
