@@ -5,6 +5,7 @@ app = struct;
 app.UIFigure = uifigure;
 app.UIFigure.Visible = 'On';
 app.UIFigure.Position = [100, 100, 800, 600];
+app.UIFigure.UserData.ResultFilePath = [];
 app.UIMainGrid = uigridlayout(app.UIFigure);
 
 app.UIDropdownGrid = uigridlayout(app.UIMainGrid);
@@ -22,7 +23,7 @@ app.UIAxes.XLabel.String = 'Time (s)';
 app.UIAxes.YLabel.String = 'Response (RU)';
 
 app.UILabel = uilabel(app.UIMainGrid); 
-app.UILabel.Text = "1:1 Langmuir binding model";
+app.UILabel.Text = "Fitting Result";
 app.UILabel.VerticalAlignment = 'bottom';
 
 app.UITable = uitable(app.UIMainGrid);
@@ -30,21 +31,25 @@ app.UIMainGrid.RowHeight = {50, '10x', '1x', '3x', 50};
 app.UIMainGrid.ColumnWidth = {'1x'};
 
 app.UIButtonGrid = uigridlayout(app.UIMainGrid);
-app.UIButtonFit = uibutton(app.UIButtonGrid);
-app.UIButtonFit.Text = 'Fit';
-app.UIButtonClose = uibutton(app.UIButtonGrid);
-app.UIButtonClose.Text = 'Close';
+app.UIButtonGrid.ColumnSpacing = 5;
+app.UIButtonGrid.Padding = [0 10 0 10];
 
-app.UIButtonFittingSet = uibutton(app.UIButtonGrid);
-app.UIButtonFittingSet.Text = 'Fitting Set';
 app.UIButtonTimingSet = uibutton(app.UIButtonGrid);
 app.UIButtonTimingSet.Text = 'Timing Set';
+app.UIButtonFittingSet = uibutton(app.UIButtonGrid);
+app.UIButtonFittingSet.Text = 'Fitting Set';
+app.UIButtonFit = uibutton(app.UIButtonGrid);
+app.UIButtonFit.Text = 'Fit';
+app.UIButtonExport = uibutton(app.UIButtonGrid);
+app.UIButtonExport.Text = 'Export Data';
+app.UIButtonClose = uibutton(app.UIButtonGrid);
+app.UIButtonClose.Text = 'Close';
 
 app.UIDropdownGrid.RowHeight = {'1x'};
 app.UIDropdownGrid.ColumnWidth = {60, 200, '1x', 100};
 
 app.UIButtonGrid.RowHeight = {'1x'};
-app.UIButtonGrid.ColumnWidth = {100, 100, '1x', 100, 100};
+app.UIButtonGrid.ColumnWidth = {100, 100, 100, '1x', 100, 100};
 
 app.UIDropdownGrid.Layout.Row = 1; app.UIDropdownGrid.Layout.Column = 1;
 app.UIAxes.Layout.Row = 2; app.UIAxes.Layout.Column = 1;
@@ -56,10 +61,13 @@ app.UILabelName.Layout.Row = 1; app.UILabelName.Layout.Column = 1;
 app.UIDropdownName.Layout.Row = 1; app.UIDropdownName.Layout.Column = 2;
 app.UIButtonOK.Layout.Row = 1; app.UIButtonOK.Layout.Column = 4;
 
-app.UIButtonFit.Layout.Row = 1; app.UIButtonFit.Layout.Column = 4;
-app.UIButtonClose.Layout.Row = 1; app.UIButtonClose.Layout.Column = 5;
-app.UIButtonFittingSet.Layout.Row = 1; app.UIButtonFittingSet.Layout.Column = 2;
 app.UIButtonTimingSet.Layout.Row = 1; app.UIButtonTimingSet.Layout.Column = 1;
+app.UIButtonFittingSet.Layout.Row = 1; app.UIButtonFittingSet.Layout.Column = 2;
+app.UIButtonFit.Layout.Row = 1; app.UIButtonFit.Layout.Column = 3;
+app.UIButtonExport.Layout.Row = 1; app.UIButtonExport.Layout.Column = 5; 
+app.UIButtonClose.Layout.Row = 1; app.UIButtonClose.Layout.Column = 6;
+
+
 
 % Get Inputs from Main UI Table
 % Injection delay (sec) when normalizing
@@ -78,14 +86,14 @@ parentPath = 'D:\Working\Newly\icluebio\Software\icluebio\Kinetics\MultiKinetics
 app.UIFigure.UserData.Analyte = test_path_parsing(parentPath, app.UIFigure.UserData.EventTime);
 app.UIDropdownName.Items = {app.UIFigure.UserData.Analyte.Name};
 
-% disp(app.UIFigure.UserData.Analyte)
-
 % Button Pushed functions
 app.UIDropdownName.ValueChangedFcn = @(src, event) UIDropdownNameValueChangedFunction(src, event, app.UIFigure.UserData.Analyte, app);
 app.UIButtonOK.ButtonPushedFcn = @(src, event) OKButtonPushedFunction(src, event, app);
 app.UIButtonTimingSet.ButtonPushedFcn = @(src, event) TimingButtonPushed(src, event, app, app.UIFigure.UserData.Analyte);
 app.UIButtonFit.ButtonPushedFcn = @(src, event) FitButtonPushed(src, event, app);
 app.UIButtonFittingSet.ButtonPushedFcn = @(src, event) FittingSetButtonPushed(src, event, app);
+app.UIButtonClose.ButtonPushedFcn = @(src, event) CloseButtonPushed(src, event, app);
+app.UIButtonExport.ButtonPushedFcn = @(src, event) ExportButtonPushed(src, event, app);
 
 UIProgressDialog = ...
     uiprogressdlg(app.UIFigure, 'Title', 'Please wait', ...
@@ -144,8 +152,6 @@ app.UIFigure.UserData.Analyte(analyteNo).EventTime =...
     app.UIButtonTimingSet.UserData.lineDisStart.Position(1), ...
     app.UIButtonTimingSet.UserData.lineDisEnd.Position(1)]);
 
-% delete(findobj(app.UIFigure, 'Type', 'arrow'))
-
 app.UIFigure.UserData.MarkAsStart.Position(1) = app.UIButtonTimingSet.UserData.lineAsStart.Position(1);
 app.UIFigure.UserData.MarkAsEnd.Position(1) = app.UIButtonTimingSet.UserData.lineAsEnd.Position(1);
 app.UIFigure.UserData.MarkDisStart.Position(1) = app.UIButtonTimingSet.UserData.lineDisStart.Position(1);
@@ -156,21 +162,23 @@ delete(app.UIButtonTimingSet.UserData.lineAsEnd)
 delete(app.UIButtonTimingSet.UserData.lineDisStart)
 delete(app.UIButtonTimingSet.UserData.lineDisEnd)
 
-% disp(app.UIFigure.UserData.Analyte(analyteNo).EventTime)
-
 end
 
 function UIDropdownNameValueChangedFunction(src, event, analyte, app)
 
 cla(app.UIAxes);
 analyteNo = find(strcmp(src.Items, src.Value));
-
+[concentration, concentrationUnit] = FindConcentrationUnit(analyte(analyteNo).Concentration);
+linePlot.Raw = [];
+linePlot.RawString = [];
+linePlot.Fitted = [];
+linePlot.FittedString = [];
 for i = 1:size(analyte(analyteNo).Data, 1)
     hold(app.UIAxes, 'on');
-    plot(app.UIAxes,...
+    linePlot.Raw(end+1) = plot(app.UIAxes,...
         analyte(analyteNo).Data{i, 1}.x,...
-        analyte(analyteNo).Data{i, 1}.y,...
-        'Color', 'Black')
+        analyte(analyteNo).Data{i, 1}.y);
+    linePlot.RawString{end+1} = strcat(concentration{i}, concentrationUnit);
 end
 
 app.UIFigure.UserData.MarkAsStart = annotation(app.UIFigure, 'arrow'); 
@@ -195,11 +203,14 @@ app.UIFigure.UserData.MarkDisEnd.Color = [0, 1, 1];
 
 for i = 1:size(analyte(analyteNo).FittedR, 2)
     hold(app.UIAxes, 'On');
-    plot(app.UIAxes,...
+    linePlot.Fitted(end+1) = plot(app.UIAxes,...
         analyte(analyteNo).FittedT(:, i),...
         analyte(analyteNo).FittedR(:, i),...
-        'Color', 'Red');
+        '--');
+    linePlot.FittedString{end+1} = strcat(concentration{i}, concentrationUnit, '(Fitted)');
 end
+
+legend(app.UIAxes, [linePlot.Raw linePlot.Fitted], [linePlot.RawString linePlot.FittedString])
 % Table display (koff, kon, Rmax, KA, KD)
 % kResult = {[koff], [kon], [Rmax], [BI]};
 kVars = {'koff', 'kon', 'Rmax', 'BI'};
@@ -214,7 +225,6 @@ numericKD = kResult{1, 1} ./ kResult{2, 1};
 numericKA = kResult{2, 1} ./ kResult{1, 1};
 numericChi2 = ones(size(analyte(analyteNo).Concentration, 1), 1) * analyte(analyteNo).chi2;
 
-[concentration, concentrationUnit] = FindConcentrationUnit(analyte(analyteNo).Concentration);
 koff = cell(size(analyte(analyteNo).Concentration, 1), 1);
 kon = cell(size(analyte(analyteNo).Concentration, 1), 1);
 Rmax = cell(size(analyte(analyteNo).Concentration, 1), 1);
@@ -222,7 +232,6 @@ BI = cell(size(analyte(analyteNo).Concentration, 1), 1);
 KD = cell(size(analyte(analyteNo).Concentration, 1), 1);
 KA = cell(size(analyte(analyteNo).Concentration, 1), 1);
 for i = 1:size(analyte(analyteNo).Concentration, 1)
-%     concentration{i, 1} = sprintf('%0.2f', analyte(analyteNo).Concentration(i, 1));
     koff{i, 1} = sprintf('%0.2e', kResult{1, 1}(i, 1));
     kon{i, 1} = sprintf('%0.2e', kResult{2, 1}(i, 1));
     Rmax{i, 1} = sprintf('%0.2f', kResult{3, 1}(i, 1));
@@ -382,12 +391,68 @@ end
 function FittingSetButtonPushed(src, event, app)
 fittingSetApp = test_FittingSet(app);
 waitfor(fittingSetApp.UIFigure)
-disp(fittingSetApp)
 
 analyteNo = find(strcmp(app.UIDropdownName.Items, app.UIDropdownName.Value));
 currentAnalyte = getappdata(app.UIFigure, 'currentAnalyte');
-app.UIFigure.UserData.Analyte(analyteNo) = currentAnalyte;
 
-disp(app.UIFigure.UserData.Analyte(analyteNo).FittingVariable.OneToOneStandard.Type)
+if ~isempty(currentAnalyte)
+    app.UIFigure.UserData.Analyte(analyteNo) = currentAnalyte;
+end
+
+end
+
+function ExportButtonPushed(src, event, app)
+
+selPath = uigetdir(app.UIFigure.UserData.ResultFilePath, 'Save folder');
+if isequal(selPath, 0); return; end
+
+formatOut = 'yymmddHHMMSS';
+dateStr = datestr(now, formatOut);
+extension = 'txt';
+
+for i = 1:size(app.UIFigure.UserData.Analyte, 2)    
+    analyteName = MakeProperFolderName(app.UIFigure.UserData.Analyte(i).Name);
+    pathName = fullfile(selPath, dateStr, analyteName);
+    mkdir(pathName);
+    
+    fileName = fullfile(pathName, strcat('Calculated_Constants', '.', extension));
+    writetable(app.UITable.Data, fileName, 'Delimiter', 'tab')
+    
+    [concStr, unit] = FindConcentrationUnit(app.UIFigure.UserData.Analyte(i).Concentration);
+    for ii = 1:size(app.UIFigure.UserData.Analyte(i).Data, 1)
+        fileNameRawData = strcat('Raw_', concStr{ii}, unit, '.', extension);
+        writetable(app.UIFigure.UserData.Analyte(i).Data{ii}, fullfile(pathName, fileNameRawData), 'Delimiter', 'tab')
+        
+        fileNameFittedData = strcat('Fitted_', concStr{ii}, unit, '.', extension);
+        x = app.UIFigure.UserData.Analyte(i).FittedT(:, ii);
+        y = app.UIFigure.UserData.Analyte(i).FittedR(:, ii);
+        fittedDataTable = table(x, y);
+        writetable(fittedDataTable, fullfile(pathName, fileNameFittedData), 'Delimiter', 'tab')
+    end
+end
+app.UIFigure.UserData.ResultFilePath = selPath;
+
+end
+
+function CloseButtonPushed(src, event, app)
+
+delete(app.UIFigure);
+
+end
+
+function properStr = MakeProperFolderName(inputStr)
+
+if ~ischar(inputStr)
+    disp('Input type should be char!')
+    properStr = inputStr;
+    return
+end
+
+properStr = ...
+    inputStr((inputStr~='\')&(inputStr~='/')...
+    &(inputStr~=':')&(inputStr~='*')...
+    &(inputStr~='?')&(inputStr~='"')...
+    &(inputStr~='<')&(inputStr~='>')...
+    &(inputStr~='|'));
 
 end

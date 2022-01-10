@@ -15,8 +15,7 @@ app.UIFigure.UserData.CurrentAnalyte = analyte(analyteNo);
 
 % Main Grid
 app.UIGridMain = uigridlayout(app.UIFigure);
-app.UIGridMain.RowHeight = {'2x', '2x', 50};
-% app.UIGridMain.ColumnWidth = {'1x', '1x'};
+app.UIGridMain.RowHeight = {'1x', 200, 50};
 app.UIGridMain.ColumnWidth = {'1x'};
 
 %% Fitting model panel
@@ -25,22 +24,39 @@ app.UIPanelFittingModel.Title = 'Fitting model';
 app.UIPanelFittingModel.Layout.Row = 1; app.UIPanelFittingModel.Layout.Column = 1;
 % Fitting model panel grid
 app.UIGridFittingModel = uigridlayout(app.UIPanelFittingModel);
-app.UIGridFittingModel.RowHeight = {'1x', '1x', '3x'};
-app.UIGridFittingModel.ColumnWidth = {'1x'};
+app.UIGridFittingModel.RowHeight = {25, 20, '1x'};
+app.UIGridFittingModel.ColumnWidth = {'1x', '1x'};
 % Dropdown
 app.UIDropDownModel = uidropdown(app.UIGridFittingModel);
-app.UIDropDownModel.Layout.Row = 1; app.UIDropDownModel.Layout.Column = 1;
-app.UIDropDownModel.Items = {'1:1 Standard Model (Langmuir Binding)';
-    '1:1 Diffusion Model (Mass transport rate)'};
-% Label (description)
-app.UILabelDescription = uilabel(app.UIGridFittingModel);
-app.UILabelDescription.Layout.Row = 2; app.UILabelDescription.Layout.Column = 1;
-app.UILabelDescription.Text = 'Description';
-app.UILabelDescription.VerticalAlignment = 'bottom';
+app.UIDropDownModel.Layout.Row = 1; app.UIDropDownModel.Layout.Column = [1, 2];
+% app.UIDropDownModel.Items = {'1:1 Standard Model (Langmuir Binding)';
+%     '1:1 Diffusion Model (Mass transport rate)'};
+app.UIDropDownModel.Items = {'1:1 Standard Model (Langmuir Binding)'};
+% Label (Equation)
+app.UILabelEquation = uilabel(app.UIGridFittingModel);
+app.UILabelEquation.Layout.Row = 2; app.UILabelEquation.Layout.Column = 1;
+app.UILabelEquation.Text = 'Equation';
+app.UILabelEquation.VerticalAlignment = 'bottom';
+app.UILabelEquation.HorizontalAlignment = 'center';
+% Label (Model)
+app.UILabelModel = uilabel(app.UIGridFittingModel);
+app.UILabelModel.Layout.Row = 2; app.UILabelModel.Layout.Column = 2;
+app.UILabelModel.Text = 'Model';
+app.UILabelModel.VerticalAlignment = 'bottom';
+app.UILabelModel.HorizontalAlignment = 'center';
 % TextArea (description)
-app.UITextAreaDescription = uitextarea(app.UIGridFittingModel);
-app.UITextAreaDescription.Layout.Row = 3; app.UITextAreaDescription.Layout.Column = 1;
-app.UITextAreaDescription.Editable = false;
+% app.UITextAreaDescription = uitextarea(app.UIGridFittingModel);
+% app.UITextAreaDescription.Layout.Row = 3; app.UITextAreaDescription.Layout.Column = 1;
+% app.UITextAreaDescription.Editable = false;
+
+% Equation Image
+app.UIImageEquation = uiimage(app.UIGridFittingModel);
+app.UIImageEquation.Layout.Row = 3; app.UIImageEquation.Layout.Column = 1;
+app.UIImageEquation.ImageSource = 'oneToOneEquation.png';
+% Model Image
+app.UIImageEquation = uiimage(app.UIGridFittingModel);
+app.UIImageEquation.Layout.Row = 3; app.UIImageEquation.Layout.Column = 2;
+app.UIImageEquation.ImageSource = 'oneToOneModel.png';
 
 %% Fitting parameters panel
 app.UIPanelFittingParameters = uipanel(app.UIGridMain);
@@ -62,7 +78,7 @@ app.UIPanelFittingParametersSetting.Title = 'Setting';
 % Setting grid
 app.UIGridFittingParametersSetting = uigridlayout(app.UIPanelFittingParametersSetting);
 app.UIGridFittingParametersSetting.RowHeight = {'1x', '1x', '1x', '1x'};
-app.UIGridFittingParametersSetting.ColumnWidth = {'1x', '1x'};
+app.UIGridFittingParametersSetting.ColumnWidth = {80, '1x'};
 % Type Label
 app.UILabelSettingType = uilabel(app.UIGridFittingParametersSetting);
 app.UILabelSettingType.Text = 'Type :';
@@ -114,7 +130,6 @@ app.UICheckBoxNegative.Layout.Row = 3; app.UICheckBoxNegative.Layout.Column = [1
 
 %% Bottom Buttons
 app.UIGridButton = uigridlayout(app.UIGridMain);
-% app.UIGridButton.Layout.Row = 3; app.UIGridButton.Layout.Column = [1 2];
 app.UIGridButton.Layout.Row = 3; app.UIGridButton.Layout.Column = 1;
 app.UIGridButton.RowHeight = {30};
 app.UIGridButton.ColumnWidth = {'1x', 80, 80, 80};
@@ -139,9 +154,10 @@ app.UIListBoxParameters.ValueChangedFcn = @(src, event) UIListBoxParametersValue
 app.UIDropDownSettingType.ValueChangedFcn = @(src, event) UIDropDownSettingTypeValueChanged(src, event, app);
 app.UIEditFieldSettingInitialValue.ValueChangedFcn = @(src, event) UIEditFieldSettingInitialValueValueChanged(src, event, app);
 app.UICheckBoxNegative.ValueChangedFcn = @(src, event) UICheckBoxNegativeValueChanged(src, event, app);
-app.UIFigure.CloseRequestFcn = @(src, event) UIFigureCloseRequestFcn(src, event, app);
+app.UIFigure.CloseRequestFcn = @(src, event) UIFigureCloseRequestFcn(src, event, app, MainApp);
 app.UIButtonOK.ButtonPushedFcn = @(src, event) UIButtonOKButtonPushedFcn(src, event, app, MainApp);
-app.UIButtonCancel.ButtonPushedFcn = @(src, event) UIFigureCloseRequestFcn(src, event, app);
+app.UIButtonCancel.ButtonPushedFcn = @(src, event) UIFigureCloseRequestFcn(src, event, app, MainApp);
+app.UIButtonDefault.ButtonPushedFcn = @(src, event) UIButtonDefaultButtonPushedFcn(src, event, app, MainApp);
 
 % StartUp Function
 app.UIDropDownModel.Value = app.UIDropDownModel.Items{1};
@@ -151,7 +167,7 @@ app.UIListBoxParameters.Value = app.UIListBoxParameters.Items{1};
 app.UIDropDownSettingType.Value = analyte(analyteNo).FittingVariable.OneToOneStandard.Type{1};
 
 
-disp(analyteNo)
+% disp(analyteNo)
 UIDropDownModelValueChanged([], [], app)
 UIListBoxParametersValueChanged([], [], app)
 end
@@ -159,9 +175,9 @@ end
 function UIDropDownModelValueChanged(src, event, app)
 
 if strcmp(app.UIDropDownModel.Value, '1:1 Standard Model (Langmuir Binding)')
-    app.UITextAreaDescription.Value = '1:1 Standard Model (Langmuir Binding)';
+%     app.UITextAreaDescription.Value = '1:1 Standard Model (Langmuir Binding)';
 elseif strcmp(app.UIDropDownModel.Value, '1:1 Diffusion Model (Mass transport rate)')
-    app.UITextAreaDescription.Value = '1:1 Diffusion Model (Mass transport rate)';
+%     app.UITextAreaDescription.Value = '1:1 Diffusion Model (Mass transport rate)';
 end
 
 UIListBoxParametersValueChanged([], [], app)
@@ -177,13 +193,10 @@ elseif strcmp(app.UIDropDownModel.Value, '1:1 Diffusion Model (Mass transport ra
 end
 
 currentAnalyte = app.UIFigure.UserData.CurrentAnalyte;
-
-% currentModel = currentAnalyte.FittingVariable.FittingModel;
 currentType = currentAnalyte.FittingVariable.(currentModel).Type{...
     contains(currentAnalyte.FittingVariable.(currentModel).Name, app.UIListBoxParameters.Value)};
 currentInitialValue = currentAnalyte.FittingVariable.(currentModel).InitialValue{...
     contains(currentAnalyte.FittingVariable.(currentModel).Name, app.UIListBoxParameters.Value)}(1);
-% currentType = 'Constant';
 
 app.UIEditFieldSettingInitialValue.Value = currentInitialValue;
 
@@ -192,10 +205,8 @@ if strcmp(app.UIListBoxParameters.Value, 'BI')
     if strcmp(currentType, 'Constant')
         currentType = 'None';
     end
-%     app.UICheckBoxNegative.Enable = 1;
 else
     app.UIDropDownSettingType.Items = {'Global', 'Local', 'Constant'};
-%     app.UICheckBoxNegative.Enable = 0;
 end
 
 app.UIDropDownSettingType.Value = currentType;
@@ -241,8 +252,6 @@ app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).Type{...
     app.UIListBoxParameters.Value)} = ...
     currentType;
 
-disp(app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).Type)
-
 end
 
 function UIEditFieldSettingInitialValueValueChanged(src, event, app)
@@ -261,10 +270,6 @@ newValue = ones(size(currentValue)) * app.UIEditFieldSettingInitialValue.Value;
 app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).InitialValue{...
     contains(app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).Name,...
     app.UIListBoxParameters.Value)} = newValue;
-
-disp(app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).InitialValue{...
-    contains(app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).Name,...
-    app.UIListBoxParameters.Value)})
 
 end
 
@@ -290,8 +295,19 @@ app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).LowerBound{.
     contains(app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).Name, app.UIListBoxParameters.Value)} = ...
     newLowerBound;
 
-disp(app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).LowerBound{...
-    contains(app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).Name, app.UIListBoxParameters.Value)})
+end
+
+function UIButtonDefaultButtonPushedFcn(src, event, app, MainApp)
+
+analyteNo = strcmp(MainApp.UIDropdownName.Items, MainApp.UIDropdownName.Value);
+analyte = MainApp.UIFigure.UserData.Analyte;
+app.UIFigure.UserData.CurrentAnalyte.FittingVariable = analyte(analyteNo).DefaultFittingVariable;
+
+app.UIDropDownModel.Value = app.UIDropDownModel.Items{1};
+app.UIListBoxParameters.Value = app.UIListBoxParameters.Items{1};
+
+UIDropDownModelValueChanged([], [], app)
+UIListBoxParametersValueChanged([], [], app)
 
 end
 
@@ -300,11 +316,14 @@ function UIButtonOKButtonPushedFcn(src, event, app, MainApp)
 currentAnalyte = app.UIFigure.UserData.CurrentAnalyte;
 setappdata(MainApp.UIFigure, 'currentAnalyte', currentAnalyte);
 
-UIFigureCloseRequestFcn([], [], app)
+delete(app.UIFigure)
 
 end
 
-function UIFigureCloseRequestFcn(src, event, app)
+function UIFigureCloseRequestFcn(src, event, app, MainApp)
+
+currentAnalyte = [];
+setappdata(MainApp.UIFigure, 'currentAnalyte', currentAnalyte);
 
 delete(app.UIFigure)
 

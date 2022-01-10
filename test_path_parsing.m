@@ -107,7 +107,7 @@ for i = 1:size(parNum, 1)
     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard = struct;
 %     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.Name = {'koff';   'kon';    'Rmax';   'BI'};
     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.Name = {'kon';   'koff';    'Rmax';   'BI'};
-    analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.Type = {'Global'; 'Global'; 'Global'; 'Local'};
+    analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.Type = {'Global'; 'Global'; 'Global'; 'Constant'};
 %     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.Type = {'Local'; 'Local'; 'Local'; 'Local'};
     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.InitialValue =...
         cell(length(analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.Type), 1);
@@ -128,7 +128,7 @@ for i = 1:size(parNum, 1)
     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.UpperBound{3, 1} =...
         analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.InitialValue{3, 1} * boundScale;
     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.UpperBound{4, 1} =...
-        inf(size(analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.InitialValue{4, 1}));
+        zeros(size(analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.InitialValue{4, 1}));
 
     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.LowerBound{1, 1} =...
         analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.InitialValue{1, 1} / boundScale;
@@ -137,5 +137,5 @@ for i = 1:size(parNum, 1)
     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.LowerBound{3, 1} =...
         analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.InitialValue{3, 1} / boundScale;
     analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.LowerBound{4, 1} =...
-        -inf(size(analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.InitialValue{4, 1}));
+        zeros(size(analyte(analyteNo).DefaultFittingVariable.OneToOneStandard.InitialValue{4, 1}));
 end
