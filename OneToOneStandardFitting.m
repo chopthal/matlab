@@ -21,6 +21,16 @@ idxVar = cell(numCurve, 1);
 idxVar{1} = 1:numLocal+numGlobal+numConstant;
 lastIdx = idxVar{1}(end);
 
+options = optimoptions('lsqcurvefit',...
+    'Algorithm', 'levenberg-marquardt',...
+    'FiniteDifferenceType', 'central',...
+    'MaxFunctionEvaluations', 200*numK, ...
+    'MaxIterations', 400, ...
+    'FunctionTolerance', 1e-6, ...    
+    'StepTolerance', 1e-6, ...
+    'ScaleProblem', 'jacobian', ...
+    'FiniteDifferenceStepSize', eps^(1/3));
+
 % ka(on), kd(off), Rmax, BI, drift
 for i = 2 : numCurve
     for j = 1:length(varType)
@@ -58,17 +68,6 @@ for i = 1:length(varType)
     end
 end
 
-options = optimoptions('lsqcurvefit',...
-    'Algorithm', 'levenberg-marquardt',...
-    'FiniteDifferenceType', 'central',...
-    'MaxIterations', 100, ...
-    'FunctionTolerance', 1e-7, ...
-    'MaxFunctionEvaluations', 2e3, ...
-    'StepTolerance', 1e-6);
-%     'FiniteDifferenceStepSize', eps^(1/3));
-%     'Display', 'iter-detailed',...
-%     'PlotFcn', 'optimplotstepsize',...
-
 assoStartPoint = find(xdata==eventTime(1));
 assoEndPoint = find(xdata==eventTime(2));
 dissoStartPoint = find(xdata==eventTime(3));
@@ -83,6 +82,8 @@ for i = 1:size(assoStartPoint, 1)
     ydataEffectiveRange = [ydataEffectiveRange; ydata(dissoStartPoint(i, 1):dissoEndPoint(i, 1))];
 end
 
+% Pre-fit for find initial values
+
 % ResNorm = (sum((fun(x,xdata)-ydata).^2))
 % lsqfitcurve assigns k(defined as k0, lb, ub) value to k position of ODESolve. 
 [k, resnorm] = lsqcurvefit(@(k, xdata) LsqFit ...
@@ -91,7 +92,7 @@ end
          @DissociationRateEquationODE,...
            eventTime, concentration, idxVar),...
         k0, xdataEffectiveRange, ydataEffectiveRange, lb, ub, options);
-chi2 = sqrt(resnorm / size(xdata, 1));
+chi2 = resnorm / size(xdataEffectiveRange, 1);
 
 [T, R] = ODESolve(k, xdata,...
     @AssociationRateEquationODE,...
@@ -101,15 +102,17 @@ chi2 = sqrt(resnorm / size(xdata, 1));
 end
 
 
-function dy = AssociationRateEquationODE(t, y, k, C)
+function dy = AssociationRateEquationODE(t, y, k)
 
     kd = k(2);
     ka = k(1);
+%     ka = 1.04e+02;
 
     dy = zeros(3, 1);
     dy(1) = 0; % A
-    dy(2) = -ka*C*y(2) + kd*y(3); % B
-    dy(3) = ka *C*y(2) - kd*y(3); % AB
+    dy(2) = -ka*y(1)*y(2) + kd*y(3); % B
+    dy(3) =  ka*y(1)*y(2) - kd*y(3); % AB
+%     dy = (ka *C - kd) * y; % AB (from Trace drawer manual)
 
 end
 
@@ -118,32 +121,25 @@ function dy = DissociationRateEquationODE(t, y, k)
 
     kd = k(2);
     ka = k(1);
-    C = 0;
 
     dy = zeros(3,1);
-
     dy(1) = 0; % A = 0
-    dy(2) = -ka*C*y(2) + kd*y(3); % B
-    dy(3) =  ka*C*y(2) - kd*y(3); % AB
+    dy(2) = -ka*y(1)*y(2) + kd*y(3); % B
+    dy(3) =  ka*y(1)*y(2) - kd*y(3); % AB
 
 end
 
 
 function [X, Y] = ODESolve(k, xdata, pfuncAsso, pfuncDisso, eventTime, concentration, idxVar)
 
-    X = [];
-    Y = [];
-
-%     Rmax = k(4);
-    Rmax = k(3);
+    X = []; Y = [];
     assoStart = find(xdata == eventTime(1));
     assoEnd = find(xdata == eventTime(2));
     dissoStart = find(xdata == eventTime(3));
     dissoEnd = find(xdata == eventTime(4));
 
-    absTol = 1e-6;
-    relTol = 1e-6;
-    y0Asso = [0; Rmax; 0];
+    absTol = 1e-3;
+    relTol = 1e-3;
     options = odeset('RelTol', relTol, 'AbsTol', absTol);
 
     for i = 1 : size(assoStart, 1)
@@ -156,14 +152,18 @@ function [X, Y] = ODESolve(k, xdata, pfuncAsso, pfuncDisso, eventTime, concentra
         % k_here = [k(5), k(6), k(3), k(4)];
         % k_idx = [5, 6, 3, 4];
         % k_here = k(k_idx)
-        kInput = k(idxVar{i});
-        [XAsso, YAsso] = ode15s(@(x, y) pfuncAsso (x, y, kInput, C), tspanAsso, y0Asso, options);
-        y0Disso = [0; Rmax; YAsso(end, 3)];  
-        [XDisso, YDisso] = ode15s(@(x, y) pfuncDisso (x, y, kInput), tspanDisso, y0Disso, options);
+        kInput = k(idxVar{i}); % kon, koff, Rmax, 
+        Rmax = kInput(3);
+        y0Asso = [C; Rmax; 0]; %Check
+        
+        [XAsso, YAsso] = ode15s(@(x, y) pfuncAsso (x, y, kInput(1:2)), tspanAsso, y0Asso, options);
+        y0Disso = [0; 0; YAsso(end, 3)]; %Check
+         
+        [XDisso, YDisso] = ode15s(@(x, y) pfuncDisso (x, y, kInput(1:2)), tspanDisso, y0Disso, options);
         X = [X; XAsso; XDisso];        
 %         YAsso = YAsso + kInput(5) * (XAsso-XAsso(1)) + kInput(4); % Bulky index (kInput(4)) and Drift (kInput(5))        
 %         YDisso = YDisso + kInput(5) * (XDisso-XAsso(1)); % Drift (kInput(5))
-        YAsso = YAsso + kInput(4); % Bulky index (kInput(4)) and W/O Drift (kInput(5))        
+        YAsso = YAsso + kInput(4); % Bulky index (kInput(4)) and W/O Drift (kInput(5))             
         Y = [Y; YAsso; YDisso];
     end
 

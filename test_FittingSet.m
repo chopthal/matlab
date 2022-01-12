@@ -166,19 +166,11 @@ app.UIListBoxParameters.Items =...
 app.UIListBoxParameters.Value = app.UIListBoxParameters.Items{1};
 app.UIDropDownSettingType.Value = analyte(analyteNo).FittingVariable.OneToOneStandard.Type{1};
 
-
 % disp(analyteNo)
 UIDropDownModelValueChanged([], [], app)
-UIListBoxParametersValueChanged([], [], app)
 end
 
 function UIDropDownModelValueChanged(src, event, app)
-
-if strcmp(app.UIDropDownModel.Value, '1:1 Standard Model (Langmuir Binding)')
-%     app.UITextAreaDescription.Value = '1:1 Standard Model (Langmuir Binding)';
-elseif strcmp(app.UIDropDownModel.Value, '1:1 Diffusion Model (Mass transport rate)')
-%     app.UITextAreaDescription.Value = '1:1 Diffusion Model (Mass transport rate)';
-end
 
 UIListBoxParametersValueChanged([], [], app)
 
@@ -198,6 +190,7 @@ currentType = currentAnalyte.FittingVariable.(currentModel).Type{...
 currentInitialValue = currentAnalyte.FittingVariable.(currentModel).InitialValue{...
     contains(currentAnalyte.FittingVariable.(currentModel).Name, app.UIListBoxParameters.Value)}(1);
 
+app.UIEditFieldSettingInitialValue.Limits = [-inf, inf];
 app.UIEditFieldSettingInitialValue.Value = currentInitialValue;
 
 if strcmp(app.UIListBoxParameters.Value, 'BI')
@@ -224,8 +217,8 @@ elseif strcmp(app.UIDropDownModel.Value, '1:1 Diffusion Model (Mass transport ra
 end
 
 currentType = app.UIDropDownSettingType.Value;
-currentLowerBound = app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).LowerBound{...
-    contains(app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).Name, app.UIListBoxParameters.Value)}(1);
+variableIdx = contains(app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).Name, app.UIListBoxParameters.Value);
+currentLowerBound = app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).LowerBound{variableIdx};
 if strcmp(currentType, 'None')
     currentType = 'Constant';
     app.UIEditFieldSettingInitialValue.Enable = 0;
@@ -239,7 +232,7 @@ else
     app.UICheckBoxNegative.Enable = 0;
 end
 
-if currentLowerBound < 0
+if currentLowerBound(1) < 0
     app.UICheckBoxNegative.Value = 1;
     app.UIEditFieldSettingInitialValue.Limits = [-inf inf];
 else
@@ -252,48 +245,67 @@ app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).Type{...
     app.UIListBoxParameters.Value)} = ...
     currentType;
 
+UIEditFieldSettingInitialValueValueChanged([], [], app)
+
 end
+
 
 function UIEditFieldSettingInitialValueValueChanged(src, event, app)
 
-if strcmp(app.UIDropDownModel.Value, '1:1 Standard Model (Langmuir Binding)')
-    currentModel = 'OneToOneStandard';
-elseif strcmp(app.UIDropDownModel.Value, '1:1 Diffusion Model (Mass transport rate)')
-    currentModel = 'OneToOneMassTransfer';
-end
-
-currentValue = app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).InitialValue{...
-    contains(app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).Name,...
-    app.UIListBoxParameters.Value)};
-newValue = ones(size(currentValue)) * app.UIEditFieldSettingInitialValue.Value;
-
-app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).InitialValue{...
-    contains(app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).Name,...
-    app.UIListBoxParameters.Value)} = newValue;
+UICheckBoxNegativeValueChanged([], [], app)
 
 end
 
 function UICheckBoxNegativeValueChanged(src, event, app)
 
-% Use BI Only
 if strcmp(app.UIDropDownModel.Value, '1:1 Standard Model (Langmuir Binding)')
     currentModel = 'OneToOneStandard';
 elseif strcmp(app.UIDropDownModel.Value, '1:1 Diffusion Model (Mass transport rate)')
     currentModel = 'OneToOneMassTransfer';
 end
+variableIdx = contains(app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).Name, app.UIListBoxParameters.Value);
 
-currentLowerBound = app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).LowerBound{...
-    contains(app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).Name, app.UIListBoxParameters.Value)};
 if app.UICheckBoxNegative.Value == 1
-    newLowerBound = -inf(size(currentLowerBound));
     app.UIEditFieldSettingInitialValue.Limits = [-inf inf];
 else
-    newLowerBound = zeros(size(currentLowerBound));
     app.UIEditFieldSettingInitialValue.Limits = [0 inf];
 end
-app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).LowerBound{...
-    contains(app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).Name, app.UIListBoxParameters.Value)} = ...
-    newLowerBound;
+
+[newInitialValue, newLowerBound, newUpperBound] = SetFitParameterRange(app.UIFigure.UserData.CurrentAnalyte, currentModel,...
+    app.UIListBoxParameters.Value, app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).Type{variableIdx},...
+    app.UIEditFieldSettingInitialValue.Value, app.UICheckBoxNegative.Value);
+app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).InitialValue{variableIdx} = newInitialValue;
+app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).LowerBound{variableIdx} = newLowerBound;
+app.UIFigure.UserData.CurrentAnalyte.FittingVariable.(currentModel).UpperBound{variableIdx} = newUpperBound;
+    
+    function [newInitialValue, newLowerBound, newUpperBound] =...
+        SetFitParameterRange(currentAnalyte, currentModel, variable, type, initialValue, allowNegative)
+    % Ex : SetFitParameterRange(analyte(analyteNo), 'OneToOneStandard', 'BI', 'Local', 0, 1)
+        boundScale = 100000;
+        variableIdx = contains(currentAnalyte.FittingVariable.(currentModel).Name, variable);
+        unitValue = ones(size(currentAnalyte.FittingVariable.(currentModel).InitialValue{variableIdx}));
+        newInitialValue = unitValue * initialValue;
+
+        if strcmp(type, 'Constant')
+            if strcmp(variable, 'BI')
+                newInitialValue = 0;
+            end
+            newLowerBound = newInitialValue;
+            newUpperBound = newInitialValue;
+        else
+            if strcmp(variable, 'BI')
+                if allowNegative
+                    newLowerBound = -unitValue * inf;
+                else
+                    newLowerBound = unitValue * 0;            
+                end 
+                newUpperBound = unitValue * inf;
+            else
+                newLowerBound = newInitialValue / boundScale;
+                newUpperBound = newInitialValue * boundScale; 
+            end
+        end
+    end
 
 end
 

@@ -67,8 +67,6 @@ app.UIButtonFit.Layout.Row = 1; app.UIButtonFit.Layout.Column = 3;
 app.UIButtonExport.Layout.Row = 1; app.UIButtonExport.Layout.Column = 5; 
 app.UIButtonClose.Layout.Row = 1; app.UIButtonClose.Layout.Column = 6;
 
-
-
 % Get Inputs from Main UI Table
 % Injection delay (sec) when normalizing
 % Normalization flow rate (ul/min)
@@ -211,13 +209,14 @@ for i = 1:size(analyte(analyteNo).FittedR, 2)
 end
 
 legend(app.UIAxes, [linePlot.Raw linePlot.Fitted], [linePlot.RawString linePlot.FittedString])
+axtoolbar(app.UIAxes, {'pan', 'zoomin', 'zoomout', 'restoreview', 'export'});
 % Table display (koff, kon, Rmax, KA, KD)
 % kResult = {[koff], [kon], [Rmax], [BI]};
-kVars = {'koff', 'kon', 'Rmax', 'BI'};
+kVars = {'kon', 'koff', 'Rmax', 'BI'};
 kResult = cell(size(kVars, 2), 1);
 for i = 1:size(kResult, 1)    
     kResult{i, 1} = zeros(size(analyte(analyteNo).Concentration, 1), 1);
-    tmpIdx = contains(analyte(1).kName, analyte(1).kName{i});
+    tmpIdx = contains(analyte(analyteNo).kName, analyte(analyteNo).kName{i});
     kResult{i, 1}(:, 1) = analyte(analyteNo).k(tmpIdx);    
 end
 
@@ -232,8 +231,8 @@ BI = cell(size(analyte(analyteNo).Concentration, 1), 1);
 KD = cell(size(analyte(analyteNo).Concentration, 1), 1);
 KA = cell(size(analyte(analyteNo).Concentration, 1), 1);
 for i = 1:size(analyte(analyteNo).Concentration, 1)
-    koff{i, 1} = sprintf('%0.2e', kResult{1, 1}(i, 1));
-    kon{i, 1} = sprintf('%0.2e', kResult{2, 1}(i, 1));
+    kon{i, 1} = sprintf('%0.2e', kResult{1, 1}(i, 1));
+    koff{i, 1} = sprintf('%0.2e', kResult{2, 1}(i, 1));    
     Rmax{i, 1} = sprintf('%0.2f', kResult{3, 1}(i, 1));
     BI{i, 1} = sprintf('%0.2f', kResult{4, 1}(i, 1));
     KD{i, 1} = sprintf('%0.2e', numericKD(i, 1));

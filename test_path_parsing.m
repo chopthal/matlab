@@ -47,7 +47,7 @@ analyte.kName = [];
 analyte.chi2 = [];
 analyte.FittedT = [];
 analyte.FittedR = [];
-boundScale = 10000;
+boundScale = 100000;
 
 for i = 1:size(parNum, 1)    
     parStart = strfind(informStr{i}, '(');
