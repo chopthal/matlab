@@ -88,10 +88,14 @@ dissoEndPoint = find(xdata==eventTime(4));
 xdataEffectiveRange = [];
 ydataEffectiveRange = [];
 for i = 1:size(assoStartPoint, 1)    
+    try
     xdataEffectiveRange = [xdataEffectiveRange; xdata(assoStartPoint(i, 1):assoEndPoint(i, 1))];
     xdataEffectiveRange = [xdataEffectiveRange; xdata(dissoStartPoint(i, 1):dissoEndPoint(i, 1))];
     ydataEffectiveRange = [ydataEffectiveRange; ydata(assoStartPoint(i, 1):assoEndPoint(i, 1))];
     ydataEffectiveRange = [ydataEffectiveRange; ydata(dissoStartPoint(i, 1):dissoEndPoint(i, 1))];
+    catch
+        disp('err')
+    end
 end
 
 % Pre-fit for find initial values

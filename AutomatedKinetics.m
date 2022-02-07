@@ -77,9 +77,12 @@ app.UIButtonClose.Layout.Row = 1; app.UIButtonClose.Layout.Column = 6;
 assoStart = 90; assoEnd = 280; dissoStart = 281; dissoEnd = 650;
 app.UIFigure.UserData.EventTime = [assoStart, assoEnd, dissoStart, dissoEnd];
 
-% parentPath = 'D:\Working\Newly\icluebio\Software\icluebio\Kinetics\MultiKinetics\TestSet\iMSPR_test_failed\PathTest';
-parentPath = 'D:\Working\Newly\icluebio\Software\icluebio\Kinetics\MultiKinetics\TestSet\20211224_SMF_2-34,49,59,54_kinetics\20211224_SMF_2-34,49,59,54_kinetics\2021-12-24 14-36-56';
-app.UIFigure.UserData.Analyte = ParsingPath(parentPath, app.UIFigure.UserData.EventTime);
+% parentPath = 'D:\Working\Newly\icluebio\Software\icluebio\Kinetics\MultiKinetics\TestSet\20211224_SMF_2-34,49,59,54_kinetics\20211224_SMF_2-34,49,59,54_kinetics\2021-12-24 14-36-56';
+% parentPath = 'D:\Users\user\Desktop\새 폴더 (2)';
+% parentPath = 'D:\Working\Newly\icluebio\Software\icluebio\Kinetics\MultiKinetics\TestSet\iMSPR_ProA_IgG\2022-02-03 13-28-34';
+parentPath = 'D:\Working\Newly\icluebio\Software\icluebio\Kinetics\MultiKinetics\TestSet\iMSPR_ProA_SmallMolecule\2022-02-04 11-13-59';
+% app.UIFigure.UserData.Analyte = ParsingPath(parentPath, app.UIFigure.UserData.EventTime);
+app.UIFigure.UserData.Analyte = ParsingInfo(parentPath);
 app.UIDropdownName.Items = {app.UIFigure.UserData.Analyte.Name};
 
 % Button Pushed functions
@@ -223,8 +226,8 @@ for i = 1:size(kResult, 1)
     kResult{i, 1}(:, 1) = analyte(analyteNo).k(tmpIdx);    
 end
 
-numericKD = kResult{1, 1} ./ kResult{2, 1};
-numericKA = kResult{2, 1} ./ kResult{1, 1};
+numericKD = kResult{2, 1} ./ kResult{1, 1};
+numericKA = kResult{1, 1} ./ kResult{2, 1};
 numericChi2 = ones(size(analyte(analyteNo).Concentration, 1), 1) * analyte(analyteNo).chi2;
 
 for i = 1:size(kVars, 1)
