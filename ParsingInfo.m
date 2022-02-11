@@ -26,14 +26,11 @@ for i = 1:length(dotIndex)
     idxFolderStr{i} = listFolder{i}(1:dotIndex{i}(1)-1);
 end
 idxFolderNum = str2double(idxFolderStr);
-[~, sortIdx] = sort(idxFolderNum);
-listFolder = listFolder(sortIdx)';
-
 
 applicationColumn = info.(expFieldName).TableData{:, 1};
+[name, ~, idx] = unique(applicationColumn);
 
-% [name, ~, idx] = unique(applicationColumn);
-name = unique(applicationColumn);
+% name = unique(applicationColumn);
 targetApplicationName = name(contains(name, applicationName));
 
 analyte = struct;
@@ -53,7 +50,19 @@ analyte.FittedR = [];
 isApplicationRow = cell(length(targetApplicationName), 1);
 for i = 1:length(targetApplicationName)
     isApplicationRow{i, 1} = matches(applicationColumn, targetApplicationName{i});
-    pathName = fullfile(parentPath, listFolder(isApplicationRow{i, 1}), dataPath, dataFileName);
+    folderNo = find(isApplicationRow{i, 1} == 1);
+    tmpList = listFolder(ismember(idxFolderNum, folderNo));
+    tmpDotIndex = strfind(tmpList, '.');
+    tmpIdxFolderStr = cell(size(tmpDotIndex));
+    for ii = 1:length(tmpDotIndex)
+        tmpIdxFolderStr{ii} = tmpList{ii}(1:tmpDotIndex{i}(1)-1);
+    end
+    [~, tmpIdx]= sort(str2double(tmpIdxFolderStr));
+    sortedListFolder = tmpList(tmpIdx);
+    
+
+
+    pathName = fullfile(parentPath, sortedListFolder, dataPath, dataFileName);
 
     % Path
     analyte(i).Path = pathName;
@@ -88,13 +97,17 @@ for i = 1:length(targetApplicationName)
     dissoStart = assoEnd + 1;
     dissoEnd = totalTime(1);
     analyte(i).EventTime = [assoStart assoEnd dissoStart dissoEnd];
-    
+
+    % BaseLine
+    analyte(i).Baseline = analyte(i).EventTime(1);
+
     % Data (RmaxCanditate, XData, YData)
     boundScale = 1e8;
     analyte(i).Data = cell(size(analyte(i).Concentration));
     for ii = 1:length(analyte(i).Data)        
         analyte(i).Data{ii} = readtable(analyte(i).Path{ii}, 'VariableNamingRule', 'preserve');    
-        analyte(i).Data{ii}.y = analyte(i).Data{ii}.y -analyte(i).Data{ii}.y(analyte(i).EventTime(1));
+%         analyte(i).Data{ii}.y = analyte(i).Data{ii}.y - analyte(i).Data{ii}.y(analyte(i).EventTime(1));
+        analyte(i).Data{ii}.y = analyte(i).Data{ii}.y - analyte(i).Data{ii}.y(analyte(i).Baseline);
         analyte(i).RmaxCandidate(ii, 1) = analyte(i).Data{ii, 1}.y(analyte(i).Data{ii, 1}.x == analyte(i).EventTime(3));
         analyte(i).XData = [analyte(i).XData; analyte(i).Data{ii, 1}.x];
         analyte(i).YData = [analyte(i).YData; analyte(i).Data{ii, 1}.y];
@@ -113,7 +126,8 @@ for i = 1:length(targetApplicationName)
     analyte(i).DefaultFittingVariable.FittingModel = 'OneToOneStandard';
     analyte(i).DefaultFittingVariable.OneToOneStandard = struct;
     analyte(i).DefaultFittingVariable.OneToOneStandard.Name = {'kon';   'koff';    'Rmax';   'BI'};
-    analyte(i).DefaultFittingVariable.OneToOneStandard.Type = {'Global'; 'Global'; 'Global'; 'Constant'};
+%     analyte(i).DefaultFittingVariable.OneToOneStandard.Type = {'Global'; 'Global'; 'Global'; 'Constant'};
+    analyte(i).DefaultFittingVariable.OneToOneStandard.Type = {'Global'; 'Global'; 'Global'; 'Local'};
     analyte(i).DefaultFittingVariable.OneToOneStandard.InitialValue =...
         cell(length(analyte(i).DefaultFittingVariable.OneToOneStandard.Type), 1);
     analyte(i).DefaultFittingVariable.OneToOneStandard.UpperBound =...
@@ -132,8 +146,9 @@ for i = 1:length(targetApplicationName)
         analyte(i).DefaultFittingVariable.OneToOneStandard.InitialValue{2, 1} * boundScale;
     analyte(i).DefaultFittingVariable.OneToOneStandard.UpperBound{3, 1} =...
         analyte(i).DefaultFittingVariable.OneToOneStandard.InitialValue{3, 1} * boundScale;
-    analyte(i).DefaultFittingVariable.OneToOneStandard.UpperBound{4, 1} =...
-        zeros(size(analyte(i).DefaultFittingVariable.OneToOneStandard.InitialValue{4, 1}));
+%     analyte(i).DefaultFittingVariable.OneToOneStandard.UpperBound{4, 1} =...
+%         zeros(size(analyte(i).DefaultFittingVariable.OneToOneStandard.InitialValue{4, 1}));
+    analyte(i).DefaultFittingVariable.OneToOneStandard.UpperBound{4, 1} = inf;
 
     analyte(i).DefaultFittingVariable.OneToOneStandard.LowerBound{1, 1} =...
         analyte(i).DefaultFittingVariable.OneToOneStandard.InitialValue{1, 1} / boundScale;
@@ -141,8 +156,9 @@ for i = 1:length(targetApplicationName)
         analyte(i).DefaultFittingVariable.OneToOneStandard.InitialValue{2, 1} / boundScale;
     analyte(i).DefaultFittingVariable.OneToOneStandard.LowerBound{3, 1} =...
         analyte(i).DefaultFittingVariable.OneToOneStandard.InitialValue{3, 1} / boundScale;
-    analyte(i).DefaultFittingVariable.OneToOneStandard.LowerBound{4, 1} =...
-        zeros(size(analyte(i).DefaultFittingVariable.OneToOneStandard.InitialValue{4, 1}));
+%     analyte(i).DefaultFittingVariable.OneToOneStandard.LowerBound{4, 1} =...
+%         zeros(size(analyte(i).DefaultFittingVariable.OneToOneStandard.InitialValue{4, 1}));
+    analyte(i).DefaultFittingVariable.OneToOneStandard.LowerBound{4, 1} = -inf;
     
     % 1:1 Mass Transfer Fitting
     kt = ones(1, size(analyte(i).Concentration, 1)) * 10^8;
@@ -165,7 +181,7 @@ for i = 1:length(targetApplicationName)
     
 end
 
-disp(analyte)
+% disp(analyte)
 
 function concMole = concentrationUnit2Mole(concentration, unit)
 

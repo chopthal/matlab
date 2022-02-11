@@ -28,7 +28,6 @@ else
     scaleProblem = 'jacobian';
 %     scaleProblem = 'none';        
 end
-disp(scaleProblem)
 
 options = optimoptions('lsqcurvefit',...
     'Algorithm', algorithm,...
@@ -155,7 +154,9 @@ function [X, Y] = ODESolve(k, xdata, rateEquation, fittingModel, eventTime, conc
 
     for i = 1 : size(assoStart, 1)
 
+        
         C = concentration(i);              
+        
         tspanAsso = xdata(assoStart(i, 1) : assoEnd(i, 1));
         tspanDisso = xdata(dissoStart(i, 1) : dissoEnd(i, 1));
         

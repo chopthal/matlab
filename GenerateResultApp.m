@@ -1,143 +1,118 @@
-close force all; clear;
+function app = GenerateResultApp
+
+% TODO (2022. 02. 11)
+% Timing set and baseline button to the vertically middle of the UI
+% Fitting set and Fit button to the left
+% Add Report button left-side of the Export Data
 
 app = struct;
 % Generate App (Figure, axes, table..)
 app.UIFigure = uifigure;
 app.UIFigure.Visible = 'off';
-app.UIFigure.Position = [100, 100, 800, 600];
+app.UIFigure.Position = [100, 100, 850, 700];
 app.UIFigure.UserData.ResultFilePath = [];
+app.UIFigure.UserData.LineExpandRatio = 1e5;
 app.UIMainGrid = uigridlayout(app.UIFigure);
 
 app.UIDropdownGrid = uigridlayout(app.UIMainGrid);
+app.UIDropdownGrid.Padding = [10 0 0 10];
 app.UILabelName = uilabel(app.UIDropdownGrid);
 app.UILabelName.Text = 'Analyte : ';
 app.UIDropdownName = uidropdown(app.UIDropdownGrid);
 app.UIDropdownName.Items = {'Analyte(1)', 'Analyte(2)', 'Analyte(3)'};
 app.UIDropdownName.Value = app.UIDropdownName.Items{matches(app.UIDropdownName.Items, app.UIDropdownName.Items(1))};
-app.UIButtonOK = uibutton(app.UIDropdownGrid);
-app.UIButtonOK.Text = 'OK';
-app.UIButtonOK.Visible = 'Off';
+app.UICheckBoxLegend = uicheckbox(app.UIDropdownGrid);
+app.UICheckBoxLegend.Text = 'Legend';
+app.UICheckBoxLegend.Value = 1;
 
 app.UIAxes = uiaxes(app.UIMainGrid);
 app.UIAxes.XLabel.String = 'Time (s)';
 app.UIAxes.YLabel.String = 'Response (RU)';
 
+app.UIOptionButtonGrid = uigridlayout(app.UIMainGrid);
+app.UIOptionButtonGrid.RowHeight = {'1x'};
+app.UIOptionButtonGrid.ColumnWidth = {'1x', 100, 100};
+app.UIOptionButtonGrid.ColumnSpacing = 5;
+app.UIOptionButtonGrid.Padding = [0 10 0 10];
+app.UIButtonOK = uibutton(app.UIOptionButtonGrid);
+app.UIButtonCancel = uibutton(app.UIOptionButtonGrid);
+app.UIButtonOK.Text = 'OK';
+app.UIButtonOK.Visible = 'Off';
+app.UIButtonCancel.Text = 'Cancel';
+app.UIButtonCancel.Visible = 'Off';
+
 app.UILabel = uilabel(app.UIMainGrid); 
 app.UILabel.Text = "Fitting Result";
-app.UILabel.VerticalAlignment = 'bottom';
+app.UILabel.VerticalAlignment = 'center';
 
 app.UITable = uitable(app.UIMainGrid);
-app.UIMainGrid.RowHeight = {50, '10x', '1x', '3x', 50};
+app.UIMainGrid.RowHeight = {45, '10x', 50, 20, '5x', 50};
 app.UIMainGrid.ColumnWidth = {'1x'};
 
-app.UIButtonGrid = uigridlayout(app.UIMainGrid);
-app.UIButtonGrid.ColumnSpacing = 5;
-app.UIButtonGrid.Padding = [0 10 0 10];
+app.UIMainButtonGrid = uigridlayout(app.UIMainGrid);
+app.UIMainButtonGrid.ColumnSpacing = 5;
+app.UIMainButtonGrid.Padding = [0 10 0 10];
 
-app.UIButtonTimingSet = uibutton(app.UIButtonGrid);
+app.UIButtonTimingSet = uibutton(app.UIMainButtonGrid);
 app.UIButtonTimingSet.Text = 'Timing Set';
-app.UIButtonFittingSet = uibutton(app.UIButtonGrid);
+
+app.UIButtonBaseline = uibutton(app.UIMainButtonGrid);
+app.UIButtonBaseline.Text = 'Baseline';
+
+app.UIButtonFittingSet = uibutton(app.UIMainButtonGrid);
 app.UIButtonFittingSet.Text = 'Fitting Set';
-app.UIButtonFit = uibutton(app.UIButtonGrid);
+app.UIButtonFit = uibutton(app.UIMainButtonGrid);
 app.UIButtonFit.Text = 'Fit';
-app.UIButtonExport = uibutton(app.UIButtonGrid);
+app.UIButtonExport = uibutton(app.UIMainButtonGrid);
 app.UIButtonExport.Text = 'Export Data';
-app.UIButtonClose = uibutton(app.UIButtonGrid);
+app.UIButtonClose = uibutton(app.UIMainButtonGrid);
 app.UIButtonClose.Text = 'Close';
 
 app.UIDropdownGrid.RowHeight = {'1x'};
 app.UIDropdownGrid.ColumnWidth = {60, 200, '1x', 100};
 
-app.UIButtonGrid.RowHeight = {'1x'};
-app.UIButtonGrid.ColumnWidth = {100, 100, 100, '1x', 100, 100};
+app.UIMainButtonGrid.RowHeight = {'1x'};
+app.UIMainButtonGrid.ColumnWidth = {100, 100, 10, 100, 100, '1x', 100, 100};
 
 app.UIDropdownGrid.Layout.Row = 1; app.UIDropdownGrid.Layout.Column = 1;
 app.UIAxes.Layout.Row = 2; app.UIAxes.Layout.Column = 1;
-app.UILabel.Layout.Row = 3; app.UILabel.Layout.Column = 1;
-app.UITable.Layout.Row = 4; app.UITable.Layout.Column = 1;
-app.UIButtonGrid.Layout.Row = 5; app.UIButtonGrid.Layout.Column = 1;
+
+app.UIOptionButtonGrid.Layout.Row = 3; app.UIOptionButtonGrid.Layout.Column = 1;
+app.UILabel.Layout.Row = 4; app.UILabel.Layout.Column = 1;
+app.UITable.Layout.Row = 5; app.UITable.Layout.Column = 1;
+app.UIMainButtonGrid.Layout.Row = 6; app.UIMainButtonGrid.Layout.Column = 1;
 
 app.UILabelName.Layout.Row = 1; app.UILabelName.Layout.Column = 1;
 app.UIDropdownName.Layout.Row = 1; app.UIDropdownName.Layout.Column = 2;
-app.UIButtonOK.Layout.Row = 1; app.UIButtonOK.Layout.Column = 4;
+app.UICheckBoxLegend.Layout.Row = 1; app.UICheckBoxLegend.Layout.Column = 4;
+
+app.UIButtonOK.Layout.Row = 1; app.UIButtonOK.Layout.Column = 2;
+app.UIButtonCancel.Layout.Row = 1; app.UIButtonCancel.Layout.Column = 3;
 
 app.UIButtonTimingSet.Layout.Row = 1; app.UIButtonTimingSet.Layout.Column = 1;
-app.UIButtonFittingSet.Layout.Row = 1; app.UIButtonFittingSet.Layout.Column = 2;
-app.UIButtonFit.Layout.Row = 1; app.UIButtonFit.Layout.Column = 3;
-app.UIButtonExport.Layout.Row = 1; app.UIButtonExport.Layout.Column = 5; 
-app.UIButtonClose.Layout.Row = 1; app.UIButtonClose.Layout.Column = 6;
-
-% Get Inputs from Main UI Table
-% Injection delay (sec) when normalizing
-% Normalization flow rate (ul/min)
-% Flow rate (ul/min)
-% Current flow rate (ul/min)
-% Calcuate Current Injection delay (sec)
-% concentration = [32*10^(-9); 16*10^(-9); 8*10^(-9); 4*10^(-9); 2e-9];
-assoStart = 90; assoEnd = 280; dissoStart = 281; dissoEnd = 650;
-app.UIFigure.UserData.EventTime = [assoStart, assoEnd, dissoStart, dissoEnd];
-
-% parentPath = 'D:\Working\Newly\icluebio\Software\icluebio\Kinetics\MultiKinetics\TestSet\20211224_SMF_2-34,49,59,54_kinetics\20211224_SMF_2-34,49,59,54_kinetics\2021-12-24 14-36-56';
-% parentPath = 'D:\Users\user\Desktop\새 폴더 (2)';
-% parentPath = 'D:\Working\Newly\icluebio\Software\icluebio\Kinetics\MultiKinetics\TestSet\iMSPR_ProA_IgG\2022-02-03 13-28-34';
-parentPath = 'D:\Working\Newly\icluebio\Software\icluebio\Kinetics\MultiKinetics\TestSet\iMSPR_ProA_SmallMolecule\2022-02-04 11-13-59';
-% app.UIFigure.UserData.Analyte = ParsingPath(parentPath, app.UIFigure.UserData.EventTime);
-app.UIFigure.UserData.Analyte = ParsingInfo(parentPath);
-app.UIDropdownName.Items = {app.UIFigure.UserData.Analyte.Name};
+app.UIButtonBaseline.Layout.Row = 1; app.UIButtonBaseline.Layout.Column = 2;
+app.UIButtonFittingSet.Layout.Row = 1; app.UIButtonFittingSet.Layout.Column = 4;
+app.UIButtonFit.Layout.Row = 1; app.UIButtonFit.Layout.Column = 5;
+app.UIButtonExport.Layout.Row = 1; app.UIButtonExport.Layout.Column = 7; 
+app.UIButtonClose.Layout.Row = 1; app.UIButtonClose.Layout.Column = 8;
 
 % Button Pushed functions
 app.UIDropdownName.ValueChangedFcn = @(src, event) UIDropdownNameValueChangedFunction(src, event, app.UIFigure.UserData.Analyte, app);
+app.UICheckBoxLegend.ValueChangedFcn = @(src, event) UICheckBoxLegendValueChangedFunction(src, event, app);
 app.UIButtonOK.ButtonPushedFcn = @(src, event) OKButtonPushedFunction(src, event, app);
+app.UIButtonCancel.ButtonPushedFcn = @(src, event) CancelButtonPushedFunction(src, event, app);
 app.UIButtonTimingSet.ButtonPushedFcn = @(src, event) TimingButtonPushed(src, event, app, app.UIFigure.UserData.Analyte);
+
+app.UIButtonBaseline.ButtonPushedFcn = @(src, event) BaselineButtonPushed(src, event, app, app.UIFigure.UserData.Analyte);
+
 app.UIButtonFit.ButtonPushedFcn = @(src, event) FitButtonPushed(src, event, app);
 app.UIButtonFittingSet.ButtonPushedFcn = @(src, event) FittingSetButtonPushed(src, event, app);
 app.UIButtonClose.ButtonPushedFcn = @(src, event) CloseButtonPushed(src, event, app);
 app.UIButtonExport.ButtonPushedFcn = @(src, event) ExportButtonPushed(src, event, app);
 
-getframe(app.UIAxes);
-app.UIFigure.Visible = 'on';
-
-UIProgressDialog = ...
-    uiprogressdlg(app.UIFigure, 'Title', 'Please wait', ...
-    'Message', 'Fitting Curve(s)...', ...
-    'Indeterminate', 'on');
-pause(0.01)
-for i = 1:size(app.UIFigure.UserData.Analyte, 2)
-    [app.UIFigure.UserData.Analyte(i).k,...
-        app.UIFigure.UserData.Analyte(i).kName,...
-        app.UIFigure.UserData.Analyte(i).chi2,...
-        app.UIFigure.UserData.Analyte(i).FittedT,...
-        app.UIFigure.UserData.Analyte(i).FittedR]...
-            = ReadyForCurveFitting(...
-                app.UIFigure.UserData.Analyte(i).Concentration,...
-                app.UIFigure.UserData.Analyte(i).EventTime,...            
-                app.UIFigure.UserData.Analyte(i).XData,...
-                app.UIFigure.UserData.Analyte(i).YData,...
-                app.UIFigure.UserData.Analyte(i).FittingVariable);
-end
-        
-UIDropdownNameValueChangedFunction(app.UIDropdownName, [], app.UIFigure.UserData.Analyte, app)
-
-%% Set Fitting variables to Default
-for i = 1:size(app.UIFigure.UserData.Analyte, 2)
-    app.UIFigure.UserData.Analyte(i).FittingVariable = struct;
-    app.UIFigure.UserData.Analyte(i).FittingVariable = app.UIFigure.UserData.Analyte(i).DefaultFittingVariable;
-end
-
-close(UIProgressDialog)
-
-function [k, kName, chi2, fittedT, fittedR] = ReadyForCurveFitting(concentration, eventTime, xdata, ydata, fittingVariable)    
-
-fitTimer = tic;
-% fittingVariable.FittingModel = 'OneToOneMassTransfer';
-[k, kName, chi2, T, R] = OneToOneStandardFitting(...
-    concentration, eventTime, xdata, ydata, fittingVariable.(fittingVariable.FittingModel), fittingVariable.FittingModel);
-
-fitTime = toc(fitTimer); disp(fitTime)
-fittedT = reshape(T, size(R, 1)/length(concentration), length(concentration));
-fittedR = reshape(R(:, 3), size(R, 1)/length(concentration), length(concentration));
 
 end
+
 
 
 function OKButtonPushedFunction(src, event, app)
@@ -145,29 +120,77 @@ function OKButtonPushedFunction(src, event, app)
 set(findobj(app.UIFigure, 'type', 'uibutton'), 'Enable', 'On')
 set(findobj(app.UIFigure, 'type', 'uidropdown'), 'Enable', 'On')
 app.UIButtonOK.Visible = 'Off'; app.UIButtonOK.Enable = 'Off';
-
+app.UIButtonCancel.Visible = 'Off'; app.UIButtonCancel.Enable = 'Off';
 analyteNo = find(strcmp(app.UIDropdownName.Items, app.UIDropdownName.Value));
+analyte = app.UIFigure.UserData.Analyte(analyteNo);
 
-app.UIFigure.UserData.Analyte(analyteNo).EventTime =...
+if strcmp(src.UserData, app.UIButtonTimingSet.Text)
+    app.UIFigure.UserData.Analyte(analyteNo).EventTime =...
     round([app.UIButtonTimingSet.UserData.lineAsStart.Position(1),...
     app.UIButtonTimingSet.UserData.lineAsEnd.Position(1), ...
     app.UIButtonTimingSet.UserData.lineDisStart.Position(1), ...
     app.UIButtonTimingSet.UserData.lineDisEnd.Position(1)]);
 
-app.UIFigure.UserData.MarkAsStart.Position(1) = app.UIButtonTimingSet.UserData.lineAsStart.Position(1);
-app.UIFigure.UserData.MarkAsEnd.Position(1) = app.UIButtonTimingSet.UserData.lineAsEnd.Position(1);
-app.UIFigure.UserData.MarkDisStart.Position(1) = app.UIButtonTimingSet.UserData.lineDisStart.Position(1);
-app.UIFigure.UserData.MarkDisEnd.Position(1) = app.UIButtonTimingSet.UserData.lineDisEnd.Position(1);
+    app.UIFigure.UserData.MarkAsStart.Position(1) = app.UIButtonTimingSet.UserData.lineAsStart.Position(1);
+    app.UIFigure.UserData.MarkAsEnd.Position(1) = app.UIButtonTimingSet.UserData.lineAsEnd.Position(1);
+    app.UIFigure.UserData.MarkDisStart.Position(1) = app.UIButtonTimingSet.UserData.lineDisStart.Position(1);
+    app.UIFigure.UserData.MarkDisEnd.Position(1) = app.UIButtonTimingSet.UserData.lineDisEnd.Position(1);
+    
+    delete(app.UIButtonTimingSet.UserData.lineAsStart)
+    delete(app.UIButtonTimingSet.UserData.lineAsEnd)
+    delete(app.UIButtonTimingSet.UserData.lineDisStart)
+    delete(app.UIButtonTimingSet.UserData.lineDisEnd)
+elseif strcmp(src.UserData, app.UIButtonBaseline.Text)    
+    analyte.YData = [];    
+    
+    if app.UIButtonBaseline.UserData.lineBaseline.Position(1) > analyte.XData(end)
+        app.UIButtonBaseline.UserData.lineBaseline.Position(1) = analyte.XData(end);
+        app.UIButtonBaseline.UserData.lineBaseline.Position(2) = analyte.XData(end);
+    elseif app.UIButtonBaseline.UserData.lineBaseline.Position(1) < analyte.XData(1)
+        app.UIButtonBaseline.UserData.lineBaseline.Position(1) = analyte.XData(1);
+        app.UIButtonBaseline.UserData.lineBaseline.Position(2) = analyte.XData(1);
+    end
 
-delete(app.UIButtonTimingSet.UserData.lineAsStart)
-delete(app.UIButtonTimingSet.UserData.lineAsEnd)
-delete(app.UIButtonTimingSet.UserData.lineDisStart)
-delete(app.UIButtonTimingSet.UserData.lineDisEnd)
+    for ii = 1:length(analyte.Data)                
+        analyte.Data{ii}.y = analyte.Data{ii}.y - analyte.Data{ii}.y(round(app.UIButtonBaseline.UserData.lineBaseline.Position(1)));
+        analyte.RmaxCandidate(ii, 1) = analyte.Data{ii, 1}.y(analyte.Data{ii, 1}.x == analyte.EventTime(3));                
+        analyte.YData = [analyte.YData; analyte.Data{ii, 1}.y];
+    end
+
+    analyte.Baseline = app.UIButtonBaseline.UserData.lineBaseline.Position(1);
+    delete(app.UIButtonBaseline.UserData.lineBaseline)
+    app.UIFigure.UserData.Analyte(analyteNo) = analyte;
+    UIDropdownNameValueChangedFunction(app.UIDropdownName, [], app.UIFigure.UserData.Analyte, app)
+end
 
 end
 
+
+function CancelButtonPushedFunction(src, event, app)
+
+src = app.UIButtonOK;
+
+set(findobj(app.UIFigure, 'type', 'uibutton'), 'Enable', 'On')
+set(findobj(app.UIFigure, 'type', 'uidropdown'), 'Enable', 'On')
+app.UIButtonOK.Visible = 'Off'; app.UIButtonOK.Enable = 'Off';
+app.UIButtonCancel.Visible = 'Off'; app.UIButtonCancel.Enable = 'Off';
+
+if strcmp(src.UserData, app.UIButtonTimingSet.Text)
+    delete(app.UIButtonTimingSet.UserData.lineAsStart)
+    delete(app.UIButtonTimingSet.UserData.lineAsEnd)
+    delete(app.UIButtonTimingSet.UserData.lineDisStart)
+    delete(app.UIButtonTimingSet.UserData.lineDisEnd)
+elseif strcmp(src.UserData, app.UIButtonBaseline.Text)
+    delete(app.UIButtonBaseline.UserData.lineBaseline)
+end
+
+end
+
+
+
 function UIDropdownNameValueChangedFunction(src, event, analyte, app)
 
+src = app.UIDropdownName;
 cla(app.UIAxes);
 analyteNo = find(strcmp(src.Items, src.Value));
 [concentration, concentrationUnit] = FindConcentrationUnit(analyte(analyteNo).Concentration);
@@ -212,7 +235,11 @@ for i = 1:size(analyte(analyteNo).FittedR, 2)
     linePlot.FittedString{end+1} = strcat(concentration{i}, concentrationUnit, '(Fitted)');
 end
 
-legend(app.UIAxes, [linePlot.Raw linePlot.Fitted], [linePlot.RawString linePlot.FittedString])
+app.UIFigure.UserData.Legend = legend(app.UIAxes, [flip(linePlot.Raw) flip(linePlot.Fitted)], [flip(linePlot.RawString) flip(linePlot.FittedString)]);
+app.UIFigure.UserData.Legend.ContextMenu = '';
+app.UIFigure.UserData.Legend.ItemHitFcn = @(src, event)LegendItemHitFcn(src, event);
+app.UIFigure.UserData.Legend.Location = 'northwest';
+UICheckBoxLegendValueChangedFunction([], [], app);
 axtoolbar(app.UIAxes, {'pan', 'zoomin', 'zoomout', 'restoreview', 'export'});
 
 % Table display (koff, kon, Rmax, KA, KD)
@@ -255,6 +282,7 @@ if isempty(analyte(analyteNo).chi2); analyte(analyteNo).chi2 = NaN; end
 
 if strcmp(currentModel, 'OneToOneStandard')
     app.UITable.Data = table(concentration, variable.KD, variable.kon, variable.koff, variable.Rmax, variable.KA, variable.BI, variable.chi2);
+    app.UITable.ColumnName = cell(1, 8);
     app.UITable.ColumnName{1} = strcat('Concentration (', concentrationUnit, ')');
     app.UITable.ColumnName{2} = 'KD (M)';
     app.UITable.ColumnName{3} = 'kon (1/(M*s))';
@@ -265,6 +293,7 @@ if strcmp(currentModel, 'OneToOneStandard')
     app.UITable.ColumnName{8} = 'Chi2 (RU^2)';
 elseif strcmp(currentModel, 'OneToOneMassTransfer')
     app.UITable.Data = table(concentration, variable.KD, variable.kon, variable.koff, variable.kt, variable.Rmax, variable.KA, variable.BI, variable.chi2);
+    app.UITable.ColumnName = cell(1, 9);
     app.UITable.ColumnName{1} = strcat('Concentration (', concentrationUnit, ')');
     app.UITable.ColumnName{2} = 'KD (M)';
     app.UITable.ColumnName{3} = 'kon (1/(M*s))';
@@ -277,6 +306,19 @@ elseif strcmp(currentModel, 'OneToOneMassTransfer')
 end
 
 end
+
+
+function UICheckBoxLegendValueChangedFunction(src, event, app)
+    
+try
+    app.UIFigure.UserData.Legend.Visible = app.UICheckBoxLegend.Value;
+    app.UIFigure.UserData.Legend.Location = 'northwest';
+catch
+    disp('Checkbox Error!')
+end
+
+end
+
 
 function [concStr, unit] = FindConcentrationUnit(concentration)
     logConc = log10(concentration);
@@ -298,6 +340,8 @@ end
 
 function TimingButtonPushed(src, event, app, analyte)
 
+app.UIButtonOK.UserData = src.Text;
+
 src = app.UIButtonTimingSet;
 analyteNo = find(strcmp(app.UIDropdownName.Items, app.UIDropdownName.Value));
 
@@ -307,9 +351,14 @@ set(findobj(app.UIFigure, 'type', 'uidropdown'), 'Enable', 'Off')
 
 % Visualize OK button
 app.UIButtonOK.Visible = 'On'; app.UIButtonOK.Enable = 'On';
+app.UIButtonCancel.Visible = 'On'; app.UIButtonCancel.Enable = 'On';
 
 UIAxes = app.UIAxes;
-xLim = UIAxes.XLim; yLim = UIAxes.YLim;
+% xLim = UIAxes.XLim; yLim = UIAxes.YLim;
+xLim = [analyte(analyteNo).XData(1), analyte(analyteNo).XData(end)]; 
+yMag = abs(app.UIAxes.YLim(1) - app.UIAxes.YLim(2));
+yLim = [-yMag yMag] * app.UIFigure.UserData.LineExpandRatio;
+% yLim = UIAxes.YLim;
 
 asStartPos = [analyte(analyteNo).EventTime(1), yLim(1);...
     analyte(analyteNo).EventTime(1), yLim(2)]; %#ok<*FNDSB>
@@ -364,24 +413,86 @@ addlistener(src.UserData.lineDisEnd, 'ROIMoved', @(lineSrc, event)LineMoveEvent(
 SetDrawingArea(src.UserData, xLim)
 
 function LineMoveEvent(lineSrc, event, UserData, xLim)
+
+    srcType = {'Association Start', 'Association End', 'Dissociation Start', 'Dissociation End'};    
+
+    if strcmp(lineSrc.Label, srcType{1})
+        limitPos = [xLim(1)-1, app.UIButtonTimingSet.UserData.lineAsEnd.Position(1)];
+        margin = [1 5];
+    elseif strcmp(lineSrc.Label, srcType{2})
+        limitPos = [app.UIButtonTimingSet.UserData.lineAsStart.Position(1), app.UIButtonTimingSet.UserData.lineDisStart.Position(1)];
+        margin = [5 1];
+    elseif strcmp(lineSrc.Label, srcType{3})
+        limitPos = [app.UIButtonTimingSet.UserData.lineAsEnd.Position(1), app.UIButtonTimingSet.UserData.lineDisEnd.Position(1)];
+        margin = [1 5];
+    elseif strcmp(lineSrc.Label, srcType{4})
+        limitPos = [app.UIButtonTimingSet.UserData.lineDisStart.Position(1), xLim(2)+1];
+        margin = [5 1];
+    end
+
+    if lineSrc.Position(1) <= limitPos(1)
+        lineSrc.Position(1) = limitPos(1) + margin(1);
+        lineSrc.Position(2) = lineSrc.Position(1);
+    elseif lineSrc.Position(1) >= limitPos(2)
+        lineSrc.Position(1) = limitPos(2) - margin(2);
+        lineSrc.Position(2) = lineSrc.Position(1);
+    end
+
     SetDrawingArea(UserData, xLim)
 end
 
 function SetDrawingArea(UserData, xLim)
     % drawingArea = [x, y, w, h];
     UserData.lineAsStart.DrawingArea =...
-        [xLim(1)+1, 0,...
-        UserData.lineAsEnd.Position(1)-xLim(1)-1, 0];
+        [xLim(1), 0,...
+        UserData.lineAsEnd.Position(1)-xLim(1)-5, 0];
     UserData.lineAsEnd.DrawingArea =...
-        [UserData.lineAsStart.Position(1)+1, 0,...
+        [UserData.lineAsStart.Position(1)+5, 0,...
         UserData.lineDisStart.Position(1)-UserData.lineAsStart.Position(1)-1, 0];
     UserData.lineDisStart.DrawingArea =...
         [UserData.lineAsEnd.Position(1)+1, 0,...
-        UserData.lineDisEnd.Position(1) - UserData.lineAsEnd.Position(1)-1, 0];
+        UserData.lineDisEnd.Position(1) - UserData.lineAsEnd.Position(1) - 5, 0];
     UserData.lineDisEnd.DrawingArea =...
         [UserData.lineDisStart.Position(1)+1, 0,...
-        floor(xLim(2) - UserData.lineDisStart.Position(1)), 0];
+        xLim(2) - UserData.lineDisStart.Position(1), 0];
 end
+
+end
+
+function BaselineButtonPushed(src, event, app, analyte)
+
+app.UIButtonOK.UserData = src.Text;
+analyteNo = find(strcmp(app.UIDropdownName.Items, app.UIDropdownName.Value));
+
+% Disable buttons and dropdowns
+set(findobj(app.UIFigure, 'type', 'uibutton'), 'Enable', 'Off')
+set(findobj(app.UIFigure, 'type', 'uidropdown'), 'Enable', 'Off')
+
+% Visualize OK button
+app.UIButtonOK.Visible = 'On'; app.UIButtonOK.Enable = 'On';
+app.UIButtonCancel.Visible = 'On'; app.UIButtonCancel.Enable = 'On';
+
+UIAxes = app.UIAxes;
+% xLim = UIAxes.XLim; yLim = UIAxes.YLim;
+xLim = [analyte(analyteNo).XData(1), analyte(analyteNo).XData(end)]; 
+yMag = abs(app.UIAxes.YLim(1) - app.UIAxes.YLim(2));
+yLim = [-yMag yMag] * app.UIFigure.UserData.LineExpandRatio;
+% yLim = UIAxes.YLim;
+
+baselinePos = [analyte(analyteNo).Baseline, yLim(1);...
+    analyte(analyteNo).Baseline, yLim(2)];
+src.UserData.lineBaseline = drawline('Parent', UIAxes,...
+     'Position', baselinePos, ...
+     'Deletable', 0, ...
+     'InteractionsAllowed', 'translate', ...
+     'Label', 'Baseline', ...
+     'LabelVisible', 'hover', ...
+     'Color', [0 0 0], ...
+     'LineWidth', 2);
+ 
+src.UserData.lineBaseline.DrawingArea =...
+        [xLim(1), 0,...
+        xLim(2), 0];
 
 end
 
@@ -441,7 +552,11 @@ for i = 1:size(app.UIFigure.UserData.Analyte, 2)
     mkdir(pathName);
     
     fileName = fullfile(pathName, strcat('Calculated_Constants', '.', extension));
-    writetable(app.UITable.Data, fileName, 'Delimiter', 'tab')
+    resultCell = table2cell(app.UITable.Data);    
+    resultHeader = app.UITable.ColumnName';
+    resultCell = [resultHeader; resultCell];
+%     writetable(app.UITable.Data, fileName, 'Delimiter', 'tab');
+    writecell(resultCell, fileName, 'Delimiter', 'tab');
     
     [concStr, unit] = FindConcentrationUnit(app.UIFigure.UserData.Analyte(i).Concentration);
     for ii = 1:size(app.UIFigure.UserData.Analyte(i).Data, 1)
@@ -456,6 +571,7 @@ for i = 1:size(app.UIFigure.UserData.Analyte, 2)
     end
 end
 app.UIFigure.UserData.ResultFilePath = selPath;
+winopen(fullfile(selPath, dateStr))
 
 end
 
@@ -479,5 +595,18 @@ properStr = ...
     &(inputStr~='?')&(inputStr~='"')...
     &(inputStr~='<')&(inputStr~='>')...
     &(inputStr~='|'));
+
+end
+
+
+function LegendItemHitFcn(src, event)
+
+if strcmp(event.SelectionType, 'normal')
+    if event.Peer.LineWidth == 2
+        event.Peer.LineWidth = 0.5;
+    else
+        event.Peer.LineWidth = 2;
+    end
+end
 
 end

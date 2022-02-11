@@ -1,4 +1,4 @@
-function app = test_FittingSet(MainApp)
+function app = FittingSet(MainApp)
 
 %% Get Analyte variable from MainApp
 analyteNo = strcmp(MainApp.UIDropdownName.Items, MainApp.UIDropdownName.Value);
