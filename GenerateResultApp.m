@@ -31,7 +31,8 @@ app.UIAxes.YLabel.String = 'Response (RU)';
 
 app.UIOptionButtonGrid = uigridlayout(app.UIMainGrid);
 app.UIOptionButtonGrid.RowHeight = {'1x'};
-app.UIOptionButtonGrid.ColumnWidth = {'1x', 100, 100};
+% app.UIOptionButtonGrid.ColumnWidth = {100, 100, '1x', 100, 100};
+app.UIOptionButtonGrid.ColumnWidth = {100, 100, '1x', 100, 100};
 app.UIOptionButtonGrid.ColumnSpacing = 5;
 app.UIOptionButtonGrid.Padding = [0 10 0 10];
 app.UIButtonOK = uibutton(app.UIOptionButtonGrid);
@@ -53,16 +54,21 @@ app.UIMainButtonGrid = uigridlayout(app.UIMainGrid);
 app.UIMainButtonGrid.ColumnSpacing = 5;
 app.UIMainButtonGrid.Padding = [0 10 0 10];
 
-app.UIButtonTimingSet = uibutton(app.UIMainButtonGrid);
+% app.UIButtonTimingSet = uibutton(app.UIMainButtonGrid);
+app.UIButtonTimingSet = uibutton(app.UIOptionButtonGrid);
 app.UIButtonTimingSet.Text = 'Timing Set';
 
-app.UIButtonBaseline = uibutton(app.UIMainButtonGrid);
+% app.UIButtonBaseline = uibutton(app.UIMainButtonGrid);
+app.UIButtonBaseline = uibutton(app.UIOptionButtonGrid);
 app.UIButtonBaseline.Text = 'Baseline';
 
 app.UIButtonFittingSet = uibutton(app.UIMainButtonGrid);
 app.UIButtonFittingSet.Text = 'Fitting Set';
 app.UIButtonFit = uibutton(app.UIMainButtonGrid);
 app.UIButtonFit.Text = 'Fit';
+
+app.UIButtonReport = uibutton(app.UIMainButtonGrid);
+app.UIButtonReport.Text = 'Report';
 app.UIButtonExport = uibutton(app.UIMainButtonGrid);
 app.UIButtonExport.Text = 'Export Data';
 app.UIButtonClose = uibutton(app.UIMainButtonGrid);
@@ -72,7 +78,7 @@ app.UIDropdownGrid.RowHeight = {'1x'};
 app.UIDropdownGrid.ColumnWidth = {60, 200, '1x', 100};
 
 app.UIMainButtonGrid.RowHeight = {'1x'};
-app.UIMainButtonGrid.ColumnWidth = {100, 100, 10, 100, 100, '1x', 100, 100};
+app.UIMainButtonGrid.ColumnWidth = {100, 100, '1x', 100, 100, 100};
 
 app.UIDropdownGrid.Layout.Row = 1; app.UIDropdownGrid.Layout.Column = 1;
 app.UIAxes.Layout.Row = 2; app.UIAxes.Layout.Column = 1;
@@ -86,15 +92,17 @@ app.UILabelName.Layout.Row = 1; app.UILabelName.Layout.Column = 1;
 app.UIDropdownName.Layout.Row = 1; app.UIDropdownName.Layout.Column = 2;
 app.UICheckBoxLegend.Layout.Row = 1; app.UICheckBoxLegend.Layout.Column = 4;
 
-app.UIButtonOK.Layout.Row = 1; app.UIButtonOK.Layout.Column = 2;
-app.UIButtonCancel.Layout.Row = 1; app.UIButtonCancel.Layout.Column = 3;
-
 app.UIButtonTimingSet.Layout.Row = 1; app.UIButtonTimingSet.Layout.Column = 1;
 app.UIButtonBaseline.Layout.Row = 1; app.UIButtonBaseline.Layout.Column = 2;
-app.UIButtonFittingSet.Layout.Row = 1; app.UIButtonFittingSet.Layout.Column = 4;
-app.UIButtonFit.Layout.Row = 1; app.UIButtonFit.Layout.Column = 5;
-app.UIButtonExport.Layout.Row = 1; app.UIButtonExport.Layout.Column = 7; 
-app.UIButtonClose.Layout.Row = 1; app.UIButtonClose.Layout.Column = 8;
+app.UIButtonOK.Layout.Row = 1; app.UIButtonOK.Layout.Column = 4;
+app.UIButtonCancel.Layout.Row = 1; app.UIButtonCancel.Layout.Column = 5;
+
+
+app.UIButtonFittingSet.Layout.Row = 1; app.UIButtonFittingSet.Layout.Column = 1;
+app.UIButtonFit.Layout.Row = 1; app.UIButtonFit.Layout.Column = 2;
+app.UIButtonReport.Layout.Row = 1; app.UIButtonReport.Layout.Column = 4; 
+app.UIButtonExport.Layout.Row = 1; app.UIButtonExport.Layout.Column = 5; 
+app.UIButtonClose.Layout.Row = 1; app.UIButtonClose.Layout.Column = 6;
 
 % Button Pushed functions
 app.UIDropdownName.ValueChangedFcn = @(src, event) UIDropdownNameValueChangedFunction(src, event, app.UIFigure.UserData.Analyte, app);
