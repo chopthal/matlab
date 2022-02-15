@@ -107,14 +107,14 @@ app.UIButtonClose.Layout.Row = 1; app.UIButtonClose.Layout.Column = 6;
 % Button Pushed functions
 app.UIDropdownName.ValueChangedFcn = @(src, event) UIDropdownNameValueChangedFunction(src, event, app.UIFigure.UserData.Analyte, app);
 app.UICheckBoxLegend.ValueChangedFcn = @(src, event) UICheckBoxLegendValueChangedFunction(src, event, app);
+app.UIButtonTimingSet.ButtonPushedFcn = @(src, event) TimingButtonPushed(src, event, app, app.UIFigure.UserData.Analyte);
+app.UIButtonBaseline.ButtonPushedFcn = @(src, event) BaselineButtonPushed(src, event, app, app.UIFigure.UserData.Analyte);
 app.UIButtonOK.ButtonPushedFcn = @(src, event) OKButtonPushedFunction(src, event, app);
 app.UIButtonCancel.ButtonPushedFcn = @(src, event) CancelButtonPushedFunction(src, event, app);
-app.UIButtonTimingSet.ButtonPushedFcn = @(src, event) TimingButtonPushed(src, event, app, app.UIFigure.UserData.Analyte);
 
-app.UIButtonBaseline.ButtonPushedFcn = @(src, event) BaselineButtonPushed(src, event, app, app.UIFigure.UserData.Analyte);
-
-app.UIButtonFit.ButtonPushedFcn = @(src, event) FitButtonPushed(src, event, app);
 app.UIButtonFittingSet.ButtonPushedFcn = @(src, event) FittingSetButtonPushed(src, event, app);
+app.UIButtonFit.ButtonPushedFcn = @(src, event) FitButtonPushed(src, event, app);
+app.UIButtonReport.ButtonPushedFcn = @(src, event) ReportButtonPushed(src, event, app);
 app.UIButtonClose.ButtonPushedFcn = @(src, event) CloseButtonPushed(src, event, app);
 app.UIButtonExport.ButtonPushedFcn = @(src, event) ExportButtonPushed(src, event, app);
 
@@ -542,6 +542,21 @@ currentAnalyte = getappdata(app.UIFigure, 'currentAnalyte');
 if ~isempty(currentAnalyte)
     app.UIFigure.UserData.Analyte(analyteNo) = currentAnalyte;
 end
+
+end
+
+function ReportButtonPushed(src, event, app)
+    filter = {'PDF file *.pdf'};
+    defPath = app.UIFigure.UserData.ResultFilePath;    
+    defName = strcat(app.UIFigure.UserData.Analyte.Name, '_Report');
+    [file, path] = uiputfile(filter, 'Save Report File', fullfile(defPath, defName));
+
+    if isequal(file, 0) || isequal(path, 0)
+        return;
+    end
+    
+    GenerateReport(app, fullfile(path, file));
+    app.UIFigure.UserData.ResultFilePath = path;
 
 end
 

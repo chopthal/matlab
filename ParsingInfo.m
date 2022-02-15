@@ -1,6 +1,5 @@
 function analyte = ParsingInfo(parentPath)
 
-% parentPath = 'D:\Users\user\Desktop\새 폴더 (2)';
 dataPath = 'RU';
 dataFileName = 'ch1-ch2.txt';
 parentPathContents = dir(parentPath);
@@ -10,6 +9,7 @@ if sum(matches(listContents, 'Info.mat')) == 0; return; end
 info = load(fullfile(parentPath, 'Info.mat'));
 expFieldName = 'ExpProc';
 targetApplication = {'Multi-cycle Kinetics'; 'Screening'};
+immobApplication = 'Immobilization';
 
 if isempty(info); return; end
 if ~isfield(info, expFieldName); return; end
@@ -47,9 +47,31 @@ analyte.chi2 = [];
 analyte.FittedT = [];
 analyte.FittedR = [];
 
+containImmobilization = sum(matches(applicationColumn, immobApplication));
+% ligandName = '';
+immobData = [];
+if containImmobilization
+    immobFolder = listFolder{contains(listFolder, immobApplication)};
+    immobPath = fullfile(parentPath, immobFolder, 'RU', 'Ch1.txt');
+    immobData = readtable(immobPath);    
+    isImmobilization = matches(applicationColumn, immobApplication);
+%     ligandNames = info.ExpProc.TableData.Var2(matches(applicationColumn, immobApplication));
+%     ligandName = ligandNames{1};
+end
+
 isApplicationRow = cell(length(targetApplicationName), 1);
 for i = 1:length(targetApplicationName)
-    isApplicationRow{i, 1} = matches(applicationColumn, targetApplicationName{i});
+        
+%     analyte(i).LigandName = ligandName;
+    isApplicationRow{i, 1} = matches(applicationColumn, targetApplicationName{i});    
+
+    analyte(i).ImmobilizationData = immobData;    
+    tmpCell = table2cell(info.ExpProc.TableData);
+    informCell = tmpCell(isImmobilization, :);
+    informCell = [informCell; tmpCell(isApplicationRow{i, 1}, :)];
+%     analyte(i).Information.ColumNames = ;
+    analyte(i).Information.Data = informCell;
+
     folderNo = find(isApplicationRow{i, 1} == 1);
     tmpList = listFolder(ismember(idxFolderNum, folderNo));
     tmpDotIndex = strfind(tmpList, '.');
@@ -59,9 +81,6 @@ for i = 1:length(targetApplicationName)
     end
     [~, tmpIdx]= sort(str2double(tmpIdxFolderStr));
     sortedListFolder = tmpList(tmpIdx);
-    
-
-
     pathName = fullfile(parentPath, sortedListFolder, dataPath, dataFileName);
 
     % Path
