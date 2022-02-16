@@ -15,6 +15,7 @@ delete('tmpFit.png');
 CAPTURE_AXES_WIDTH = 800;
 CAPTURE_AXES_HEIGHT = 300;
 CAPTURE_AXES_MARGIN = 20;
+CAPTURE_LEGEND_HEIGHT = 50;
 
 br = PageBreak();
 analyte = app.UIFigure.UserData.Analyte;
@@ -51,8 +52,8 @@ open(rpt);
 %% Header
 
 header = PDFPageHeader();
-logo = Image('reportLogo.png');
-logo.Style = {ScaleToFit(true), HAlign('right'), Height('0.75in'), VAlign('top'), OuterMargin("0pt","0pt","0pt","0pt")};
+logo = Image('ReportLogo.png');
+logo.Style = {ScaleToFit(true), HAlign('right'), Height('0.5in'), VAlign('top'), OuterMargin("0pt","0pt","0pt","0pt"), InnerMargin("0pt","0pt","0pt","0pt")};
 append(header, logo)
 
 layout = getReportLayout(rpt);
@@ -62,7 +63,7 @@ layout.PageHeaders = header;
 footer = PDFPageFooter();
 
 page = Page();
-page.Style = {HAlign('center'), FontSize('11pt')};
+page.Style = {HAlign('right'), FontSize('11pt')};
 append(footer, page);
 
 time = datestr(now);
@@ -74,17 +75,18 @@ layout = getReportLayout(rpt);
 layout.PageFooters = footer;
 
 %% Heading 1
-heading1Para = Paragraph("Result");
+titleText = sprintf('Result (Analyte : %s)', analyte(analyteNo).Name);
+heading1Para = Paragraph(titleText);
 heading1Para.Style = styles("heading1Para");
 append(rpt,heading1Para);
 
 %% Information table
-informationCell = analyte(analyteNo).InformationCell;
+informationCell = analyte(analyteNo).Information.Data;
 
 if ~isempty(informationCell)
 
     % Heading (title)
-    heading1Para = Paragraph("Information Table");
+    heading1Para = Paragraph("Information table");
     heading1Para.Style = styles("heading2Para");
     append(rpt,heading1Para);
     
@@ -132,6 +134,7 @@ if ~isempty(immobilizationData)
     
     plot(ax, immobilizationData.x, immobilizationData.y);
     xlabel(ax, 'Time (s)'); ylabel(ax, 'Response (RU)');
+    ax.XLim = [0, immobilizationData.x(end)];
     
     figFrame = getframe(fig);
     close(fig)
@@ -181,7 +184,7 @@ end
 
 ax = findobj(axesHandle, 'Type', 'Axes');
 fig.Position(3) = CAPTURE_AXES_WIDTH + 2*CAPTURE_AXES_MARGIN;
-fig.Position(4) = CAPTURE_AXES_HEIGHT + 2*CAPTURE_AXES_MARGIN;
+fig.Position(4) = CAPTURE_AXES_HEIGHT + 2*CAPTURE_AXES_MARGIN + CAPTURE_LEGEND_HEIGHT;
 ax.Position(1) = CAPTURE_AXES_MARGIN;
 ax.Position(2) = CAPTURE_AXES_MARGIN;
 ax.Position(3) = CAPTURE_AXES_WIDTH;

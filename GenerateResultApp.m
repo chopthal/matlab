@@ -9,7 +9,7 @@ app = struct;
 % Generate App (Figure, axes, table..)
 app.UIFigure = uifigure;
 app.UIFigure.Visible = 'off';
-app.UIFigure.Position = [100, 100, 850, 700];
+app.UIFigure.Position = [100, 100, 850, 750];
 app.UIFigure.UserData.ResultFilePath = [];
 app.UIFigure.UserData.LineExpandRatio = 1e5;
 app.UIMainGrid = uigridlayout(app.UIFigure);
@@ -47,7 +47,7 @@ app.UILabel.Text = "Fitting Result";
 app.UILabel.VerticalAlignment = 'center';
 
 app.UITable = uitable(app.UIMainGrid);
-app.UIMainGrid.RowHeight = {45, '10x', 50, 20, '5x', 50};
+app.UIMainGrid.RowHeight = {40, '10x', 50, 20, '5x', 50};
 app.UIMainGrid.ColumnWidth = {'1x'};
 
 app.UIMainButtonGrid = uigridlayout(app.UIMainGrid);
@@ -243,10 +243,15 @@ for i = 1:size(analyte(analyteNo).FittedR, 2)
     linePlot.FittedString{end+1} = strcat(concentration{i}, concentrationUnit, '(Fitted)');
 end
 
-app.UIFigure.UserData.Legend = legend(app.UIAxes, [flip(linePlot.Raw) flip(linePlot.Fitted)], [flip(linePlot.RawString) flip(linePlot.FittedString)]);
+app.UIFigure.UserData.Legend = legend(app.UIAxes,...
+    [flip(linePlot.Raw) flip(linePlot.Fitted)],...
+    [flip(linePlot.RawString) flip(linePlot.FittedString)]);
 app.UIFigure.UserData.Legend.ContextMenu = '';
 app.UIFigure.UserData.Legend.ItemHitFcn = @(src, event)LegendItemHitFcn(src, event);
-app.UIFigure.UserData.Legend.Location = 'northwest';
+app.UIFigure.UserData.Legend.Orientation = 'horizontal';
+app.UIFigure.UserData.Legend.Location = 'northoutside';
+app.UIFigure.UserData.Legend.NumColumns = 5;
+app.UIFigure.UserData.Legend.FontSize = 9.5;
 UICheckBoxLegendValueChangedFunction([], [], app);
 axtoolbar(app.UIAxes, {'pan', 'zoomin', 'zoomout', 'restoreview', 'export'});
 
@@ -320,7 +325,7 @@ function UICheckBoxLegendValueChangedFunction(src, event, app)
     
 try
     app.UIFigure.UserData.Legend.Visible = app.UICheckBoxLegend.Value;
-    app.UIFigure.UserData.Legend.Location = 'northwest';
+    app.UIFigure.UserData.Legend.Location = 'northoutside';
 catch
     disp('Checkbox Error!')
 end
@@ -548,7 +553,9 @@ end
 function ReportButtonPushed(src, event, app)
     filter = {'PDF file *.pdf'};
     defPath = app.UIFigure.UserData.ResultFilePath;    
-    defName = strcat(app.UIFigure.UserData.Analyte.Name, '_Report');
+    analyte = app.UIFigure.UserData.Analyte;
+    analyteNo = find(strcmp(app.UIDropdownName.Items, app.UIDropdownName.Value));
+    defName = strcat(analyte(analyteNo).Name, '_Report');
     [file, path] = uiputfile(filter, 'Save Report File', fullfile(defPath, defName));
 
     if isequal(file, 0) || isequal(path, 0)

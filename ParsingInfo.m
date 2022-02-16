@@ -50,6 +50,7 @@ analyte.FittedR = [];
 containImmobilization = sum(matches(applicationColumn, immobApplication));
 % ligandName = '';
 immobData = [];
+isImmobilization = [];
 if containImmobilization
     immobFolder = listFolder{contains(listFolder, immobApplication)};
     immobPath = fullfile(parentPath, immobFolder, 'RU', 'Ch1.txt');
