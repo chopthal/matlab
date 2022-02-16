@@ -101,6 +101,7 @@ for i = 1:length(targetApplicationName)
     % Concentration
     concentration = str2double(info.(expFieldName).TableData.Var3(isApplicationRow{i, 1})); % Concentration
     unit = cellstr(string(info.(expFieldName).TableData.Var4(isApplicationRow{i, 1}))); % Unit
+    analyte(i).ConcentrationUnit = unit;
     analyte(i).Concentration = concentrationUnit2Mole(concentration, unit);    
 
     % Name

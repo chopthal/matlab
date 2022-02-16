@@ -201,7 +201,10 @@ function UIDropdownNameValueChangedFunction(src, event, analyte, app)
 src = app.UIDropdownName;
 cla(app.UIAxes);
 analyteNo = find(strcmp(src.Items, src.Value));
-[concentration, concentrationUnit] = FindConcentrationUnit(analyte(analyteNo).Concentration);
+concentrationUnit = analyte(analyteNo).ConcentrationUnit{1};
+[concentration, concentrationUnit] = FindConcentrationUnit(analyte(analyteNo).Concentration, concentrationUnit);
+% concentration = arrayfun(@num2str, analyte(analyteNo).Concentration, 'UniformOutput', 0)
+
 linePlot.Raw = [];
 linePlot.RawString = [];
 linePlot.Fitted = [];
@@ -332,15 +335,19 @@ end
 
 end
 
+function [concStr, unit] = FindConcentrationUnit(concentration, concentrationUnit)
 
-function [concStr, unit] = FindConcentrationUnit(concentration)
-    logConc = log10(concentration);
-    digitConc = round(round(min(logConc(~isinf(logConc))))/3) * 3;
-
-    % Giga ~ ato    
+% Giga ~ ato    
     unitNames = {'GM', 'MM', 'KM', 'M', 'mM', 'uM', 'nM', 'pM', 'fM', 'aM'};
     unitDigitCriteria = [9 6 3 0 -3 -6 -9 -12 -15 -18];    
-    [~, idx] = min(abs(digitConc - unitDigitCriteria));
+    
+    if isempty(concentrationUnit)
+        logConc = log10(concentration);
+        digitConc = round(round(min(logConc(~isinf(logConc))))/3) * 3;
+        [~, idx] = min(abs(digitConc - unitDigitCriteria));
+    else
+        idx = find(matches(unitNames, concentrationUnit));
+    end
     unitDigit = unitDigitCriteria(idx);        
     unit = (unitNames{idx});
     concNum = concentration / 10^unitDigit;
@@ -350,6 +357,23 @@ function [concStr, unit] = FindConcentrationUnit(concentration)
         concStr{i, 1} = sprintf('%0.2f', concNum(i));
     end
 end
+% function [concStr, unit] = FindConcentrationUnit(concentration)
+%     logConc = log10(concentration);
+%     digitConc = round(round(min(logConc(~isinf(logConc))))/3) * 3;
+% 
+%     % Giga ~ ato    
+%     unitNames = {'GM', 'MM', 'KM', 'M', 'mM', 'uM', 'nM', 'pM', 'fM', 'aM'};
+%     unitDigitCriteria = [9 6 3 0 -3 -6 -9 -12 -15 -18];    
+%     [~, idx] = min(abs(digitConc - unitDigitCriteria));
+%     unitDigit = unitDigitCriteria(idx);        
+%     unit = (unitNames{idx});
+%     concNum = concentration / 10^unitDigit;
+%     concStr = cell(length(concNum), 1);
+%     
+%     for i = 1:length(concNum)
+%         concStr{i, 1} = sprintf('%0.2f', concNum(i));
+%     end
+% end
 
 function TimingButtonPushed(src, event, app, analyte)
 
@@ -587,8 +611,8 @@ for i = 1:size(app.UIFigure.UserData.Analyte, 2)
     resultCell = [resultHeader; resultCell];
 %     writetable(app.UITable.Data, fileName, 'Delimiter', 'tab');
     writecell(resultCell, fileName, 'Delimiter', 'tab');
+    [concStr, unit] = FindConcentrationUnit(app.UIFigure.UserData.Analyte(i).Concentration, app.UIFigure.UserData.Analyte(i).ConcentrationUnit{1});
     
-    [concStr, unit] = FindConcentrationUnit(app.UIFigure.UserData.Analyte(i).Concentration);
     for ii = 1:size(app.UIFigure.UserData.Analyte(i).Data, 1)
         fileNameRawData = strcat('Raw_', concStr{ii}, unit, '.', extension);
         writetable(app.UIFigure.UserData.Analyte(i).Data{ii}, fullfile(pathName, fileNameRawData), 'Delimiter', 'tab')
