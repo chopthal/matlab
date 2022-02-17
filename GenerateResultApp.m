@@ -1,11 +1,7 @@
 function app = GenerateResultApp
 
-% TODO (2022. 02. 11)
-% Timing set and baseline button to the vertically middle of the UI
-% Fitting set and Fit button to the left
-% Add Report button left-side of the Export Data
-
 app = struct;
+
 % Generate App (Figure, axes, table..)
 app.UIFigure = uifigure;
 app.UIFigure.Visible = 'off';
@@ -31,7 +27,6 @@ app.UIAxes.YLabel.String = 'Response (RU)';
 
 app.UIOptionButtonGrid = uigridlayout(app.UIMainGrid);
 app.UIOptionButtonGrid.RowHeight = {'1x'};
-% app.UIOptionButtonGrid.ColumnWidth = {100, 100, '1x', 100, 100};
 app.UIOptionButtonGrid.ColumnWidth = {100, 100, '1x', 100, 100};
 app.UIOptionButtonGrid.ColumnSpacing = 5;
 app.UIOptionButtonGrid.Padding = [0 10 0 10];
@@ -54,11 +49,9 @@ app.UIMainButtonGrid = uigridlayout(app.UIMainGrid);
 app.UIMainButtonGrid.ColumnSpacing = 5;
 app.UIMainButtonGrid.Padding = [0 10 0 10];
 
-% app.UIButtonTimingSet = uibutton(app.UIMainButtonGrid);
 app.UIButtonTimingSet = uibutton(app.UIOptionButtonGrid);
 app.UIButtonTimingSet.Text = 'Timing Set';
 
-% app.UIButtonBaseline = uibutton(app.UIMainButtonGrid);
 app.UIButtonBaseline = uibutton(app.UIOptionButtonGrid);
 app.UIButtonBaseline.Text = 'Baseline';
 
@@ -203,7 +196,6 @@ cla(app.UIAxes);
 analyteNo = find(strcmp(src.Items, src.Value));
 concentrationUnit = analyte(analyteNo).ConcentrationUnit{1};
 [concentration, concentrationUnit] = FindConcentrationUnit(analyte(analyteNo).Concentration, concentrationUnit);
-% concentration = arrayfun(@num2str, analyte(analyteNo).Concentration, 'UniformOutput', 0)
 
 linePlot.Raw = [];
 linePlot.RawString = [];
@@ -259,7 +251,6 @@ UICheckBoxLegendValueChangedFunction([], [], app);
 axtoolbar(app.UIAxes, {'pan', 'zoomin', 'zoomout', 'restoreview', 'export'});
 
 % Table display (koff, kon, Rmax, KA, KD)
-% kResult = {[koff], [kon], [Rmax], [BI]};
 currentModel = analyte(analyteNo).FittingVariable.FittingModel;
 kVars = analyte(analyteNo).FittingVariable.(currentModel).Name;
 kResult = cell(size(kVars, 1), 1);
@@ -357,23 +348,6 @@ function [concStr, unit] = FindConcentrationUnit(concentration, concentrationUni
         concStr{i, 1} = sprintf('%0.2f', concNum(i));
     end
 end
-% function [concStr, unit] = FindConcentrationUnit(concentration)
-%     logConc = log10(concentration);
-%     digitConc = round(round(min(logConc(~isinf(logConc))))/3) * 3;
-% 
-%     % Giga ~ ato    
-%     unitNames = {'GM', 'MM', 'KM', 'M', 'mM', 'uM', 'nM', 'pM', 'fM', 'aM'};
-%     unitDigitCriteria = [9 6 3 0 -3 -6 -9 -12 -15 -18];    
-%     [~, idx] = min(abs(digitConc - unitDigitCriteria));
-%     unitDigit = unitDigitCriteria(idx);        
-%     unit = (unitNames{idx});
-%     concNum = concentration / 10^unitDigit;
-%     concStr = cell(length(concNum), 1);
-%     
-%     for i = 1:length(concNum)
-%         concStr{i, 1} = sprintf('%0.2f', concNum(i));
-%     end
-% end
 
 function TimingButtonPushed(src, event, app, analyte)
 
@@ -391,11 +365,9 @@ app.UIButtonOK.Visible = 'On'; app.UIButtonOK.Enable = 'On';
 app.UIButtonCancel.Visible = 'On'; app.UIButtonCancel.Enable = 'On';
 
 UIAxes = app.UIAxes;
-% xLim = UIAxes.XLim; yLim = UIAxes.YLim;
 xLim = [analyte(analyteNo).XData(1), analyte(analyteNo).XData(end)]; 
 yMag = abs(app.UIAxes.YLim(1) - app.UIAxes.YLim(2));
 yLim = [-yMag yMag] * app.UIFigure.UserData.LineExpandRatio;
-% yLim = UIAxes.YLim;
 
 asStartPos = [analyte(analyteNo).EventTime(1), yLim(1);...
     analyte(analyteNo).EventTime(1), yLim(2)]; %#ok<*FNDSB>
@@ -479,7 +451,6 @@ function LineMoveEvent(lineSrc, event, UserData, xLim)
 end
 
 function SetDrawingArea(UserData, xLim)
-    % drawingArea = [x, y, w, h];
     UserData.lineAsStart.DrawingArea =...
         [xLim(1), 0,...
         UserData.lineAsEnd.Position(1)-xLim(1)-5, 0];
@@ -510,11 +481,9 @@ app.UIButtonOK.Visible = 'On'; app.UIButtonOK.Enable = 'On';
 app.UIButtonCancel.Visible = 'On'; app.UIButtonCancel.Enable = 'On';
 
 UIAxes = app.UIAxes;
-% xLim = UIAxes.XLim; yLim = UIAxes.YLim;
 xLim = [analyte(analyteNo).XData(1), analyte(analyteNo).XData(end)]; 
 yMag = abs(app.UIAxes.YLim(1) - app.UIAxes.YLim(2));
 yLim = [-yMag yMag] * app.UIFigure.UserData.LineExpandRatio;
-% yLim = UIAxes.YLim;
 
 baselinePos = [analyte(analyteNo).Baseline, yLim(1);...
     analyte(analyteNo).Baseline, yLim(2)];
@@ -609,7 +578,6 @@ for i = 1:size(app.UIFigure.UserData.Analyte, 2)
     resultCell = table2cell(app.UITable.Data);    
     resultHeader = app.UITable.ColumnName';
     resultCell = [resultHeader; resultCell];
-%     writetable(app.UITable.Data, fileName, 'Delimiter', 'tab');
     writecell(resultCell, fileName, 'Delimiter', 'tab');
     [concStr, unit] = FindConcentrationUnit(app.UIFigure.UserData.Analyte(i).Concentration, app.UIFigure.UserData.Analyte(i).ConcentrationUnit{1});
     
