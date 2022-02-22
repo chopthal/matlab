@@ -54,7 +54,7 @@ open(rpt);
 header = PDFPageHeader();
 logo = Image('ReportLogo.png');
 logo.Style = {ScaleToFit(true), HAlign('right'), Height('0.5in'), VAlign('top'), OuterMargin("0pt","0pt","0pt","0pt"), InnerMargin("0pt","0pt","0pt","0pt")};
-append(header, logo)
+append(header, logo);
 
 layout = getReportLayout(rpt);
 layout.PageHeaders = header;
