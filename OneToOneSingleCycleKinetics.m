@@ -1,4 +1,4 @@
-function [k, kName, chi2, T, R] = OneToOneSingleCycleKinetics(concentration, associationTime, dissociationTime, xData, yData, isMassTransfer, fittingVariables)
+function [k, kName, chi2, T, R] = OneToOneSingleCycleKinetics(concentration, associationStart, associationEnd, dissociationStart, dissociationEnd, xData, yData, isMassTransfer, fittingVariables)
 
 % concentration : concentration matrix. ex) [2*10^(-9); 4*10^(-9); 8*10^(-9); 16*10^(-9); 32e-9]
 % eventTime : [Association Start time, Association End time, Dissociation
@@ -22,6 +22,38 @@ numK = numLocal * numCurve + numGlobal + numConstant * numCurve;
 idxVar = cell(numCurve, 1);
 idxVar{1} = 1:numLocal+numGlobal+numConstant;
 lastIdx = idxVar{1}(end);
+
+algorithm = 'levenberg-marquardt';
+if sum(strcmp(fittingVariables.Type, 'Local')) == 0
+    scaleProblem = 'none';        
+else    
+    scaleProblem = 'jacobian';
+%     scaleProblem = 'none';        
+end
+
+disp(scaleProblem)
+
+options = optimoptions('lsqcurvefit',...
+    'Algorithm', algorithm,...
+    'FiniteDifferenceType', 'forward',...
+    'MaxFunctionEvaluations', 40000, ...
+    'MaxIterations', 1000, ...
+    'FunctionTolerance', 1e-6, ...    
+    'StepTolerance', 1e-10, ...
+    'ScaleProblem', scaleProblem, ...
+    'FiniteDifferenceStepSize', eps^(1/3), ... 
+    'InitDamping', 0.01, ...
+    'SubproblemAlgorithm', 'factorization', ... % cg
+    'Display', 'iter-detailed');
+
+% options = optimoptions('lsqcurvefit',...
+%     'Algorithm', 'levenberg-marquardt',...
+%     'FiniteDifferenceType', 'central',...
+%     'MaxIterations', 100, ...
+%     'FunctionTolerance', 1e-8, ...
+%     'MaxFunctionEvaluations', 2e3, ...
+%     'StepTolerance', 1e-7, ...
+%     'Display', 'iter-detailed');
 
 % kt, kd, ka, Rmax, BI, drift
 for i = 2 : numCurve    
@@ -60,24 +92,12 @@ for i = 1:length(varType)
     end
 end
 
-options = optimoptions('lsqcurvefit',...
-    'Algorithm', 'levenberg-marquardt',...
-    'FiniteDifferenceType', 'central',...
-    'MaxIterations', 100, ...
-    'FunctionTolerance', 1e-8, ...
-    'MaxFunctionEvaluations', 2e3, ...
-    'StepTolerance', 1e-7);
-
 
 xDataEffectiveRange = [];
 yDataEffectiveRange = [];
-for i = 1:length(associationTime)
-    if i == length(associationTime)
-        dissociationTimes{i} = [dissociationTime(i), xData(end)];
-    else
-        dissociationTimes{i} = [dissociationTime(i), associationTime(i+1)];
-    end
-    associationTimes{i} = [associationTime(i), dissociationTime(i)];
+for i = 1:length(associationStart)
+    associationTimes{i} = [associationStart(i), associationEnd(i)];
+    dissociationTimes{i} = [dissociationStart(i), dissociationEnd(i)];
 
     [tmpIdxAsso, ~] = find(associationTimes{i} == xData);
     [tmpIdxDisso, ~] = find(dissociationTimes{i} == xData);
@@ -114,9 +134,11 @@ function dy = AssociationRateEquationODE(t, y, k, isMassTransfer, C)
 
     dy = zeros(3, 1);
         
-    dy(1) = 0;
-    dy(2) = -ka*C*y(2) + kd*y(3); % B
-    dy(3) = ka *C*y(2) - kd*y(3); % AB
+    dy(1) = 0; % A = 0
+%     dy(2) = -ka * y(1) * y(2) + kd * y(3); % B
+%     dy(3) =  ka * y(1) * y(2) - kd * y(3); % AB
+    dy(2) = -ka * C * y(2) + kd * y(3); % B
+    dy(3) =  ka * C * y(2) - kd * y(3); % AB
     
 end
 
@@ -129,8 +151,10 @@ function dy = DissociationRateEquationODE(t, y, k)
     dy = zeros(3,1);
 
     dy(1) = 0; % A = 0
-    dy(2) = -ka*0*y(2) + kd*y(3); % B
-    dy(3) =  ka*0*y(2) - kd*y(3); % AB
+%     dy(2) = -ka * y(1) * y(2) + kd * y(3); % B
+%     dy(3) =  ka * y(1) * y(2) - kd * y(3); % AB
+    dy(2) = -ka * 0 * y(2) + kd * y(3); % B
+    dy(3) =  ka * 0 * y(2) - kd * y(3); % AB
 
 end
 
@@ -144,7 +168,7 @@ function [X, Y] = ODESolve(k, xData, pfuncAsso, pfuncDisso, associationTimes, di
     absTol = 1e-6;
     relTol = 1e-6;    
     options = odeset('RelTol', relTol, 'AbsTol', absTol);
-    YDisso = 0;
+    YDisso = zeros(1, 3);
 
     for i = 1 : size(associationTimes, 2)
         C = concentration(i);              
@@ -153,13 +177,15 @@ function [X, Y] = ODESolve(k, xData, pfuncAsso, pfuncDisso, associationTimes, di
 
         Rmax = k(3) - YDisso(end);  
 
-        y0Asso = [0; Rmax; YDisso(end)];
+        y0Asso = [0; Rmax; YDisso(end, 3)];
         kInput = k(idxVar{i});
         [XAsso, YAsso] = ode15s(@(x, y) pfuncAsso (x, y, kInput, isMassTransfer, C), tspanAsso, y0Asso, options);
-        y0Disso = [0; Rmax; YAsso(end, 3)];  
+%         y0Disso = [0; Rmax; YAsso(end, 3)];  
+        y0Disso = [0; 0; YAsso(end, 3)];
         [XDisso, YDisso] = ode15s(@(x, y) pfuncDisso (x, y, kInput), tspanDisso, y0Disso, options);
         X = [X; XAsso; XDisso];        
-%         YAsso = YAsso + kInput(3) * (XAsso-XAsso(1)) + kInput(4); % Bulky index (kInput(5)) and Drift (kInput(6))
+        YAsso = YAsso + kInput(4);
+        % YAsso = YAsso + kInput(3) * (XAsso-XAsso(1)) + kInput(4); % Bulky index (kInput(5)) and Drift (kInput(6))
 %         YDisso = YDisso + kInput(4) * (XDisso-XAsso(1)); % Drift (kInput(6))
         Y = [Y; YAsso; YDisso];
     end
