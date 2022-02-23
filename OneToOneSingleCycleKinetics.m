@@ -171,9 +171,16 @@ function [X, Y] = ODESolve(k, xData, pfuncAsso, pfuncDisso, associationTimes, di
     YDisso = zeros(1, 3);
 
     for i = 1 : size(associationTimes, 2)
+    
+        [tmpIdxAsso, ~] = find(associationTimes{i} == xData);
+        [tmpIdxDisso, ~] = find(dissociationTimes{i} == xData);
+        xShift = associationTimes{i}(1) - tmpIdxAsso(1);
+        tspanAsso = tmpIdxAsso(1) : tmpIdxAsso(2);
+        tspanDisso = tmpIdxDisso(1) : tmpIdxDisso(2);
+
         C = concentration(i);              
-        tspanAsso = associationTimes{i}(1):associationTimes{i}(2);
-        tspanDisso = dissociationTimes{i}(1):dissociationTimes{i}(2);
+%         tspanAsso = associationTimes{i}(1):associationTimes{i}(2);
+%         tspanDisso = dissociationTimes{i}(1):dissociationTimes{i}(2);
 
         Rmax = k(3) - YDisso(end);  
 
