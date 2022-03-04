@@ -1,7 +1,31 @@
 function AnalyzeKinetics(app, parentPath)
 
-app.UIFigure.UserData.Analyte = ParsingInfo(parentPath);
-app.UIDropdownName.Items = {app.UIFigure.UserData.Analyte.Name};
+app.Analyte = ParsingInfo(parentPath);
+validAnalyte = struct;
+
+ii = 1;
+for i = 1:size(app.Analyte, 2)
+    if isempty(app.Analyte(i).Concentration) || isempty(app.Analyte(i).Data)
+        continue
+    end
+%     validAnalyte(ii) = app.Analyte(i);
+
+    for fieldName = fieldnames(app.Analyte)'
+       validAnalyte(ii).(fieldName{1}) = app.Analyte(i).(fieldName{1});
+    end
+
+    ii = ii + 1;
+end
+
+if isempty(fieldnames(validAnalyte))
+    app.Analyte = [];
+    uialert(app.UIFigure, 'No Data', 'Invalid file')    
+    return
+else
+    app.Analyte = validAnalyte;
+end
+
+app.UIDropdownName.Items = {validAnalyte.Name};
 app.UIFigure.Visible = 'on';
 
 UIProgressDialog = ...
@@ -9,25 +33,25 @@ UIProgressDialog = ...
     'Message', 'Fitting Curve(s)...', ...
     'Indeterminate', 'on');
 pause(0.01)
-for i = 1:size(app.UIFigure.UserData.Analyte, 2)
-    [app.UIFigure.UserData.Analyte(i).k,...
-        app.UIFigure.UserData.Analyte(i).kName,...
-        app.UIFigure.UserData.Analyte(i).chi2,...
-        app.UIFigure.UserData.Analyte(i).FittedT,...
-        app.UIFigure.UserData.Analyte(i).FittedR]...
+for i = 1:size(app.Analyte, 2)
+    [app.Analyte(i).k,...
+        app.Analyte(i).kName,...
+        app.Analyte(i).chi2,...
+        app.Analyte(i).FittedT,...
+        app.Analyte(i).FittedR]...
             = ReadyForCurveFitting(...
-                app.UIFigure.UserData.Analyte(i).Concentration,...
-                app.UIFigure.UserData.Analyte(i).EventTime,...            
-                app.UIFigure.UserData.Analyte(i).XData,...
-                app.UIFigure.UserData.Analyte(i).YData,...
-                app.UIFigure.UserData.Analyte(i).FittingVariable);
+                app.Analyte(i).Concentration,...
+                app.Analyte(i).EventTime,...            
+                app.Analyte(i).XData,...
+                app.Analyte(i).YData,...
+                app.Analyte(i).FittingVariable);
 end    
 
-app.UIDropdownName.ValueChangedFcn(app.UIFigure.UserData.Analyte, app)
+app.UIDropdownName.ValueChangedFcn(app, [])
 %% Set Fitting variables to Default
-for i = 1:size(app.UIFigure.UserData.Analyte, 2)
-    app.UIFigure.UserData.Analyte(i).FittingVariable = struct;
-    app.UIFigure.UserData.Analyte(i).FittingVariable = app.UIFigure.UserData.Analyte(i).DefaultFittingVariable;
+for i = 1:size(app.Analyte, 2)
+    app.Analyte(i).FittingVariable = struct;
+    app.Analyte(i).FittingVariable = app.Analyte(i).DefaultFittingVariable;
 end
 
 close(UIProgressDialog)

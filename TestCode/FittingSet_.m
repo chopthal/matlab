@@ -9,7 +9,7 @@ app = struct;
 app.UIFigure = uifigure;
 app.UIFigure.Name = 'Fitting Set';
 app.UIFigure.Visible = 'On';
-app.UIFigure.WindowStyle = 'modal';
+% app.UIFigure.WindowStyle = 'modal';
 app.UIFigure.Position = [100, 100, 400, 500];
 app.UIFigure.UserData.CurrentAnalyte = analyte(analyteNo);
 

@@ -1,4 +1,4 @@
-i = 4;
+i = 3;
 
 concentration = cell(5, 1);
 associationStart = cell(5, 1);
@@ -31,12 +31,12 @@ dissociationStart{3} = [224  665   1100   1536   1972] + 48;
 dissociationEnd{3} =   [448  877   1303   1726   2600] + 48;
 driftRange{3} = [-42 20] + 48;
 
-scaleFactor(4) = 100;
+scaleFactor(4) = 1000;
 concentration{4} = [10e-7 20e-7 40e-7 80e-7];
-associationStart{4} =  [534   966    1393   1812];
-associationEnd{4} =    [683   1107   1538   1964];
-dissociationStart{4} = [708   1137   1566   2003];
-dissociationEnd{4} =   [933   1355   1775   2670] - 40;
+associationStart{4} =  [497   926    1368   1786];
+associationEnd{4} =    [650   1077   1500   1922];
+dissociationStart{4} = [670   1102   1525   1967];
+dissociationEnd{4} =   [887   1313   1738   2635];
 driftRange{4} = [3 461];
 
 scaleFactor(5) = 100;
@@ -50,6 +50,8 @@ driftRange{5} = [3 135];
 
 fileName = 'TestSet/titration_data_2.txt';
 fig = figure(1); clf(fig, 'reset'); ax = axes(fig); cla(ax);
+xlabel(ax, 'Time (sec)');
+ylabel(ax, 'Signal (RU)');
 data = table2array(readtable(fileName));
 concentration = concentration{i};
 associationStart = associationStart{i};
@@ -75,8 +77,10 @@ hold(ax, 'on'); plot(ax, xData, yData);
 pause(0.01)
 
 % kmass = [1*10^8  1*10^8  1*10^8  1*10^8  2*10^8];
+% koff  = ones(1, length(concentration)) * 10^-4;
+% kon   = ones(1, length(concentration)) * 10^3;
 koff  = ones(1, length(concentration)) * 10^-4;
-kon   = ones(1, length(concentration)) * 10^3;
+kon   = ones(1, length(concentration)) * 10^1;
 Rmax  = ones(1, length(concentration)) * 2000;
 BI    = ones(1, length(concentration)) * 0;
 scaleFactor = scaleFactor(i);
@@ -110,7 +114,7 @@ isMassTransfer = false;
 % disp([char(kName) num2str(k')])
 
 for i=1:size(kName, 2)
-    fprintf('%s : %d\n', kName{i}, k(i))
+    fprintf('%s : %.2e\n', kName{i}, k(i))
 end
 
 disp(chi2)

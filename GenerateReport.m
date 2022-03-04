@@ -18,7 +18,7 @@ CAPTURE_AXES_MARGIN = 20;
 CAPTURE_LEGEND_HEIGHT = 50;
 
 br = PageBreak();
-analyte = app.UIFigure.UserData.Analyte;
+analyte = app.Analyte;
 analyteNo = find(matches(app.UIDropdownName.Items, app.UIDropdownName.Value));
 
 rpt = Report(savePath, 'pdf');
@@ -175,9 +175,9 @@ fig.Visible = 'off';
 fig.Color = [1 1 1];
 
 if app.UICheckBoxLegend.Value
-    axesHandle = copyobj([app.UIFigure.UserData.Legend, app.UIAxes], fig);
+    axesHandle = copyobj([app.Legend, app.UIAxes], fig);
     lgd = findobj(axesHandle, 'Type', 'Legend');
-    lgd.Location = app.UIFigure.UserData.Legend.Location;
+    lgd.Location = app.Legend.Location;
 else
     axesHandle = copyobj(app.UIAxes, fig);
 end

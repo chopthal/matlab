@@ -1,4 +1,5 @@
-i = 4;
+i = 5;
+fileNum = i;
 
 concentration = cell(5, 1);
 associationStart = cell(5, 1);
@@ -7,7 +8,7 @@ dissociationStart = cell(5, 1);
 dissociationEnd = cell(5, 1);
 driftRange = cell(5, 1);
 
-scaleFactor(1) = 10;
+scaleFactor(1) = 100;
 concentration{1} = [5e-7 10e-7 20e-7 40e-7 80e-7];
 associationStart{1} = [8 454 885 1316 1738] + 42;
 associationEnd{1} = [264  616 1049 1480 1907] + 42;
@@ -15,7 +16,7 @@ dissociationStart{1} = [290 645 1081 1508 1940] + 42;
 dissociationEnd{1} = [431 852 1286 1708 2600] + 42;
 driftRange{1} = [1 48];
 
-scaleFactor(2) = 10;
+scaleFactor(2) = 1000;
 concentration{2} = [5e-7 10e-7 20e-7 40e-7 80e-7];
 associationStart{2} =  [12   435   848    1263   1687] + 40;
 associationEnd{2} =    [203  616   1032   1436   1844] + 40;
@@ -61,7 +62,7 @@ dissociationEnd = dissociationEnd{i};
 driftRange = driftRange{i};
 
 data = data(:, 2*i-1:2*i);
-xData = 1:size(yData, 1); yData = data(:, 2);
+xData = 1:size(data, 1); yData = data(:, 2);
 xData = xData';
 
 xFit = driftRange(1):driftRange(2);
@@ -127,3 +128,10 @@ hold(ax, 'On'); plot(ax, fittedT, fittedR, 'Color', 'Red')
 % for i = 1:size(fittedR, 2)
 %     hold(ax, 'On'); plot(ax, fittedT(:, i), fittedR(:, i), 'Color', 'Red');
 % end
+
+rawDataPath = fullfile('TestSet/', sprintf('raw_%d.txt', fileNum));
+resultDataPath = fullfile('TestSet/', sprintf('result_%d.txt', fileNum));
+rawDataTable = table(xData, yData);
+resultDataTable = table(fittedT, fittedR);
+writetable(rawDataTable, rawDataPath, 'Delimiter', 'tab');
+writetable(resultDataTable, resultDataPath, 'Delimiter', 'tab');

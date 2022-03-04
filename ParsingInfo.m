@@ -85,18 +85,25 @@ for i = 1:length(targetApplicationName)
     pathName = fullfile(parentPath, sortedListFolder, dataPath, dataFileName);
 
     % Path
-    analyte(i).Path = pathName;
+%     analyte(i).Path = pathName;
     isValidFile = false(size(pathName));
-    for ii = length(pathName)
-        if ~isfile(pathName{i}); continue; end
-        try data = readtable(pathName{i}); catch; continue; end
+    for ii = 1:length(pathName)
+        if ~isfile(pathName{ii}); continue; end
+        try data = readtable(pathName{ii}); catch; continue; end
         if size(data, 1) == info.(expFieldName).TableData.Var11(ii, 1)
             isValidFile(ii) = true;
         end
     end    
 
+    analyte(i).Path = pathName(isValidFile);
+    isApplicationRow{i, 1}(folderNo(~isValidFile)) = 0;
+    
+    if isempty(analyte(i).Path) || sum(isApplicationRow{i, 1}) == 0
+        continue
+    end
+
     % is Path valid
-    analyte(i).IsValidPath = isValidFile;
+%     analyte(i).IsValidPath = isValidFile;
 
     % Concentration
     concentration = str2double(info.(expFieldName).TableData.Var3(isApplicationRow{i, 1})); % Concentration
