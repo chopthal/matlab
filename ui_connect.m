@@ -8,6 +8,7 @@ app.UIFigure.Visible = 'off';
 app.UIFigure.Position = [100 100 472 206];
 app.UIFigure.Name = 'Connect';
 app.UIFigure.Resize = 'off';
+app.UIFigure.WindowStyle = 'modal';
 
 % Create GridLayout
 app.GridLayout = uigridlayout(app.UIFigure);
@@ -180,6 +181,9 @@ app.CancelButton.Layout.Column = 3;
 app.CancelButton.Text = 'Cancel';
 
 % Show the figure after all components are created
+[x, y] = CalculateUIPosition;
+app.UIFigure.Position(1) = x;
+app.UIFigure.Position(2) = y;
 app.UIFigure.Visible = 'on';
 
 %% Callbacks
@@ -190,6 +194,7 @@ app.CancelButton.ButtonPushedFcn = @(src, event) UIFigureCloseRequestFcn(app, ev
 %% Start up
 portList = serialportlist("available");
 app.PortDropDown.Items = portList;
+
 
 %% Functions
     function OKButtonPushedFcn(app, ~, ~)
@@ -230,7 +235,16 @@ app.PortDropDown.Items = portList;
     end
     
     function UIFigureCloseRequestFcn(app, ~, ~)
-    close(app.UIFigure);
+        delete(app.UIFigure);
+    end
+
+    
+    function [x, y] = CalculateUIPosition
+        parentPosition = MainApp.UIFigure.Position;
+        w = app.UIFigure.Position(3);
+        h = app.UIFigure.Position(4);
+        x = parentPosition(1) + round(parentPosition(3)/2 - w/2);
+        y = parentPosition(2) + round(parentPosition(4)/2 - h/2);
     end
 
 end

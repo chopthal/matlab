@@ -316,8 +316,10 @@ app.StatusLabel.Text = 'Status :';
 app.StatusLamp = uilamp(app.Panel);
 app.StatusLamp.Position = [95 10 20 20];
 
-% Show the figure after all components are created
+movegui(app.UIFigure, 'center');
 app.UIFigure.Visible = 'on';
+
+
 
 %% Variable
 app.UIFigure.UserData.Items = struct;
@@ -353,6 +355,7 @@ app.SaveMenu.MenuSelectedFcn = @(src, event) SaveButtonPushedFcn(app, src, event
 app.LoadMenu.MenuSelectedFcn = @(src, event) LoadButtonPushedFcn(app, src, event);
 app.ExitMenu.MenuSelectedFcn = @(src, event) ExitButtonPushedFcn(app, src, event);
 %% Start up
+
 app.ListBox.Items = {''};
 app.StatusLamp.Color = app.UIFigure.UserData.LampColor.Red;
 
@@ -361,12 +364,8 @@ tmp1 = split(tmp0, ':');
 currentPath = strcat(tmp1{1}, ':');
 prevSetFolder = fullfile(currentPath, app.UIFigure.UserData.SetPath);
 app.UIFigure.UserData.PrevSetPath = fullfile(currentPath, app.UIFigure.UserData.SetPath, app.UIFigure.UserData.SetFile);
-disp(app.UIFigure.UserData.PrevSetPath)
-% if isdeployed
-    if ~exist(prevSetFolder, 'dir')
-        mkdir(prevSetFolder)
-    end   
-% end
+
+if ~exist(prevSetFolder, 'dir'); mkdir(prevSetFolder); end   
 if exist(app.UIFigure.UserData.PrevSetPath, 'file')
     try
         loaded = load(app.UIFigure.UserData.PrevSetPath);
