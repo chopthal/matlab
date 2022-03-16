@@ -1,3 +1,5 @@
+close force all
+
 %% Generate App
 app = struct;
 app.UIFigure = uifigure(1);
@@ -325,6 +327,9 @@ app.UIFigure.UserData.PortObj = [];
 app.UIFigure.UserData.LampColor.Red = [255 0 0]/255;
 app.UIFigure.UserData.LampColor.Orange = [255 255 0]/255;
 app.UIFigure.UserData.LampColor.Green = [0 255 0]/255;
+app.UIFigure.UserData.SetPath = 'icluebio/iMCom/prev_setting';
+app.UIFigure.UserData.SetFile = 'prevset.mat';
+app.UIFigure.UserData.PrevSetPath = '';
 
 %% Add Callback function
 % UI
@@ -350,6 +355,27 @@ app.ExitMenu.MenuSelectedFcn = @(src, event) ExitButtonPushedFcn(app, src, event
 %% Start up
 app.ListBox.Items = {''};
 app.StatusLamp.Color = app.UIFigure.UserData.LampColor.Red;
+
+tmp0 = ctfroot;
+tmp1 = split(tmp0, ':');
+currentPath = strcat(tmp1{1}, ':');
+prevSetFolder = fullfile(currentPath, app.UIFigure.UserData.SetPath);
+app.UIFigure.UserData.PrevSetPath = fullfile(currentPath, app.UIFigure.UserData.SetPath, app.UIFigure.UserData.SetFile);
+disp(app.UIFigure.UserData.PrevSetPath)
+% if isdeployed
+    if ~exist(prevSetFolder, 'dir')
+        mkdir(prevSetFolder)
+    end   
+% end
+if exist(app.UIFigure.UserData.PrevSetPath, 'file')
+    try
+        loaded = load(app.UIFigure.UserData.PrevSetPath);
+        app.UIFigure.UserData.Items = loaded.items;
+        RenewDropDown(app, 1);
+    catch
+        disp('Loading Error!')
+    end
+end
 
 
 %% Function
@@ -572,7 +598,13 @@ function DisconnectMenuSelectedFcn(app, ~, ~)
 end
 
 
-function UIFigureCloseRequestFcn(app, ~, ~)
+function UIFigureCloseRequestFcn(app, ~, ~)    
+    try    
+        items = app.UIFigure.UserData.Items;
+        save(app.UIFigure.UserData.PrevSetPath, 'items');
+    catch
+        disp('Saving Error!');
+    end
     delete(instrfind);
     delete(app.UIFigure);
     close force all;
