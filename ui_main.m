@@ -594,6 +594,7 @@ end
 function DisconnectMenuSelectedFcn(app, ~, ~)
     if isempty(app.UIFigure.UserData.PortObj); return; end
     delete(app.UIFigure.UserData.PortObj);
+    app.StatusLamp.Color = app.UIFigure.UserData.LampColor.Red;
 end
 
 

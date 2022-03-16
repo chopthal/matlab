@@ -122,7 +122,7 @@ app.TimeoutsEditFieldLabel.Text = 'Timeout (s) :';
 app.TimeoutsEditField = uieditfield(app.GridLayout2_3, 'numeric');
 app.TimeoutsEditField.Layout.Row = 1;
 app.TimeoutsEditField.Layout.Column = 4;
-app.TimeoutsEditField.Value = 10;
+app.TimeoutsEditField.Value = 1;
 
 % Create GridLayout2_4
 app.GridLayout2_4 = uigridlayout(app.GridLayout);
