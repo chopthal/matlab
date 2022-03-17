@@ -1,5 +1,7 @@
+close force all
 % Create UIFigure and hide until all components are created
-app.UIFigure = uifigure('Visible', 'off');
+app.UIFigure = uifigure(1);
+app.UIFigure.Visible = 'off';
 app.UIFigure.Position = [100 100 1083 665];
 app.UIFigure.Name = 'MATLAB App';
 
@@ -303,4 +305,17 @@ app.byPositiveButton.Position = [11 27 80 22];
 
 % Show the figure after all components are created
 app.UIFigure.Visible = 'on';
+
+% Define Callback
+app.iMSPRminiDataMenu.MenuSelectedFcn = @(src, event) iMSPRminiDataMenuSelected(app, src, event);
+
+%% Function
+% Callback
+function iMSPRminiDataMenuSelected(app, src, event)
+
+addApp = ui_add(app);
+waitfor(addApp.UIFigure);
+disp('Add app closed')
+
+end
         
