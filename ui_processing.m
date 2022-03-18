@@ -128,6 +128,7 @@ app.ResetButton.ButtonPushedFcn = @(src, event) ResetButtonPushed(app, src, even
 app.NextButton.ButtonPushedFcn = @(src, event) NextButtonPushed(app, src, event);
 app.ApplyButton.ButtonPushedFcn = @(src, event) ApplyButtonPushed(app, src, event);
 app.TargetRefButton.ButtonPushedFcn = @(src, event) TargetRefButtonPushed(app, src, event);
+app.UIFigure.CloseRequestFcn = @(src, event) UIFigureCloseRequestFcn(app, src, event);
 
 %% Start up
 app.UIFigure.UserData.LogData = parentApp.UIFigure.UserData.LogData;
@@ -139,10 +140,7 @@ app.UIFigure.UserData.referenceX = parentApp.UIFigure.UserData.ReferenceData.dat
 app.UIFigure.UserData.referenceY = parentApp.UIFigure.UserData.ReferenceData.data(:, 2);
 app.UIFigure.UserData.referenceY = app.UIFigure.UserData.referenceY - app.UIFigure.UserData.referenceY(1);
 
-plot(app.UIAxes, app.UIFigure.UserData.targetX, app.UIFigure.UserData.targetY)
-hold(app.UIAxes, 'on')
-plot(app.UIAxes, app.UIFigure.UserData.referenceX, app.UIFigure.UserData.referenceY)
-legend(app.UIAxes, 'Target', 'Reference')
+ResetButtonPushed(app, [], []);
 
 
 %% Function
@@ -192,10 +190,15 @@ end
 
 
 function TargetRefButtonPushed(app, ~, ~)
-    app.UIFigure.UserData.DiffY = app.UIFigure.UserData.targetYShifted - app.UIFigure.UserDatapp.referenceYShifted;
+    app.UIFigure.UserData.DiffY = app.UIFigure.UserData.targetYShifted - app.UIFigure.UserData.referenceYShifted;
                 
     cla(app.UIAxes)
     plot(app.UIAxes, app.UIFigure.UserData.DiffY)    
+end
+
+
+function UIFigureCloseRequestFcn(app, ~, ~)
+    delete(app.UIFigure);
 end
 
     
