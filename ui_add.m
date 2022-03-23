@@ -101,7 +101,6 @@ app.NextButton.Text = 'Next';
 app.UIFigure.Visible = 'on';
 
 % Variable
-app.UIFigure.UserData.CurrentPath = pwd;
 app.UIFigure.UserData.TargetData = [];
 app.UIFigure.UserData.ReferenceData = [];
 app.UIFigure.UserData.LogData = [];
@@ -114,49 +113,52 @@ app.RefDataButton.ButtonPushedFcn = @(src, event)LoadButtonPushed(app, src, even
 app.LogFileButton.ButtonPushedFcn = @(src, event)LoadButtonPushed(app, src, event);
 
 app.NextButton.ButtonPushedFcn = @(src, event)NextButtonPushed(app, src, event);
-app.UIFigure.CloseRequestFcn = @(src, event)StartUpUIFigureCloseRequest(app, src, event);
+app.UIFigure.CloseRequestFcn = @(src, event)UIFigureCloseRequest(app, src, event);
 
 
 %% Function
 % Callback
-function LoadButtonPushed(app, ~, event)
-    [file, path] = uigetfile('*.txt', 'Please select a txt file.', app.UIFigure.UserData.CurrentPath);
-    
-    if isequal(file, 0)
-        return
+    function LoadButtonPushed(app, ~, event)
+        [file, path] = uigetfile('*.txt', 'Please select a txt file.', parentApp.UIFigure.UserData.CurrentPath);
+        
+        if isequal(file, 0)
+            return
+        end
+        
+        tmpData = importdata(fullfile(path, file));
+        
+        if strcmp(event.Source.Text, 'Target Data')
+            app.UIFigure.UserData.TargetData = tmpData;
+            app.Label.Text = fullfile(path, file);
+        elseif strcmp(event.Source.Text, 'Ref. Data')
+            app.UIFigure.UserData.ReferenceData = tmpData;
+            app.Label_2.Text = fullfile(path, file);
+        elseif strcmp(event.Source.Text, 'Log File')
+            app.UIFigure.UserData.LogData = tmpData;
+            app.Label_3.Text = fullfile(path, file);
+        end
+        
+        parentApp.UIFigure.UserData.CurrentPath = path;
     end
     
-    tmpData = importdata(fullfile(path, file));
+    function NextButtonPushed(app, ~, ~)
+        if isempty(app.Label.Text) || isempty(app.Label_2.Text) || isempty(app.Label_3.Text)
+            return                
+        end
+        
+        app.UIFigure.Visible = 'off';
+        processingApp = ui_processing(app);
+        waitfor(processingApp.UIFigure);
+        disp('Processing app closed')
+        app.UIFigure.Visible = 'on';
     
-    if strcmp(event.Source.Text, 'Target Data')
-        app.UIFigure.UserData.TargetData = tmpData;
-        app.Label.Text = fullfile(path, file);
-    elseif strcmp(event.Source.Text, 'Ref. Data')
-        app.UIFigure.UserData.ReferenceData = tmpData;
-        app.Label_2.Text = fullfile(path, file);
-    elseif strcmp(event.Source.Text, 'Log File')
-        app.UIFigure.UserData.LogData = tmpData;
-        app.Label_3.Text = fullfile(path, file);
+        if ~isempty(parentApp.UIFigure.UserData.AddCurves)
+            UIFigureCloseRequest(app, [], [])
+        end
     end
-    
-    app.UIFigure.UserData.CurrentPath = path;
-end
 
-function NextButtonPushed(app, ~, ~)
-    if isempty(app.Label.Text) || isempty(app.Label_2.Text) || isempty(app.Label_3.Text)
-        return                
+    function UIFigureCloseRequest(app, ~, ~)
+        delete(app.UIFigure)
     end
-    
-    app.UIFigure.Visible = 'off';
-    processingApp = ui_processing(app);
-    waitfor(processingApp.UIFigure);
-    disp('Processing app closed')
-    app.UIFigure.Visible = 'on';
-end
-
-
-function StartUpUIFigureCloseRequest(app, ~, ~)
-    delete(app.UIFigure)
-end
 
 end

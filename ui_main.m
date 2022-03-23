@@ -103,30 +103,31 @@ app.CheckBox = uicheckbox(app.TableButtonGridLayout);
 app.CheckBox.Text = '';
 app.CheckBox.Layout.Row = 1;
 app.CheckBox.Layout.Column = 6;
+app.CheckBox.Value = 1;
 
 % Create DownButton
-app.DownButton = uibutton(app.TableButtonGridLayout, 'push');
-app.DownButton.Layout.Row = 1;
-app.DownButton.Layout.Column = 5;
-app.DownButton.Text = '▼';
+% app.DownButton = uibutton(app.TableButtonGridLayout, 'push');
+% app.DownButton.Layout.Row = 1;
+% app.DownButton.Layout.Column = 5;
+% app.DownButton.Text = '▼';
 
 % Create UpButton
-app.UpButton = uibutton(app.TableButtonGridLayout, 'push');
-app.UpButton.Layout.Row = 1;
-app.UpButton.Layout.Column = 4;
-app.UpButton.Text = '▲';
+% app.UpButton = uibutton(app.TableButtonGridLayout, 'push');
+% app.UpButton.Layout.Row = 1;
+% app.UpButton.Layout.Column = 4;
+% app.UpButton.Text = '▲';
 
 % Create DelButton
 app.DelButton = uibutton(app.TableButtonGridLayout, 'push');
 app.DelButton.Layout.Row = 1;
-app.DelButton.Layout.Column = 3;
-app.DelButton.Text = '-';
+app.DelButton.Layout.Column = [3 5];
+app.DelButton.Text = 'Delete';
 
-% Create Renum123Button
-app.Renum123Button = uibutton(app.TableButtonGridLayout, 'push');
-app.Renum123Button.Layout.Row = 1;
-app.Renum123Button.Layout.Column = 1;
-app.Renum123Button.Text = 'Renum (1,2,3...)';
+% Create SortButton
+app.SortButton = uibutton(app.TableButtonGridLayout, 'push');
+app.SortButton.Layout.Row = 1;
+app.SortButton.Layout.Column = 1;
+app.SortButton.Text = 'Sort (1,2,3...)';
 
 % Create UITable
 app.UITable = uitable(app.RightGridLayout);
@@ -182,14 +183,14 @@ app.ReferencingDropDownLabel.Text = 'Referencing :';
 
 % Create ReferencingDropDown
 app.ReferencingDropDown = uidropdown(app.ReferencingGridLayout);
-app.ReferencingDropDown.Items = {'None', 'N-S-N-S', 'S-N-S-N'};
+app.ReferencingDropDown.Items = {'None', 'N-T-N-T', 'T-N-T-N'};
 app.ReferencingDropDown.Layout.Row = 1;
 app.ReferencingDropDown.Layout.Column = 3;
 app.ReferencingDropDown.Value = 'None';
 
 % Create BottomGridLayout
 app.BottomGridLayout = uigridlayout(app.LeftGridLayout);
-app.BottomGridLayout.ColumnWidth = {220, 40, '1x'};
+app.BottomGridLayout.ColumnWidth = {200, 40, '1x'};
 app.BottomGridLayout.RowHeight = {'1x'};
 app.BottomGridLayout.ColumnSpacing = 5;
 app.BottomGridLayout.RowSpacing = 0;
@@ -299,23 +300,350 @@ app.NoneButton.Position = [11 49 58 22];
 app.NoneButton.Value = true;
 
 % Create byPositiveButton
-app.byPositiveButton = uiradiobutton(app.NormalizationButtonGroup);
-app.byPositiveButton.Text = 'by Positive';
-app.byPositiveButton.Position = [11 27 80 22];
+app.byPTPTButton = uiradiobutton(app.NormalizationButtonGroup);
+app.byPTPTButton.Text = 'P-T-P-T';
+app.byPTPTButton.Position = [11 27 80 22];
+
+% Create byPositiveButton
+app.TPTPButton = uiradiobutton(app.NormalizationButtonGroup);
+app.TPTPButton.Text = 'T-P-T-P';
+app.TPTPButton.Position = [11 5 80 22];
 
 % Show the figure after all components are created
 app.UIFigure.Visible = 'on';
 
 % Define Callback
 app.iMSPRminiDataMenu.MenuSelectedFcn = @(src, event) iMSPRminiDataMenuSelected(app, src, event);
+app.SortButton.ButtonPushedFcn = @(src, event) SortButtonPushed(app, src, event);
+app.UITable.CellEditCallback = @(src, event) UITableCellEdit(app, src, event);
+app.UITable.CellSelectionCallback = @(src, event) UITableCellSelection(app, src, event);
+app.CheckBox.ValueChangedFcn = @(src, event) CheckBoxValueChanged(app, src, event);
+app.ReferencingDropDown.ValueChangedFcn = @(src, event) ReferencingDropDownValueChanged(app, src, event);
+app.DelButton.ButtonPushedFcn = @(src, event) DelButtonPushed(app, src, event);
+app.RunButton.ButtonPushedFcn = @(src, event) RunButtonPushed(app, src, event);
+app.DetailedviewButton.ButtonPushedFcn = @(src, event) DetailedViewButtonPushed(app, src, event);
+
+
+%% Start up
+% Variable
+app.UIFigure.UserData.DefaultScatterSize = 10;
+app.UIFigure.UserData.HighlightedScatterSize = 50;
+app.UIFigure.UserData.DefaultLineWidth = 0.2;
+app.UIFigure.UserData.HighlightedLineWidth = 10;
+app.UIFigure.UserData.MainApp.UIFigure.UserData.Curves = [];
+app.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
+app.UIFigure.UserData.CurrentPath = pwd;
+app.UIFigure.UserData.RawCurves = [];
+app.UIFigure.UserData.DisplayCurves = [];
+app.UIFigure.UserData.CurrentLinePlot = [];
+app.UIFigure.UserData.ScatterPlot = [];
 
 %% Function
 % Callback
-function iMSPRminiDataMenuSelected(app, src, event)
+function iMSPRminiDataMenuSelected(app, ~, ~)
+    app.UIFigure.UserData.AddCurves = [];
+    
+    addApp = ui_add(app);
+    waitfor(addApp.UIFigure);
+    disp('Add app closed')
+    
+    if isempty(app.UIFigure.UserData.AddCurves)
+        return
+    end
+    
+    app.UIFigure.UserData.RawCurves = [app.UIFigure.UserData.RawCurves; app.UIFigure.UserData.AddCurves];
+    app.UIFigure.UserData.DisplayCurves = app.UIFigure.UserData.RawCurves;
+    AddTableData(app);
+    CalculateDisplayCurves(app);
+    PlotCurves(app);
+    SetPlotVisibility(app);
+end
 
-addApp = ui_add(app);
-waitfor(addApp.UIFigure);
-disp('Add app closed')
 
+function SortButtonPushed(app, ~, ~)
+    if isempty(app.UITable.Data)
+        return
+    end
+    
+    tableData = app.UITable.Data;
+    idxColumn = [tableData{:, 1}];
+    [~, sortIdx] = sort(idxColumn);
+    
+    app.UITable.Data(sortIdx, :)
+    app.UIFigure.UserData.RawCurves = app.UIFigure.UserData.RawCurves(sortIdx, :);
+    app.UIFigure.UserData.DisplayCurves = app.UIFigure.UserData.DisplayCurves(sortIdx, :);
+    app.UIFigure.UserData.CurrentLinePlot = app.UIFigure.UserData.CurrentLinePlot(sortIdx, :);
+    
+    app.UITable.Data = tableData(sortIdx, :);
+end
+
+
+function UITableCellEdit(app, ~, event)
+    indices = event.Indices;
+    newData = event.NewData;
+    if indices(1, 2) == 2 % Display Column        
+        CalculateDisplayCurves(app);
+        PlotCurves(app);
+    end
+    if indices(1, 2) == 3 % Display Column
+        if newData
+            set(app.UIFigure.UserData.CurrentLinePlot{indices(1, 1)}, 'Visible', 'On')
+        else
+            set(app.UIFigure.UserData.CurrentLinePlot{indices(1, 1)}, 'Visible', 'Off')
+        end
+    end
+end
+
+
+function CheckBoxValueChanged(app, ~, ~)
+    if isempty(app.UITable.Data)
+        return
+    end
+    value = app.CheckBox.Value;
+    for i = 1:size(app.UITable.Data, 1)
+        app.UITable.Data{i, 3} = value;
+    end
+    for i = 1:size(app.UIFigure.UserData.CurrentLinePlot, 1)
+        set(app.UIFigure.UserData.CurrentLinePlot{i, 1}, 'Visible', app.UITable.Data{i, 3})
+    end
+end
+
+
+function UITableCellSelection(app, ~, event)
+    if isempty(event.Indices)
+        return
+    end
+    indices = event.Indices;
+    for i = 1:length(app.UIFigure.UserData.CurrentLinePlot)
+        app.UIFigure.UserData.CurrentLinePlot{i, 1}.LineWidth = app.UIFigure.UserData.DefaultLineWidth;
+    end
+    if indices(1, 2) ~= 1
+        return;
+    end
+    app.UIFigure.UserData.CurrentLinePlot{indices(1), 1}.LineWidth = app.UIFigure.UserData.HighlightedLineWidth;
+    
+    if isempty(app.UIFigure.UserData.ScatterPlot)
+        return
+    end
+    app.UIFigure.UserData.ScatterPlot.SizeData = app.UIFigure.UserData.DefaultScatterSize;
+
+    sizeData = ones(size(app.UIFigure.UserData.ScatterPlot.YData, 2), 1) * app.UIFigure.UserData.DefaultScatterSize;
+    if size(sizeData, 1) < indices(1)
+        return
+    end
+    sizeData(indices(1), 1) = app.UIFigure.UserData.HighlightedScatterSize;
+    app.UIFigure.UserData.ScatterPlot.SizeData = sizeData;
+
+end
+
+
+function ReferencingDropDownValueChanged(app, ~, ~)
+    CalculateDisplayCurves(app)
+    PlotCurves(app)
+end
+
+
+function DelButtonPushed(app, ~, ~)
+    if isempty(app.UITable.Selection)
+        return
+    end
+
+    indices = app.UITable.Selection;
+    uniqIdx = unique(indices);
+    tmpIdx = true(size(app.UITable.Data, 1), 1);
+    tmpIdx(uniqIdx, :) = false;
+    
+    copyIdx = [];
+    for i = 1:size(app.UITable.Data, 2)
+        copyIdx = [copyIdx; tmpIdx];
+    end
+
+    app.UIFigure.UserData.RawCurves = app.UIFigure.UserData.RawCurves(tmpIdx);
+    app.UIFigure.UserData.DisplayCurves = app.UIFigure.UserData.DisplayCurves(tmpIdx);
+    tmpTableData = app.UITable.Data(logical(copyIdx));
+    app.UITable.Data = reshape(tmpTableData, [], 3);
+    PlotCurves(app);
+
+    if isempty(app.UIFigure.UserData.ScatterPlot)
+        return
+    end
+
+    if isempty(app.UIFigure.UserData.ScatterPlot.XData) || isempty(app.UIFigure.UserData.ScatterPlot.YData)
+        return
+    end
+
+    app.UIFigure.UserData.ScatterPlot.XData = app.UIFigure.UserData.ScatterPlot.XData(tmpIdx);
+    app.UIFigure.UserData.ScatterPlot.YData = app.UIFigure.UserData.ScatterPlot.YData(tmpIdx);
+end
+
+
+function RunButtonPushed(app, ~, ~)
+    
+    result = zeros(size(app.UIFigure.UserData.DisplayCurves, 1), 2);
+    for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1)
+        result(i, 1) = app.UITable.Data{i, 1};
+        if strcmp(app.MethodButtonGroup.SelectedObject.Text(1), 'Δ') % Delta RU
+            result(i, 2) =...
+                app.UIFigure.UserData.DisplayCurves{i, 1}(app.EndPointSpinner.Value) - ...
+                app.UIFigure.UserData.DisplayCurves{i, 1}(app.StartPointSpinner.Value);
+        elseif strcmp(app.MethodButtonGroup.SelectedObject.Text(1), 'A') % Averaging
+            result(i, 2) =...
+                mean(app.UIFigure.UserData.DisplayCurves{i, 1}...
+                (app.StartPointSpinner.Value:app.EndPointSpinner.Value));                
+        elseif strcmp(app.MethodButtonGroup.SelectedObject.Text(1), 'D') % Drift
+            x = app.StartPointSpinner.Value:app.EndPointSpinner.Value;
+            y = app.UIFigure.UserData.DisplayCurves{i, 1}...
+                (app.StartPointSpinner.Value:app.EndPointSpinner.Value);
+            p = polyfit(x, y, 1);
+            yfit = polyval(p, x);
+            result(i, 2) = yfit(end) - yfit(1);
+        end
+    end
+
+    positiveIndex = find(ismember(app.UITable.Data(:, 2), 'Positive')); 
+
+    tmpResult = result(:, 2);
+    if ~isempty(positiveIndex)
+        if strcmp(app.NormalizationButtonGroup.SelectedObject.Text, 'P-T-P-T')
+            for i = 1:size(positiveIndex, 1)
+                if i == size(positiveIndex, 1)
+                    tmpResult(positiveIndex(end):end) = tmpResult(positiveIndex(end):end)/tmpResult(positiveIndex(end));
+                else
+                    tmpResult(positiveIndex(i):positiveIndex(i+1)) =...
+                        tmpResult(positiveIndex(i):positiveIndex(i+1))/tmpResult(positiveIndex(i));
+                end
+            end
+            result(:, 2) = tmpResult;
+        elseif strcmp(app.NormalizationButtonGroup.SelectedObject.Text, 'T-P-T-P')
+            for i = 1:size(positiveIndex, 1)
+                if i == 1
+                    tmpResult(1:positiveIndex(1)) = tmpResult(1:positiveIndex(1)) / tmpResult(positiveIndex(1));
+                else
+                    tmpResult(positiveIndex(i-1):positiveIndex(i)) = tmpResult(positiveIndex(i-1):positiveIndex(i)) / tmpResult(positiveIndex(i));
+                end
+            end
+            result(:, 2) = tmpResult;
+        end
+        
+    end
+
+    cla(app.PreviewUIAxes);
+    app.UIFigure.UserData.ScatterPlot = scatter(app.PreviewUIAxes, result(:, 1), result(:, 2), 'filled', 'SizeData', app.UIFigure.UserData.DefaultScatterSize);
+
+end
+
+
+function DetailedViewButtonPushed(app, ~, ~)
+    if isempty(app.UIFigure.UserData.ScatterPlot)
+        return
+    end
+    detailApp = ui_detailed_view(app);
+    waitfor(detailApp.UIFigure);
+    disp('Detailed view exit')
+end
+
+
+% Business logic
+function PlotCurves(app)
+    cla(app.SensorgramUIAxes);
+    app.UIFigure.UserData.CurrentLinePlot = cell(size(app.UIFigure.UserData.DisplayCurves));
+    
+    hold(app.SensorgramUIAxes, 'On')
+    for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1)        
+        app.UIFigure.UserData.CurrentLinePlot{i, 1} =...
+            plot(app.SensorgramUIAxes, ...
+            1:length(app.UIFigure.UserData.DisplayCurves{i, 1}), ...
+            app.UIFigure.UserData.DisplayCurves{i, 1}, 'LineWidth', app.UIFigure.UserData.DefaultLineWidth);                
+    end
+    hold(app.SensorgramUIAxes, 'Off')
+end
+
+
+function AddTableData(app)
+    prevData = app.UITable.Data;
+    if size(prevData, 1) >= size(app.UIFigure.UserData.DisplayCurves, 1)
+        return
+    end
+    newCurves = app.UIFigure.UserData.DisplayCurves(size(prevData, 1)+1 : end);    
+
+    if isempty(app.UITable.Data)
+        newIdx = [1:size(app.UIFigure.UserData.DisplayCurves, 1)]';
+                  
+        newModeData    = cell(size(newIdx, 1), 1);
+        newModeData(:) = {'Target'};  % Default value      
+
+        newIsDisplay = true(size(app.UIFigure.UserData.DisplayCurves, 1), 1);
+    else
+        prevIdx = [prevData{:, 1}]';
+        newIdx = [max(prevIdx)+1:...
+            max(prevIdx) + size(newCurves, 1)]';        
+                
+        newModeData = cell(size(newIdx, 1), 1);        
+        newModeData(:) = {'Target'};  % Default value              
+        
+        newIsDisplay = true(size(newCurves, 1), 1);        
+    end
+
+    newData = cat(2, num2cell(newIdx), newModeData, num2cell(newIsDisplay));
+    mode = {'Target', 'Positive', 'Negative'};  
+    columnname =   {'Index', 'Type', 'Display'};
+    columnformat = {'numeric', mode, 'logical'};
+    columneditable = [true, true, true]; 
+    app.UITable.Data = [prevData; newData];
+    app.UITable.ColumnName = columnname;
+    app.UITable.ColumnFormat = columnformat;
+    app.UITable.ColumnEditable = columneditable;
+end
+
+
+function CalculateDisplayCurves(app)
+    if isempty(app.UITable.Data)
+        return
+    end
+    
+    negativeIndex = find(ismember(app.UITable.Data(:, 2), 'Negative'));
+    if isempty(negativeIndex)
+        return
+    end
+    app.UIFigure.UserData.DisplayCurves = app.UIFigure.UserData.RawCurves;
+
+    if strcmp(app.ReferencingDropDown.Value, 'T-N-T-N')
+        for i = 1:size(negativeIndex, 1)
+            if i == 1
+                for j = 1:negativeIndex(i)
+                    app.UIFigure.UserData.DisplayCurves{j, 1} = app.UIFigure.UserData.RawCurves{j, 1} - app.UIFigure.UserData.RawCurves{negativeIndex(i), 1};
+                end
+            else
+                for j = negativeIndex(i-1)+1:negativeIndex(i)
+                    app.UIFigure.UserData.DisplayCurves{j, 1} = app.UIFigure.UserData.RawCurves{j, 1} - app.UIFigure.UserData.RawCurves{negativeIndex(i), 1};
+                end
+            end
+        end
+    elseif strcmp(app.ReferencingDropDown.Value, 'N-T-N-T')
+        for i = 1:size(negativeIndex, 1)
+            if i == size(negativeIndex, 1)
+                for j = negativeIndex(i):size(app.UIFigure.UserData.DisplayCurves, 1)
+                    app.UIFigure.UserData.DisplayCurves{j, 1} = app.UIFigure.UserData.RawCurves{j, 1} - app.UIFigure.UserData.RawCurves{negativeIndex(i), 1};
+                end
+            else
+                for j = negativeIndex(i):negativeIndex(i+1)
+                    app.UIFigure.UserData.DisplayCurves{j, 1} = app.UIFigure.UserData.RawCurves{j, 1} - app.UIFigure.UserData.RawCurves{negativeIndex(i), 1};
+                end
+            end
+        end
+    end
+end
+
+
+function SetPlotVisibility(app)
+    for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1) 
+        if ~isempty(app.UITable.Data)
+            if app.UITable.Data{i, 3}
+                set(app.UIFigure.UserData.CurrentLinePlot{i, 1}, 'Visible', 'on');
+            else
+                set(app.UIFigure.UserData.CurrentLinePlot{i, 1}, 'Visible', 'off');
+            end
+        end
+    end
 end
         

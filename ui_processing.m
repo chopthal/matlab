@@ -68,6 +68,7 @@ app.BaseLineSpinner = uispinner(app.BaseLineGridLayout);
 app.BaseLineSpinner.ValueDisplayFormat = '%.0f';
 app.BaseLineSpinner.Layout.Row = 1;
 app.BaseLineSpinner.Layout.Column = 1;
+app.BaseLineSpinner.Limits = [1 inf];
 
 % Create stInjectionstartpointsPanel
 app.stInjectionstartpointsPanel = uipanel(app.MidGridLayout);
@@ -92,6 +93,7 @@ app.TargetSpinner = uispinner(app.InjectionGridLayout);
 app.TargetSpinner.ValueDisplayFormat = '%.0f';
 app.TargetSpinner.Layout.Row = 1;
 app.TargetSpinner.Layout.Column = 2;
+app.TargetSpinner.Limits = [1 inf];
 
 % Create RefSpinnerLabel
 app.RefSpinnerLabel = uilabel(app.InjectionGridLayout);
@@ -105,6 +107,7 @@ app.RefSpinner = uispinner(app.InjectionGridLayout);
 app.RefSpinner.ValueDisplayFormat = '%.0f';
 app.RefSpinner.Layout.Row = 1;
 app.RefSpinner.Layout.Column = 4;
+app.RefSpinner.Limits = [1 inf];
 
 % Create ApplyButton
 app.ApplyButton = uibutton(app.MidGridLayout, 'push');
@@ -141,65 +144,130 @@ app.UIFigure.UserData.referenceY = parentApp.UIFigure.UserData.ReferenceData.dat
 app.UIFigure.UserData.referenceY = app.UIFigure.UserData.referenceY - app.UIFigure.UserData.referenceY(1);
 
 ResetButtonPushed(app, [], []);
-
+parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
 
 %% Function
-% Callback
-function ResetButtonPushed(app, ~, ~)
-    app.UIFigure.UserData.targetYShifted = app.UIFigure.UserData.targetY;
-    app.UIFigure.UserData.referenceYShifted = app.UIFigure.UserData.referenceY;
-    app.UIFigure.UserData.DiffY = [];
-    
-    cla(app.UIAxes)
-    plot(app.UIAxes, app.UIFigure.UserData.targetYShifted)
-    hold(app.UIAxes, 'on')
-    plot(app.UIAxes, app.UIFigure.UserData.referenceYShifted)
-    legend(app.UIAxes, 'Target', 'Reference')
-end
-
-
-function NextButtonPushed(app, ~, ~)
-    if isempty(app.UIFigure.UserData.DiffY)
-        return
+    % Callback
+    function ResetButtonPushed(app, ~, ~)
+        app.UIFigure.UserData.targetYShifted = app.UIFigure.UserData.targetY;
+        app.UIFigure.UserData.referenceYShifted = app.UIFigure.UserData.referenceY;
+        app.UIFigure.UserData.DiffY = [];
+        SetLimitsOfSpinners(app);
+        
+        cla(app.UIAxes)
+        plot(app.UIAxes, app.UIFigure.UserData.targetYShifted)
+        hold(app.UIAxes, 'on')
+        plot(app.UIAxes, app.UIFigure.UserData.referenceYShifted)
+        legend(app.UIAxes, 'Target', 'Reference')
     end
     
-    UI_iMScreening_Evaluate(app)
-end
-
-
-function ApplyButtonPushed(app, ~, ~)
-    gap = app.RefSpinner.Value - app.TargetSpinner.Value;
-                
-    app.UIFigure.UserData.targetYShifted = app.UIFigure.UserData.targetY;
-    app.UIFigure.UserData.referenceYShifted = app.UIFigure.UserData.referenceY;
     
-    if gap >= 0 % Ref is right than Target
-        app.UIFigure.UserData.targetYShifted(end-gap+1:end) = [];
-        app.UIFigure.UserData.referenceYShifted(1:gap) = [];
-    else % Ref is left than Target
-        app.UIFigure.UserData.targetYShifted(1:abs(gap)) = [];
-        app.UIFigure.UserData.referenceYShifted(end-abs(gap)+1:end) = [];
+    function NextButtonPushed(app, ~, ~)
+        if isempty(app.UIFigure.UserData.DiffY)
+            return
+        end
+    
+        curves = SplitCurve(app);
+        parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = curves;
+        
+        UIFigureCloseRequestFcn(app, [], []);
     end
     
-    cla(app.UIAxes)
-    plot(app.UIAxes, app.UIFigure.UserData.targetYShifted)
-    hold(app.UIAxes, 'on')
-    plot(app.UIAxes, app.UIFigure.UserData.referenceYShifted)
-    legend(app.UIAxes, 'Target', 'Reference')
-end
+    
+    function ApplyButtonPushed(app, ~, ~)
+        gap = app.RefSpinner.Value - app.TargetSpinner.Value;
+                    
+        app.UIFigure.UserData.targetYShifted = app.UIFigure.UserData.targetY;
+        app.UIFigure.UserData.referenceYShifted = app.UIFigure.UserData.referenceY;
+        
+        if gap >= 0 % Ref is right than Target
+            app.UIFigure.UserData.targetYShifted(end-gap+1:end) = [];
+            app.UIFigure.UserData.referenceYShifted(1:gap) = [];
+        else % Ref is left than Target
+            app.UIFigure.UserData.targetYShifted(1:abs(gap)) = [];
+            app.UIFigure.UserData.referenceYShifted(end-abs(gap)+1:end) = [];
+        end
+
+        SetLimitsOfSpinners(app);
+        
+        cla(app.UIAxes)
+        plot(app.UIAxes, app.UIFigure.UserData.targetYShifted)
+        hold(app.UIAxes, 'on')
+        plot(app.UIAxes, app.UIFigure.UserData.referenceYShifted)
+        legend(app.UIAxes, 'Target', 'Reference')
+    end
+    
+    
+    function TargetRefButtonPushed(app, ~, ~)
+        app.UIFigure.UserData.DiffY = app.UIFigure.UserData.targetYShifted - app.UIFigure.UserData.referenceYShifted;
+                    
+        cla(app.UIAxes)
+        plot(app.UIAxes, app.UIFigure.UserData.DiffY)    
+    end
+    
+    
+    function UIFigureCloseRequestFcn(app, ~, ~)
+        delete(app.UIFigure);
+    end
 
 
-function TargetRefButtonPushed(app, ~, ~)
-    app.UIFigure.UserData.DiffY = app.UIFigure.UserData.targetYShifted - app.UIFigure.UserData.referenceYShifted;
-                
-    cla(app.UIAxes)
-    plot(app.UIAxes, app.UIFigure.UserData.DiffY)    
-end
+    % Business logic
+    % TODO
+    function curves = SplitCurve(app)
+    
+        curves = [];
+    
+        timingData = parentApp.UIFigure.UserData.LogData;
+        divideString = ' : ';
+        tmpEvent = split(timingData, divideString);
+        
+        [x, ~] = find(ismember(tmpEvent, 'Injection Start'));
+        tmpTimeStr = tmpEvent(x, 2);
+        
+        injectionStartTime = zeros(size(tmpTimeStr));
+        for i = 1:size(tmpTimeStr, 1)
+            tmpSplit = split(tmpTimeStr{i, 1}, ' ');
+            injectionStartTime(i) = str2double(tmpSplit{1});
+        end
+        
+        [x, ~] = find(ismember(tmpEvent, 'Stabilization End'));
+        tmpTimeStr = tmpEvent(x, 2);
+        
+        stabilizationEndTime = zeros(size(tmpTimeStr));
+        for i = 1:size(tmpTimeStr, 1)
+            tmpSplit = split(tmpTimeStr{i, 1}, ' ');
+            stabilizationEndTime(i) = str2double(tmpSplit{1});
+        end
+        
+        if size(injectionStartTime, 1) ~= size(stabilizationEndTime, 1); return; end
+        
+        correctedInjectionStartTime = app.TargetSpinner.Value;
+        tmpStartTime = injectionStartTime(1);
+        injectionStartTime = injectionStartTime - tmpStartTime + correctedInjectionStartTime;
+        stabilizationEndTime = stabilizationEndTime - tmpStartTime + correctedInjectionStartTime;
+        
+        % Cut data from InjectionStart to StabilizationEnd
+        cyclePeriod = round(mean(stabilizationEndTime - injectionStartTime));
+        
+        for i = 1:size(injectionStartTime, 1)
+            if size(app.UIFigure.UserData.DiffY, 1) < injectionStartTime(i)+cyclePeriod
+                app.UIFigure.UserData.DiffY(size(app.UIFigure.UserData.DiffY, 1)+1 : injectionStartTime(i)+cyclePeriod) = nan;
+            end
+            periodDiffY{i, 1} = app.UIFigure.UserData.DiffY(injectionStartTime(i) : injectionStartTime(i)+cyclePeriod);    
+            periodDiffY{i, 1} = periodDiffY{i, 1} - periodDiffY{i, 1}(1);
+        
+        end
+    
+        curves = periodDiffY;
+    
+    end
 
 
-function UIFigureCloseRequestFcn(app, ~, ~)
-    delete(app.UIFigure);
-end
+    function SetLimitsOfSpinners(app)
+        app.TargetSpinner.Limits(2) = length(app.UIFigure.UserData.targetYShifted);
+        app.RefSpinner.Limits(2) = length(app.UIFigure.UserData.referenceYShifted);
+        app.BaseLineSpinner.Limits(2) = min(app.TargetSpinner.Limits(2), app.RefSpinner.Limits(2));
+    end
 
     
 
