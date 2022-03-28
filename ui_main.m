@@ -340,6 +340,8 @@ app.UIFigure.Visible = 'on';
 app.iMSPRminiDataMenu.MenuSelectedFcn = @(src, event) DataAddMenuSelected(app, src, event);
 app.iMSPRProDataMenu.MenuSelectedFcn = @(src, event) DataAddMenuSelected(app, src, event);
 app.BiacoreDataMenu.MenuSelectedFcn = @(src, event) DataAddMenuSelected(app, src, event);
+app.AllSensorgramsMenu.MenuSelectedFcn = @(src, event) ExportMenuSelected(app, src, event);
+app.DisplayedSensorgramsMenu.MenuSelectedFcn = @(src, event) ExportMenuSelected(app, src, event);
 app.SortButton.ButtonPushedFcn = @(src, event) SortButtonPushed(app, src, event);
 app.UITable.CellEditCallback = @(src, event) UITableCellEdit(app, src, event);
 app.UITable.CellSelectionCallback = @(src, event) UITableCellSelection(app, src, event);
@@ -367,6 +369,7 @@ app.UIFigure.UserData.ScatterPlot = [];
 app.UIFigure.UserData.DataType.mini = 'iMSPR-mini Data';
 app.UIFigure.UserData.DataType.Pro = 'iMSPR-Pro Data';
 app.UIFigure.UserData.DataType.Biacore = 'Biacore Data';
+app.UIFigure.UserData.Result = [];
 
 %% Function
 % Callback
@@ -397,6 +400,58 @@ function DataAddMenuSelected(app, ~, event)
     PlotCurves(app);
     SetPlotVisibility(app);
     SetSpinnerLimits(app);
+end
+
+
+function ExportMenuSelected(app, ~, event)
+    selPath = uigetdir(app.UIFigure.UserData.CurrentPath, 'Save folder');            
+    if isequal(selPath, 0); return; end
+
+    if isempty(app.UITable.Data)
+        disp('No data');
+        return
+    end
+
+    isDisplay = [app.UITable.Data{:, 3}];
+    if strcmp(event.Source.Text, app.AllSensorgramsMenu.Text)
+        isDisplay(:) = true;
+    end
+    numCurve = sum(isDisplay);
+    lenData = size(app.UIFigure.UserData.CurrentLinePlot{1, 1}.YData, 2);
+    curveData = zeros(lenData, numCurve);
+    displayedLinePlot = app.UIFigure.UserData.CurrentLinePlot(isDisplay);
+    
+    for i = 1:size(curveData, 2)
+        curveData(:, i) = displayedLinePlot{i, 1}.YData;
+    end
+
+    colNames = arrayfun(@num2str, [app.UITable.Data{:, 1}], 'UniformOutput', 0);
+    colNames = colNames(isDisplay);
+    curveTable = array2table(curveData, 'VariableNames', colNames);
+    
+    formatOut = 'yymmddHHMMSS';
+    dateStr = datestr(now, formatOut);
+    extension = 'txt';
+    
+    curveFileName = strcat('Processed_curve', dateStr, '.', extension);
+    fullFile = fullfile(selPath, curveFileName);
+    writetable(curveTable, fullFile, 'Delimiter', 'tab')
+
+    if isempty(app.UIFigure.UserData.Result)
+        return
+    end
+    
+    type = {app.UITable.Data{:, 2}}';
+    type = type(isDisplay);
+    barData = [num2cell(app.UIFigure.UserData.Result(isDisplay, :)) type];    
+    indexCell = {'Index', 'Result', 'Type'};
+    barTable = cell2table(barData, 'VariableNames', indexCell);
+    
+    resultFileName = strcat('Screening_result', dateStr, '.', extension);
+    fullFile = fullfile(selPath, resultFileName);
+    writetable(barTable, fullFile, 'Delimiter', 'tab')
+    app.currentPath = selPath;
+    
 end
 
 
@@ -574,6 +629,7 @@ function RunButtonPushed(app, ~, ~)
 
     cla(app.PreviewUIAxes);
     app.UIFigure.UserData.ScatterPlot = scatter(app.PreviewUIAxes, result(:, 1), result(:, 2), 'filled', 'SizeData', app.UIFigure.UserData.DefaultScatterSize);
+    app.UIFigure.UserData.Result = result;
 
 end
 
@@ -593,6 +649,8 @@ function ApplyButtonPushed(app, ~, ~)
     PlotCurves(app);
     SetPlotVisibility(app);
 end
+
+
 
 
 % Business logic
@@ -700,7 +758,7 @@ end
 
 
 function SetPlotVisibility(app)
-    for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1) 
+    for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1)
         if ~isempty(app.UITable.Data)
             if app.UITable.Data{i, 3}
                 set(app.UIFigure.UserData.CurrentLinePlot{i, 1}, 'Visible', 'on');
