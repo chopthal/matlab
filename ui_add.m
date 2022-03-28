@@ -1,4 +1,4 @@
-function app = ui_add(parentApp)
+function app = ui_add(parentApp, dataType)
 
 % Create StartUpUIFigure and hide until all components are created
 app.UIFigure = uifigure(2);
@@ -115,6 +115,15 @@ app.LogFileButton.ButtonPushedFcn = @(src, event)LoadButtonPushed(app, src, even
 app.NextButton.ButtonPushedFcn = @(src, event)NextButtonPushed(app, src, event);
 app.UIFigure.CloseRequestFcn = @(src, event)UIFigureCloseRequest(app, src, event);
 
+%% Start up
+if strcmp(dataType, parentApp.UIFigure.UserData.DataType.mini)
+    app.RefDataButton.Enable = 'on';
+    app.LogFileButton.Enable = 'on';
+else
+    app.RefDataButton.Enable = 'off';
+    app.LogFileButton.Enable = 'off';
+end
+
 
 %% Function
 % Callback
@@ -142,12 +151,18 @@ app.UIFigure.CloseRequestFcn = @(src, event)UIFigureCloseRequest(app, src, event
     end
     
     function NextButtonPushed(app, ~, ~)
-        if isempty(app.Label.Text) || isempty(app.Label_2.Text) || isempty(app.Label_3.Text)
-            return                
+        if strcmp(dataType, parentApp.UIFigure.UserData.DataType.mini)
+            if isempty(app.Label.Text) || isempty(app.Label_2.Text) || isempty(app.Label_3.Text)
+                return                
+            end
+        else
+            if isempty(app.Label.Text)
+                return                
+            end
         end
         
         app.UIFigure.Visible = 'off';
-        processingApp = ui_processing(app);
+        processingApp = ui_processing(app, dataType);
         waitfor(processingApp.UIFigure);
         disp('Processing app closed')
         app.UIFigure.Visible = 'on';

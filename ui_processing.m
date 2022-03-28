@@ -1,4 +1,4 @@
-function app = ui_processing(parentApp)
+function app = ui_processing(parentApp, dataType)
 
 % Create UIFigure and hide until all components are created
 app.UIFigure = uifigure(3);
@@ -15,7 +15,7 @@ app.MainGridLayout.RowSpacing = 15;
 
 % Create UIAxes
 % app.UIAxes = uiaxes(app.MainGridLayout);
-app.UIAxes = axes(app.MainGridLayout);
+app.UIAxes = uiaxes(app.MainGridLayout);
 title(app.UIAxes, 'Title')
 xlabel(app.UIAxes, 'X')
 ylabel(app.UIAxes, 'Y')
@@ -45,36 +45,18 @@ app.NextButton.Text = 'Next';
 
 % Create MidGridLayout
 app.MidGridLayout = uigridlayout(app.MainGridLayout);
-app.MidGridLayout.ColumnWidth = {'1x', '4x', 100, 100};
+app.MidGridLayout.ColumnWidth = {'1x', 150, 150};
 app.MidGridLayout.RowHeight = {'1x'};
 app.MidGridLayout.ColumnSpacing = 5;
 app.MidGridLayout.Padding = [0 0 0 0];
 app.MidGridLayout.Layout.Row = 2;
 app.MidGridLayout.Layout.Column = 1;
 
-% Create BaselinesPanel
-app.BaselinesPanel = uipanel(app.MidGridLayout);
-app.BaselinesPanel.Title = 'Base line (s)';
-app.BaselinesPanel.Layout.Row = 1;
-app.BaselinesPanel.Layout.Column = 1;
-
-% Create BaseLineGridLayout
-app.BaseLineGridLayout = uigridlayout(app.BaselinesPanel);
-app.BaseLineGridLayout.ColumnWidth = {'1x'};
-app.BaseLineGridLayout.RowHeight = {'1x'};
-
-% Create BaseLineSpinner
-app.BaseLineSpinner = uispinner(app.BaseLineGridLayout);
-app.BaseLineSpinner.ValueDisplayFormat = '%.0f';
-app.BaseLineSpinner.Layout.Row = 1;
-app.BaseLineSpinner.Layout.Column = 1;
-app.BaseLineSpinner.Limits = [1 inf];
-
 % Create stInjectionstartpointsPanel
 app.stInjectionstartpointsPanel = uipanel(app.MidGridLayout);
 app.stInjectionstartpointsPanel.Title = '1st Injection start point (s)';
 app.stInjectionstartpointsPanel.Layout.Row = 1;
-app.stInjectionstartpointsPanel.Layout.Column = 2;
+app.stInjectionstartpointsPanel.Layout.Column = 1;
 
 % Create InjectionGridLayout
 app.InjectionGridLayout = uigridlayout(app.stInjectionstartpointsPanel);
@@ -112,17 +94,14 @@ app.RefSpinner.Limits = [1 inf];
 % Create ApplyButton
 app.ApplyButton = uibutton(app.MidGridLayout, 'push');
 app.ApplyButton.Layout.Row = 1;
-app.ApplyButton.Layout.Column = 3;
+app.ApplyButton.Layout.Column = 2;
 app.ApplyButton.Text = 'Apply';
 
 % Create TargetRefButton
 app.TargetRefButton = uibutton(app.MidGridLayout, 'push');
 app.TargetRefButton.Layout.Row = 1;
-app.TargetRefButton.Layout.Column = 4;
+app.TargetRefButton.Layout.Column = 3;
 app.TargetRefButton.Text = 'Target - Ref.';
-
-% Show the figure after all components are created
-app.UIFigure.Visible = 'on';
 
 % Variable
 
@@ -134,11 +113,42 @@ app.TargetRefButton.ButtonPushedFcn = @(src, event) TargetRefButtonPushed(app, s
 app.UIFigure.CloseRequestFcn = @(src, event) UIFigureCloseRequestFcn(app, src, event);
 
 %% Start up
-app.UIFigure.UserData.LogData = parentApp.UIFigure.UserData.LogData;
+
+if strcmp(dataType, parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.DataType.mini)
+    % iMSPR-mini Data
+    % UI Setting
+    app.stInjectionstartpointsPanel.Title = '1st Injection start point (s)';
+    app.TargetLabel = 'Target :';
+    app.RefSpinnerLabel = 'Ref :';
+    app.TargetRefButton.Enable = 'on';
+    app.TargetRefButton.Visible = 'on';
+    % Data
+
+else
+    % Others (Biacore, iMSPR-Pro Data)
+    % UI Setting
+    app.stInjectionstartpointsPanel.Title = 'Range of interest (s)';
+    app.TargetLabel = 'Start :';
+    app.RefSpinnerLabel = 'End :';
+    app.TargetRefButton.Enable = 'off';
+    app.TargetRefButton.Visible = 'off';
+    % Data
+
+end
+
+% Show the figure after all components are created
+app.UIFigure.Visible = 'on';
 
 app.UIFigure.UserData.targetX = parentApp.UIFigure.UserData.TargetData.data(:, 1);
+
+for col = 1:size(parentApp.UIFigure.UserData.TargetData.data, 2)
+    %TODO
+end
+
 app.UIFigure.UserData.targetY = parentApp.UIFigure.UserData.TargetData.data(:, 2);
 app.UIFigure.UserData.targetY = app.UIFigure.UserData.targetY - app.UIFigure.UserData.targetY(1);
+
+app.UIFigure.UserData.LogData = parentApp.UIFigure.UserData.LogData;
 app.UIFigure.UserData.referenceX = parentApp.UIFigure.UserData.ReferenceData.data(:, 1);
 app.UIFigure.UserData.referenceY = parentApp.UIFigure.UserData.ReferenceData.data(:, 2);
 app.UIFigure.UserData.referenceY = app.UIFigure.UserData.referenceY - app.UIFigure.UserData.referenceY(1);
@@ -150,8 +160,9 @@ parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
     % Callback
     function ResetButtonPushed(app, ~, ~)
         app.UIFigure.UserData.targetYShifted = app.UIFigure.UserData.targetY;
+
         app.UIFigure.UserData.referenceYShifted = app.UIFigure.UserData.referenceY;
-        app.UIFigure.UserData.DiffY = [];
+        app.UIFigure.UserData.ProcessedY = [];
         SetLimitsOfSpinners(app);
         
         cla(app.UIAxes)
@@ -163,7 +174,7 @@ parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
     
     
     function NextButtonPushed(app, ~, ~)
-        if isempty(app.UIFigure.UserData.DiffY)
+        if isempty(app.UIFigure.UserData.ProcessedY)
             return
         end
     
@@ -199,10 +210,10 @@ parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
     
     
     function TargetRefButtonPushed(app, ~, ~)
-        app.UIFigure.UserData.DiffY = app.UIFigure.UserData.targetYShifted - app.UIFigure.UserData.referenceYShifted;
+        app.UIFigure.UserData.ProcessedY = app.UIFigure.UserData.targetYShifted - app.UIFigure.UserData.referenceYShifted;
                     
         cla(app.UIAxes)
-        plot(app.UIAxes, app.UIFigure.UserData.DiffY)    
+        plot(app.UIAxes, app.UIFigure.UserData.ProcessedY)    
     end
     
     
@@ -250,10 +261,10 @@ parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
         cyclePeriod = round(mean(stabilizationEndTime - injectionStartTime));
         
         for i = 1:size(injectionStartTime, 1)
-            if size(app.UIFigure.UserData.DiffY, 1) < injectionStartTime(i)+cyclePeriod
-                app.UIFigure.UserData.DiffY(size(app.UIFigure.UserData.DiffY, 1)+1 : injectionStartTime(i)+cyclePeriod) = nan;
+            if size(app.UIFigure.UserData.ProcessedY, 1) < injectionStartTime(i)+cyclePeriod
+                app.UIFigure.UserData.ProcessedY(size(app.UIFigure.UserData.ProcessedY, 1)+1 : injectionStartTime(i)+cyclePeriod) = nan;
             end
-            periodDiffY{i, 1} = app.UIFigure.UserData.DiffY(injectionStartTime(i) : injectionStartTime(i)+cyclePeriod);    
+            periodDiffY{i, 1} = app.UIFigure.UserData.ProcessedY(injectionStartTime(i) : injectionStartTime(i)+cyclePeriod);    
             periodDiffY{i, 1} = periodDiffY{i, 1} - periodDiffY{i, 1}(1);
         
         end
@@ -265,8 +276,7 @@ parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
 
     function SetLimitsOfSpinners(app)
         app.TargetSpinner.Limits(2) = length(app.UIFigure.UserData.targetYShifted);
-        app.RefSpinner.Limits(2) = length(app.UIFigure.UserData.referenceYShifted);
-        app.BaseLineSpinner.Limits(2) = min(app.TargetSpinner.Limits(2), app.RefSpinner.Limits(2));
+        app.RefSpinner.Limits(2) = length(app.UIFigure.UserData.referenceYShifted);        
     end
 
     

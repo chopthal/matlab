@@ -166,7 +166,7 @@ app.SensorgramUIAxes.Layout.Column = 1;
 
 % Create ReferencingGridLayout
 app.ReferencingGridLayout = uigridlayout(app.TopGridLayout);
-app.ReferencingGridLayout.ColumnWidth = {'1x', 150, 200};
+app.ReferencingGridLayout.ColumnWidth = {150, 100, 100, '1x', 150, 100};
 app.ReferencingGridLayout.RowHeight = {'1x'};
 app.ReferencingGridLayout.ColumnSpacing = 5;
 app.ReferencingGridLayout.RowSpacing = 0;
@@ -174,18 +174,40 @@ app.ReferencingGridLayout.Padding = [0 0 0 0];
 app.ReferencingGridLayout.Layout.Row = 1;
 app.ReferencingGridLayout.Layout.Column = 1;
 
+% Create BaselineSpinnerLabel
+app.BaselineSpinnerLabel = uilabel(app.ReferencingGridLayout);
+app.BaselineSpinnerLabel.HorizontalAlignment = 'right';
+app.BaselineSpinnerLabel.Layout.Row = 1;
+app.BaselineSpinnerLabel.Layout.Column = 1;
+app.BaselineSpinnerLabel.Text = 'Base line :';
+
+% Create BaselineSpinner
+app.BaselineSpinner = uispinner(app.ReferencingGridLayout);
+app.BaselineSpinner.ValueDisplayFormat = '%.0f';
+app.BaselineSpinner.HorizontalAlignment = 'right';
+app.BaselineSpinner.Layout.Row = 1;
+app.BaselineSpinner.Layout.Column = 2;
+app.BaselineSpinner.Value = 1;
+
+% Create ApplyButton
+app.ApplyButton = uibutton(app.ReferencingGridLayout);
+app.ApplyButton.Text = 'Apply';
+app.ApplyButton.HorizontalAlignment = 'center';
+app.ApplyButton.Layout.Row = 1;
+app.ApplyButton.Layout.Column = 3;
+
 % Create ReferencingDropDownLabel
 app.ReferencingDropDownLabel = uilabel(app.ReferencingGridLayout);
 app.ReferencingDropDownLabel.HorizontalAlignment = 'right';
 app.ReferencingDropDownLabel.Layout.Row = 1;
-app.ReferencingDropDownLabel.Layout.Column = 2;
+app.ReferencingDropDownLabel.Layout.Column = 5;
 app.ReferencingDropDownLabel.Text = 'Referencing :';
 
 % Create ReferencingDropDown
 app.ReferencingDropDown = uidropdown(app.ReferencingGridLayout);
 app.ReferencingDropDown.Items = {'None', 'N-T-N-T', 'T-N-T-N'};
 app.ReferencingDropDown.Layout.Row = 1;
-app.ReferencingDropDown.Layout.Column = 3;
+app.ReferencingDropDown.Layout.Column = 6;
 app.ReferencingDropDown.Value = 'None';
 
 % Create BottomGridLayout
@@ -251,6 +273,7 @@ app.StartPointSpinner = uispinner(app.SettingGridLayout);
 app.StartPointSpinner.ValueDisplayFormat = '%.0f';
 app.StartPointSpinner.Layout.Row = 1;
 app.StartPointSpinner.Layout.Column = 2;
+app.StartPointSpinner.Value = 1;
 
 % Create EndPointSpinnerLabel
 app.EndPointSpinnerLabel = uilabel(app.SettingGridLayout);
@@ -264,6 +287,7 @@ app.EndPointSpinner = uispinner(app.SettingGridLayout);
 app.EndPointSpinner.ValueDisplayFormat = '%.0f';
 app.EndPointSpinner.Layout.Row = 2;
 app.EndPointSpinner.Layout.Column = 2;
+app.EndPointSpinner.Value = 1;
 
 % Create MethodButtonGroup
 app.MethodButtonGroup = uibuttongroup(app.SettingGridLayout);
@@ -313,7 +337,8 @@ app.TPTPButton.Position = [11 5 80 22];
 app.UIFigure.Visible = 'on';
 
 % Define Callback
-app.iMSPRminiDataMenu.MenuSelectedFcn = @(src, event) iMSPRminiDataMenuSelected(app, src, event);
+app.iMSPRminiDataMenu.MenuSelectedFcn = @(src, event) DataAddMenuSelected(app, src, event);
+app.BiacoreDataMenu.MenuSelectedFcn = @(src, event) DataAddMenuSelected(app, src, event);
 app.SortButton.ButtonPushedFcn = @(src, event) SortButtonPushed(app, src, event);
 app.UITable.CellEditCallback = @(src, event) UITableCellEdit(app, src, event);
 app.UITable.CellSelectionCallback = @(src, event) UITableCellSelection(app, src, event);
@@ -322,6 +347,7 @@ app.ReferencingDropDown.ValueChangedFcn = @(src, event) ReferencingDropDownValue
 app.DelButton.ButtonPushedFcn = @(src, event) DelButtonPushed(app, src, event);
 app.RunButton.ButtonPushedFcn = @(src, event) RunButtonPushed(app, src, event);
 app.DetailedviewButton.ButtonPushedFcn = @(src, event) DetailedViewButtonPushed(app, src, event);
+app.ApplyButton.ButtonPushedFcn = @(src, event) ApplyButtonPushed(app, src, event);
 
 
 %% Start up
@@ -337,13 +363,21 @@ app.UIFigure.UserData.RawCurves = [];
 app.UIFigure.UserData.DisplayCurves = [];
 app.UIFigure.UserData.CurrentLinePlot = [];
 app.UIFigure.UserData.ScatterPlot = [];
+app.UIFigure.UserData.DataType.mini = 'iMSPR-mini Data';
+app.UIFigure.UserData.DataType.Biacore = 'Biacore Data';
 
 %% Function
 % Callback
-function iMSPRminiDataMenuSelected(app, ~, ~)
-    app.UIFigure.UserData.AddCurves = [];
+function DataAddMenuSelected(app, ~, event)
     
-    addApp = ui_add(app);
+    app.UIFigure.UserData.AddCurves = [];
+
+    if strcmp(event.Source.Text, app.UIFigure.UserData.DataType.mini)
+        addApp = ui_add(app, app.UIFigure.UserData.DataType.mini);
+    elseif strcmp(event.Source.Text, app.UIFigure.UserData.DataType.Biacore)
+        addApp = ui_add(app, app.UIFigure.UserData.DataType.Biacore);
+    end
+    
     waitfor(addApp.UIFigure);
     disp('Add app closed')
     
@@ -355,8 +389,10 @@ function iMSPRminiDataMenuSelected(app, ~, ~)
     app.UIFigure.UserData.DisplayCurves = app.UIFigure.UserData.RawCurves;
     AddTableData(app);
     CalculateDisplayCurves(app);
+    AdjustBaseline(app);
     PlotCurves(app);
     SetPlotVisibility(app);
+    SetSpinnerLimits(app);
 end
 
 
@@ -383,6 +419,7 @@ function UITableCellEdit(app, ~, event)
     newData = event.NewData;
     if indices(1, 2) == 2 % Display Column        
         CalculateDisplayCurves(app);
+        AdjustBaseline(app);
         PlotCurves(app);
     end
     if indices(1, 2) == 3 % Display Column
@@ -438,8 +475,9 @@ end
 
 
 function ReferencingDropDownValueChanged(app, ~, ~)
-    CalculateDisplayCurves(app)
-    PlotCurves(app)
+    CalculateDisplayCurves(app);
+    AdjustBaseline(app);
+    PlotCurves(app);
 end
 
 
@@ -478,7 +516,10 @@ end
 
 
 function RunButtonPushed(app, ~, ~)
-    
+
+    if isempty(app.UIFigure.UserData.DisplayCurves)
+        return
+    end    
     result = zeros(size(app.UIFigure.UserData.DisplayCurves, 1), 2);
     for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1)
         result(i, 1) = app.UITable.Data{i, 1};
@@ -540,6 +581,13 @@ function DetailedViewButtonPushed(app, ~, ~)
     detailApp = ui_detailed_view(app);
     waitfor(detailApp.UIFigure);
     disp('Detailed view exit')
+end
+
+
+function ApplyButtonPushed(app, ~, ~)
+    AdjustBaseline(app);
+    PlotCurves(app);
+    SetPlotVisibility(app);
 end
 
 
@@ -635,6 +683,18 @@ function CalculateDisplayCurves(app)
 end
 
 
+function AdjustBaseline(app)
+    for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1)
+        if size(app.UIFigure.UserData.DisplayCurves{i, 1}, 1) < app.BaselineSpinner.Value
+            continue;
+        end
+        app.UIFigure.UserData.DisplayCurves{i, 1} =...
+            app.UIFigure.UserData.DisplayCurves{i, 1} -...
+            app.UIFigure.UserData.DisplayCurves{i, 1}(app.BaselineSpinner.Value);
+    end
+end
+
+
 function SetPlotVisibility(app)
     for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1) 
         if ~isempty(app.UITable.Data)
@@ -645,5 +705,23 @@ function SetPlotVisibility(app)
             end
         end
     end
+end
+
+
+function SetSpinnerLimits(app)
+
+    if isempty(app.UIFigure.UserData.DisplayCurves)
+        return
+    end
+
+    if isempty(app.UIFigure.UserData.DisplayCurves{1, 1})
+        return
+    end
+
+    minVal = 1;
+    maxVal = size(app.UIFigure.UserData.DisplayCurves{1, 1}, 1);
+    app.BaselineSpinner.Limits = [minVal, maxVal];
+    app.StartPointSpinner.Limits = [minVal, maxVal];
+    app.EndPointSpinner.Limits = [minVal, maxVal];
 end
         
