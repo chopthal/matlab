@@ -338,6 +338,7 @@ app.UIFigure.Visible = 'on';
 
 % Define Callback
 app.iMSPRminiDataMenu.MenuSelectedFcn = @(src, event) DataAddMenuSelected(app, src, event);
+app.iMSPRProDataMenu.MenuSelectedFcn = @(src, event) DataAddMenuSelected(app, src, event);
 app.BiacoreDataMenu.MenuSelectedFcn = @(src, event) DataAddMenuSelected(app, src, event);
 app.SortButton.ButtonPushedFcn = @(src, event) SortButtonPushed(app, src, event);
 app.UITable.CellEditCallback = @(src, event) UITableCellEdit(app, src, event);
@@ -364,6 +365,7 @@ app.UIFigure.UserData.DisplayCurves = [];
 app.UIFigure.UserData.CurrentLinePlot = [];
 app.UIFigure.UserData.ScatterPlot = [];
 app.UIFigure.UserData.DataType.mini = 'iMSPR-mini Data';
+app.UIFigure.UserData.DataType.Pro = 'iMSPR-Pro Data';
 app.UIFigure.UserData.DataType.Biacore = 'Biacore Data';
 
 %% Function
@@ -374,6 +376,8 @@ function DataAddMenuSelected(app, ~, event)
 
     if strcmp(event.Source.Text, app.UIFigure.UserData.DataType.mini)
         addApp = ui_add(app, app.UIFigure.UserData.DataType.mini);
+    elseif strcmp(event.Source.Text, app.UIFigure.UserData.DataType.Pro)
+        addApp = ui_add(app, app.UIFigure.UserData.DataType.Pro);
     elseif strcmp(event.Source.Text, app.UIFigure.UserData.DataType.Biacore)
         addApp = ui_add(app, app.UIFigure.UserData.DataType.Biacore);
     end
