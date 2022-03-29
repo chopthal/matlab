@@ -97,9 +97,6 @@ app.NextButton.Layout.Row = 1;
 app.NextButton.Layout.Column = 2;
 app.NextButton.Text = 'Next';
 
-% Show the figure after all components are created
-app.UIFigure.Visible = 'on';
-
 % Variable
 app.UIFigure.UserData.TargetData = [];
 app.UIFigure.UserData.ReferenceData = [];
@@ -119,35 +116,48 @@ app.UIFigure.CloseRequestFcn = @(src, event)UIFigureCloseRequest(app, src, event
 if strcmp(dataType, parentApp.UIFigure.UserData.DataType.mini)
     app.RefDataButton.Enable = 'on';
     app.LogFileButton.Enable = 'on';
+elseif strcmp(dataType, parentApp.UIFigure.UserData.DataType.Pro)
+    app.RefDataButton.Enable = 'off';
+    app.LogFileButton.Enable = 'off';
+    app.TargetDataButton.Text = 'Select a folder';
 else
     app.RefDataButton.Enable = 'off';
     app.LogFileButton.Enable = 'off';
 end
+% Show the figure after all components are created
+app.UIFigure.Visible = 'on';
 
 
 %% Function
 % Callback
-    function LoadButtonPushed(app, ~, event)
-        [file, path] = uigetfile('*.txt', 'Please select a txt file.', parentApp.UIFigure.UserData.CurrentPath);
-        
-        if isequal(file, 0)
-            return
+    function LoadButtonPushed(app, ~, event)        
+        if strcmp(dataType, parentApp.UIFigure.UserData.DataType.Pro)
+            pathName = uigetdir(parentApp.UIFigure.UserData.CurrentPath, 'Please select a parent folder.');
+            if isequal(pathName, 0); return; end
+            file = '';
+            screeningData = parsingScreeningInfo(pathName);
+            if isempty(screeningData)
+                return
+            end
+            loadedData.data = screeningData.Data;            
+        else
+            [file, pathName] = uigetfile('*.txt', 'Please select a txt file.', parentApp.UIFigure.UserData.CurrentPath);
+            if isequal(file, 0); return; end
+            loadedData = importdata(fullfile(pathName, file));
         end
         
-        tmpData = importdata(fullfile(path, file));
-        
-        if strcmp(event.Source.Text, 'Target Data')
-            app.UIFigure.UserData.TargetData = tmpData;
-            app.Label.Text = fullfile(path, file);
-        elseif strcmp(event.Source.Text, 'Ref. Data')
-            app.UIFigure.UserData.ReferenceData = tmpData;
-            app.Label_2.Text = fullfile(path, file);
+        if strcmp(event.Source.Text, 'Ref. Data')
+            app.UIFigure.UserData.ReferenceData = loadedData;
+            app.Label_2.Text = fullfile(pathName, file);
         elseif strcmp(event.Source.Text, 'Log File')
-            app.UIFigure.UserData.LogData = tmpData;
-            app.Label_3.Text = fullfile(path, file);
+            app.UIFigure.UserData.LogData = loadedData;
+            app.Label_3.Text = fullfile(pathName, file);
+        else
+            app.UIFigure.UserData.TargetData = loadedData;
+            app.Label.Text = fullfile(pathName, file);
         end
         
-        parentApp.UIFigure.UserData.CurrentPath = path;
+        parentApp.UIFigure.UserData.CurrentPath = pathName;
     end
     
     function NextButtonPushed(app, ~, ~)

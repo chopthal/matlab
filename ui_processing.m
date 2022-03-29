@@ -163,7 +163,7 @@ if strcmp(dataType, parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.DataTy
     app.UIFigure.UserData.referenceY{1, 1} = parentApp.UIFigure.UserData.ReferenceData.data(:, 2);
     app.UIFigure.UserData.referenceY{1, 1} = app.UIFigure.UserData.referenceY{1, 1} - app.UIFigure.UserData.referenceY{1, 1}(1);
 
-elseif strcmp(dataType, parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.DataType.Biacore)
+else
     % Biacore Data
     % UI Setting
     app.stInjectionstartpointsPanel.Title = 'Range of interest (s)';
