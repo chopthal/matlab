@@ -464,7 +464,7 @@ function SortButtonPushed(app, ~, ~)
     idxColumn = [tableData{:, 1}];
     [~, sortIdx] = sort(idxColumn);
     
-    app.UITable.Data(sortIdx, :)
+    app.UITable.Data(sortIdx, :);
     app.UIFigure.UserData.RawCurves = app.UIFigure.UserData.RawCurves(sortIdx, :);
     app.UIFigure.UserData.DisplayCurves = app.UIFigure.UserData.DisplayCurves(sortIdx, :);
     app.UIFigure.UserData.CurrentLinePlot = app.UIFigure.UserData.CurrentLinePlot(sortIdx, :);
@@ -482,12 +482,9 @@ function UITableCellEdit(app, ~, event)
         PlotCurves(app);
     end
     if indices(1, 2) == 3 % Display Column
-        if newData
-            set(app.UIFigure.UserData.CurrentLinePlot{indices(1, 1)}, 'Visible', 'On')
-        else
-            set(app.UIFigure.UserData.CurrentLinePlot{indices(1, 1)}, 'Visible', 'Off')
-        end
-    end
+        SetPlotVisibility(app);
+        SetScatterVisibility(app);
+    end     
 end
 
 
@@ -499,9 +496,8 @@ function CheckBoxValueChanged(app, ~, ~)
     for i = 1:size(app.UITable.Data, 1)
         app.UITable.Data{i, 3} = value;
     end
-    for i = 1:size(app.UIFigure.UserData.CurrentLinePlot, 1)
-        set(app.UIFigure.UserData.CurrentLinePlot{i, 1}, 'Visible', app.UITable.Data{i, 3})
-    end
+    SetPlotVisibility(app);
+    SetScatterVisibility(app);
 end
 
 
@@ -518,18 +514,13 @@ function UITableCellSelection(app, ~, event)
     end
     app.UIFigure.UserData.CurrentLinePlot{indices(1), 1}.LineWidth = app.UIFigure.UserData.HighlightedLineWidth;
     
-    if isempty(app.UIFigure.UserData.ScatterPlot)
-        return
-    end
-    app.UIFigure.UserData.ScatterPlot.SizeData = app.UIFigure.UserData.DefaultScatterSize;
-
-    sizeData = ones(size(app.UIFigure.UserData.ScatterPlot.YData, 2), 1) * app.UIFigure.UserData.DefaultScatterSize;
-    if size(sizeData, 1) < indices(1)
-        return
-    end
-    sizeData(indices(1), 1) = app.UIFigure.UserData.HighlightedScatterSize;
+    if isempty(app.UIFigure.UserData.ScatterPlot); return; end
+    sizeData = app.UIFigure.UserData.ScatterPlot.SizeData;    
+    sizeData = sizeData./sizeData * app.UIFigure.UserData.DefaultScatterSize;    
+    sizeData(indices(1, 1)) =...
+        sizeData(indices(1, 1)) * app.UIFigure.UserData.HighlightedScatterSize ...
+        / app.UIFigure.UserData.DefaultScatterSize;
     app.UIFigure.UserData.ScatterPlot.SizeData = sizeData;
-
 end
 
 
@@ -545,7 +536,7 @@ function DelButtonPushed(app, ~, ~)
         return
     end
 
-    indices = app.UITable.Selection;
+    indices = app.UITable.Selection(:, 1);
     uniqIdx = unique(indices);
     tmpIdx = true(size(app.UITable.Data, 1), 1);
     tmpIdx(uniqIdx, :) = false;
@@ -571,6 +562,7 @@ function DelButtonPushed(app, ~, ~)
 
     app.UIFigure.UserData.ScatterPlot.XData = app.UIFigure.UserData.ScatterPlot.XData(tmpIdx);
     app.UIFigure.UserData.ScatterPlot.YData = app.UIFigure.UserData.ScatterPlot.YData(tmpIdx);
+    app.UIFigure.UserData.ScatterPlot.SizeData = app.UIFigure.UserData.ScatterPlot.SizeData(tmpIdx);
 end
 
 
@@ -628,16 +620,21 @@ function RunButtonPushed(app, ~, ~)
     end
 
     cla(app.PreviewUIAxes);
-    app.UIFigure.UserData.ScatterPlot = scatter(app.PreviewUIAxes, result(:, 1), result(:, 2), 'filled', 'SizeData', app.UIFigure.UserData.DefaultScatterSize);
+    app.UIFigure.UserData.ScatterPlot =...
+        scatter(app.PreviewUIAxes, result(:, 1), result(:, 2), 'filled');
+
+    app.UIFigure.UserData.ScatterPlot.SizeData =...
+        ones(size(app.UIFigure.UserData.ScatterPlot.YData, 2), 1)...
+        *app.UIFigure.UserData.DefaultScatterSize;    
+    SetScatterVisibility(app)    
     app.UIFigure.UserData.Result = result;
 
 end
 
 
 function DetailedViewButtonPushed(app, ~, ~)
-    if isempty(app.UIFigure.UserData.ScatterPlot)
-        return
-    end
+    if isempty(app.UIFigure.UserData.ScatterPlot); return; end
+    if isempty(app.UIFigure.UserData.ScatterPlot.YData); return; end
     detailApp = ui_detailed_view(app);
     waitfor(detailApp.UIFigure);
     disp('Detailed view exit')
@@ -649,8 +646,6 @@ function ApplyButtonPushed(app, ~, ~)
     PlotCurves(app);
     SetPlotVisibility(app);
 end
-
-
 
 
 % Business logic
@@ -758,15 +753,21 @@ end
 
 
 function SetPlotVisibility(app)
-    for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1)
-        if ~isempty(app.UITable.Data)
-            if app.UITable.Data{i, 3}
-                set(app.UIFigure.UserData.CurrentLinePlot{i, 1}, 'Visible', 'on');
-            else
-                set(app.UIFigure.UserData.CurrentLinePlot{i, 1}, 'Visible', 'off');
-            end
-        end
+    if isempty(app.UITable.Data)
+        return
     end
+    for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1)
+        set(app.UIFigure.UserData.CurrentLinePlot{i, 1}, 'Visible', app.UITable.Data{i, 3});
+    end
+end
+
+
+function SetScatterVisibility(app)
+    if isempty(app.UIFigure.UserData.ScatterPlot); return; end
+    sizeData = app.UIFigure.UserData.ScatterPlot.SizeData;    
+    isDisplay = [app.UITable.Data{:, 3}];
+    sizeData(~isDisplay) = nan;
+    app.UIFigure.UserData.ScatterPlot.SizeData = sizeData;
 end
 
 
