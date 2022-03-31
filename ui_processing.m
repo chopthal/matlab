@@ -202,7 +202,7 @@ parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
         SetLimitsOfSpinners(app);      
         PlotData(app);
         
-        if strcmp(dataType, parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.DataType.Biacore)
+        if ~strcmp(dataType, parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.DataType.mini)
             lenData = zeros(size(parentApp.UIFigure.UserData.TargetData.data, 2)/2, 1);
             for i = 1:size(app.UIFigure.UserData.targetX, 1)
                 lenData = length(app.UIFigure.UserData.targetX{col, 1});
@@ -219,7 +219,7 @@ parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
         
         if strcmp(dataType, parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.DataType.mini)
             curves = SplitCurve(app);
-        elseif strcmp(dataType, parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.DataType.Biacore)
+        else
             curves = app.UIFigure.UserData.targetYApplied;
         end
         
@@ -241,7 +241,7 @@ parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
                 app.UIFigure.UserData.targetYApplied{1, 1}(1:abs(gap)) = [];
                 app.UIFigure.UserData.referenceYApplied{1, 1}(end-abs(gap)+1:end) = [];
             end
-        elseif strcmp(dataType, parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.DataType.Biacore)
+        else
             startPoint = app.TargetSpinner.Value;
             endPoint = app.RefSpinner.Value;
             if startPoint >= endPoint
