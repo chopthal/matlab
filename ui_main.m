@@ -131,10 +131,12 @@ app.SortButton.Text = 'Sort (1,2,3...)';
 
 % Create UITable
 app.UITable = uitable(app.RightGridLayout);
-app.UITable.ColumnName = {'Index'; 'Type'; 'Display'};
+app.UITable.ColumnName = {'Index'; 'ID'; 'Type'; 'Display'};
 app.UITable.RowName = {};
 app.UITable.Layout.Row = 2;
 app.UITable.Layout.Column = 1;
+alignRight = uistyle('HorizontalAlignment', 'right');
+addStyle(app.UITable, alignRight);
 
 % Create LeftGridLayout
 app.LeftGridLayout = uigridlayout(app.MainGridLayout);
@@ -392,15 +394,25 @@ function DataAddMenuSelected(app, ~, event)
         return
     end
     
+    prevRawCurve = app.UIFigure.UserData.RawCurves;
+    prevDisplayCurve = app.UIFigure.UserData.DisplayCurves;
+
     app.UIFigure.UserData.RawCurves =...
         [app.UIFigure.UserData.RawCurves; app.UIFigure.UserData.AddCurves];
     app.UIFigure.UserData.DisplayCurves = app.UIFigure.UserData.RawCurves;
-    AddTableData(app);
-    CalculateDisplayCurves(app);
-    AdjustBaseline(app);
-    PlotCurves(app);
-    SetPlotVisibility(app);
-    SetSpinnerLimits(app);
+
+    try
+        AddTableData(app);
+        CalculateDisplayCurves(app);
+        AdjustBaseline(app);
+        PlotCurves(app);
+        SetPlotVisibility(app);
+        SetSpinnerLimits(app);
+    catch
+        app.UIFigure.UserData.RawCurves = prevRawCurve;
+        app.UIFigure.UserData.DisplayCurves = prevDisplayCurve;
+        disp('Data loading error!')
+    end
 end
 
 
@@ -442,10 +454,15 @@ function ExportMenuSelected(app, ~, event)
         return
     end
     
-    type = {app.UITable.Data{:, 2}}';
+    type = app.UITable.Data(:, strcmp(app.UITable.ColumnName, 'Type'));
     type = type(isDisplay);
-    barData = [num2cell(app.UIFigure.UserData.Result(isDisplay, :)) type];    
-    indexCell = {'Index', 'Result', 'Type'};
+    ID = [app.UITable.Data{:, strcmp(app.UITable.ColumnName, 'ID')}]';
+    ID = ID(isDisplay);
+    barData = [num2cell(app.UIFigure.UserData.Result(isDisplay, 1)),...
+        ID,...
+        num2cell(app.UIFigure.UserData.Result(isDisplay, 1)),...
+        type];    
+    indexCell = {'Index', 'ID', 'Result', 'Type'};
     barTable = cell2table(barData, 'VariableNames', indexCell);
     
     resultFileName = strcat('Screening_result', dateStr, '.', extension);
@@ -471,20 +488,22 @@ function SortButtonPushed(app, ~, ~)
     app.UIFigure.UserData.CurrentLinePlot = app.UIFigure.UserData.CurrentLinePlot(sortIdx, :);
     
     app.UITable.Data = tableData(sortIdx, :);
+    RenumberingID(app);
 end
 
 
 function UITableCellEdit(app, ~, event)
-    indices = event.Indices;
-    newData = event.NewData;
-    if indices(1, 2) == 2 % Display Column        
+    indices = event.Indices;    
+    if indices(1, 2) == find(strcmp(app.UITable.ColumnName, 'Type'))
         CalculateDisplayCurves(app);
         AdjustBaseline(app);
         PlotCurves(app);
-    end
-    if indices(1, 2) == 3 % Display Column
+        RenumberingID(app);
+    elseif indices(1, 2) == find(strcmp(app.UITable.ColumnName, 'Display'))
         SetPlotVisibility(app);
         SetScatterVisibility(app);
+    elseif indices(1, 2) == find(strcmp(app.UITable.ColumnName, 'Index'))
+        app.UITable.Data{event.Indices(1, 1)} = floor(event.NewData);
     end     
 end
 
@@ -495,7 +514,7 @@ function CheckBoxValueChanged(app, ~, ~)
     end
     value = app.CheckBox.Value;
     for i = 1:size(app.UITable.Data, 1)
-        app.UITable.Data{i, 3} = value;
+        app.UITable.Data{i, strcmp(app.UITable.ColumnName, 'Display')} = value;
     end
     SetPlotVisibility(app);
     SetScatterVisibility(app);
@@ -516,6 +535,7 @@ function UITableCellSelection(app, ~, event)
     app.UIFigure.UserData.CurrentLinePlot{indices(1), 1}.LineWidth = app.UIFigure.UserData.HighlightedLineWidth;
     
     if isempty(app.UIFigure.UserData.ScatterPlot); return; end
+    if size(app.UIFigure.UserData.ScatterPlot.XData, 2) < indices(1, 1); return; end
     sizeData = app.UIFigure.UserData.ScatterPlot.SizeData;    
     sizeData = sizeData./sizeData * app.UIFigure.UserData.DefaultScatterSize;    
     sizeData(indices(1, 1)) =...
@@ -550,7 +570,7 @@ function DelButtonPushed(app, ~, ~)
     app.UIFigure.UserData.RawCurves = app.UIFigure.UserData.RawCurves(tmpIdx);
     app.UIFigure.UserData.DisplayCurves = app.UIFigure.UserData.DisplayCurves(tmpIdx);
     tmpTableData = app.UITable.Data(logical(copyIdx));
-    app.UITable.Data = reshape(tmpTableData, [], 3);
+    app.UITable.Data = reshape(tmpTableData, [], size(app.UITable.ColumnName, 1));
     PlotCurves(app);
 
     if isempty(app.UIFigure.UserData.ScatterPlot)
@@ -570,11 +590,19 @@ end
 function RunButtonPushed(app, ~, ~)
 
     if isempty(app.UIFigure.UserData.DisplayCurves)
-        return
-    end    
+        return;
+    end
+    
+    minLength = min(cellfun(@length, app.UIFigure.UserData.DisplayCurves));
+    if minLength < app.EndPointSpinner.Value || minLength < app.StartPointSpinner.Value
+        msg = sprintf('Out of range (%d)', minLength);
+        uialert(app.UIFigure, msg, 'Error');
+        return;
+    end
+
     result = zeros(size(app.UIFigure.UserData.DisplayCurves, 1), 2);
     for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1)
-        result(i, 1) = app.UITable.Data{i, 1};
+        result(i, 1) = app.UITable.Data{i, strcmp(app.UITable.ColumnName, 'Index')};
         if strcmp(app.MethodButtonGroup.SelectedObject.Text(1), 'Δ') % Delta RU
             result(i, 2) =...
                 app.UIFigure.UserData.DisplayCurves{i, 1}(app.EndPointSpinner.Value) - ...
@@ -593,7 +621,8 @@ function RunButtonPushed(app, ~, ~)
         end
     end
 
-    positiveIndex = find(ismember(app.UITable.Data(:, 2), 'Positive')); 
+    positiveIndex = find(ismember(app.UITable.Data(:, strcmp(app.UITable.ColumnName, 'Target')),...
+        'Positive')); 
 
     tmpResult = result(:, 2);
     if ~isempty(positiveIndex)
@@ -668,33 +697,32 @@ end
 function AddTableData(app)
     prevData = app.UITable.Data;
     if size(prevData, 1) >= size(app.UIFigure.UserData.DisplayCurves, 1)
-        return
+        ME = MException('AddTableData function', ...
+            'Display curves is less than previous table data');
+        throw(ME);
     end
     newCurves = app.UIFigure.UserData.DisplayCurves(size(prevData, 1)+1 : end);    
 
     if isempty(app.UITable.Data)
-        newIdx = [1:size(app.UIFigure.UserData.DisplayCurves, 1)]';
-                  
-        newModeData    = cell(size(newIdx, 1), 1);
-        newModeData(:) = {'Target'};  % Default value      
-
+        newIdx = [1:size(app.UIFigure.UserData.DisplayCurves, 1)]';                  
+        newTypeData    = cell(size(newIdx, 1), 1);
+        newTypeData(:) = {'Target'};  % Default value      
         newIsDisplay = true(size(app.UIFigure.UserData.DisplayCurves, 1), 1);
     else
         prevIdx = [prevData{:, 1}]';
         newIdx = [max(prevIdx)+1:...
-            max(prevIdx) + size(newCurves, 1)]';        
-                
-        newModeData = cell(size(newIdx, 1), 1);        
-        newModeData(:) = {'Target'};  % Default value              
-        
+            max(prevIdx) + size(newCurves, 1)]'; 
+        newTypeData = cell(size(newIdx, 1), 1);        
+        newTypeData(:) = {'Target'};  % Default value
         newIsDisplay = true(size(newCurves, 1), 1);        
     end
+    newID = newIdx;
 
-    newData = cat(2, num2cell(newIdx), newModeData, num2cell(newIsDisplay));
-    mode = {'Target', 'Positive', 'Negative'};  
-    columnname =   {'Index', 'Type', 'Display'};
-    columnformat = {'numeric', mode, 'logical'};
-    columneditable = [true, true, true]; 
+    newData = cat(2, num2cell(newIdx), num2cell(newID), newTypeData, num2cell(newIsDisplay));
+    type = {'Target', 'Positive', 'Negative'};  
+    columnname =   {'Index', 'ID', 'Type', 'Display'};
+    columnformat = {'numeric','char', type, 'logical'};
+    columneditable = [true, false, true, true]; 
     app.UITable.Data = [prevData; newData];
     app.UITable.ColumnName = columnname;
     app.UITable.ColumnFormat = columnformat;
@@ -704,10 +732,11 @@ end
 
 function CalculateDisplayCurves(app)
     if isempty(app.UITable.Data)
-        return
+        return;
     end
     
-    negativeIndex = find(ismember(app.UITable.Data(:, 2), 'Negative'));
+    negativeIndex = find(ismember(...
+        app.UITable.Data(:, strcmp(app.UITable.ColumnName, 'Type')), 'Negative'));
     if isempty(negativeIndex)
         return
     end
@@ -758,7 +787,9 @@ function SetPlotVisibility(app)
         return
     end
     for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1)
-        set(app.UIFigure.UserData.CurrentLinePlot{i, 1}, 'Visible', app.UITable.Data{i, 3});
+        set(app.UIFigure.UserData.CurrentLinePlot{i, 1},...
+            'Visible',...
+            app.UITable.Data{i, strcmp(app.UITable.ColumnName, 'Display')});
     end
 end
 
@@ -766,22 +797,18 @@ end
 function SetScatterVisibility(app)
     if isempty(app.UIFigure.UserData.ScatterPlot); return; end
     sizeData = app.UIFigure.UserData.ScatterPlot.SizeData;    
-    isDisplay = [app.UITable.Data{:, 3}];
+    isDisplay = [app.UITable.Data{:, strcmp(app.UITable.ColumnName, 'Display')}];
+    isDisplay = isDisplay(1:size(app.UIFigure.UserData.ScatterPlot.XData, 2));
+    
     sizeData(~isDisplay) = nan;
+    sizeData(isDisplay) = app.UIFigure.UserData.DefaultScatterSize;
     app.UIFigure.UserData.ScatterPlot.SizeData = sizeData;
 end
 
 
 function SetSpinnerLimits(app)
-
-    if isempty(app.UIFigure.UserData.DisplayCurves)
-        return
-    end
-
-    if isempty(app.UIFigure.UserData.DisplayCurves{1, 1})
-        return
-    end
-
+    if isempty(app.UIFigure.UserData.DisplayCurves); return; end
+    if isempty(app.UIFigure.UserData.DisplayCurves{1, 1}); return; end
     minVal = 1;
     maxVal = size(app.UIFigure.UserData.DisplayCurves{1, 1}, 1);
     app.BaselineSpinner.Limits = [minVal, maxVal];
@@ -789,3 +816,14 @@ function SetSpinnerLimits(app)
     app.EndPointSpinner.Limits = [minVal, maxVal];
 end
         
+
+function RenumberingID(app)
+    tmpIdx = [app.UITable.Data{:, strcmp(app.UITable.ColumnName, 'Index')}]';
+    tmpType = app.UITable.Data(:, strcmp(app.UITable.ColumnName, 'Type'));
+    targetIdx = strcmp(tmpType, 'Target');
+    
+    tmpID = zeros(size(tmpIdx, 1), 1);
+    tmpTargetID = 1:sum(targetIdx);
+    tmpID(targetIdx) = tmpTargetID;
+    app.UITable.Data(:, strcmp(app.UITable.ColumnName, 'ID')) = num2cell(tmpID);
+end

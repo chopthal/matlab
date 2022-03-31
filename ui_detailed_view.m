@@ -237,26 +237,24 @@ ApplyButtonPushed(app, [], [])
             if app.UIFigure.UserData.ScatterPlot.YData(i) >= app.UIFigure.UserData.ThresholdLine.Value
                 app.UIFigure.UserData.ScatterPlot.CData(i, :) = app.ThresholdColorButton.BackgroundColor;
             end
-            if strcmp(parentApp.UITable.Data{i, 2}, 'Positive')
+            if strcmp(parentApp.UITable.Data{i, strcmp(parentApp.UITable.ColumnName, 'Type')}, 'Positive')
                 app.UIFigure.UserData.ScatterPlot.CData(i, :) = app.PositiveColorButton.BackgroundColor;
-            elseif strcmp(parentApp.UITable.Data{i, 2}, 'Negative')
+            elseif strcmp(parentApp.UITable.Data{i, strcmp(parentApp.UITable.ColumnName, 'Type')}, 'Negative')
                 app.UIFigure.UserData.ScatterPlot.CData(i, :) = app.NegativeColorButton.BackgroundColor;
             end
         end
         
         % Scatter Plot DataTip
-        tmpIdx = [parentApp.UITable.Data{:, 1}]';        
+        tmpIdx = [parentApp.UITable.Data{:, strcmp(parentApp.UITable.ColumnName, 'Index')}]';        
         tmpResult = round(app.UIFigure.UserData.ScatterPlot.YData'*100)/100;        
         tmpResult = cellstr(num2str(tmpResult, '%.2f'));
-        tmpType = parentApp.UITable.Data(:, 2);
+        tmpType = parentApp.UITable.Data(:, strcmp(parentApp.UITable.ColumnName, 'Type'));
         
         targetIdx = strcmp(tmpType, 'Target');
 
         tmpID = zeros(size(tmpIdx, 1), 1);
         tmpTargetID = 1:sum(targetIdx);
         tmpID(targetIdx) = tmpTargetID;
-        tmpID = cellstr(num2str(tmpID));        
-        tmpID(~targetIdx) = {''};
 
         % TODO : sort w/o Negative, positive
         app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(1).Label = 'Index';
