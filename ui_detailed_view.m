@@ -245,25 +245,42 @@ ApplyButtonPushed(app, [], [])
         end
         
         % Scatter Plot DataTip
-        app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(1).Label = 'Idx';
-        app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(2).Label = 'Avg';
-        app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(3).Label = 'Type';
-        app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(1).Value = [parentApp.UITable.Data{:, 1}]';
-        app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(2).Value = round(app.UIFigure.UserData.ScatterPlot.YData*100)/100;
-        app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(3).Value = parentApp.UITable.Data(:, 2);
-        
-        % Display table data                    
-        tmpIdx = [parentApp.UITable.Data{:, 1}]';
-        tmpResult = app.UIFigure.UserData.ScatterPlot.YData';
+        tmpIdx = [parentApp.UITable.Data{:, 1}]';        
+        tmpResult = round(app.UIFigure.UserData.ScatterPlot.YData'*100)/100;        
+        tmpResult = cellstr(num2str(tmpResult, '%.2f'));
         tmpType = parentApp.UITable.Data(:, 2);
+        
+        targetIdx = strcmp(tmpType, 'Target');
+
+        tmpID = zeros(size(tmpIdx, 1), 1);
+        tmpTargetID = 1:sum(targetIdx);
+        tmpID(targetIdx) = tmpTargetID;
+        tmpID = cellstr(num2str(tmpID));        
+        tmpID(~targetIdx) = {''};
+
+        % TODO : sort w/o Negative, positive
+        app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(1).Label = 'Index';
+        app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(2).Label = 'ID';
+        app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(3).Label = 'Res';
+        app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(4).Label = 'Type';
+        app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(1).Value = tmpIdx;
+        app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(2).Value = tmpID;
+        app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(3).Value = tmpResult;
+        app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(4).Value = tmpType;
+        
+        % Display table data
         Index = tmpIdx(app.UIFigure.UserData.ScatterPlot.YData >= app.UIFigure.UserData.ThresholdLine.Value);
+        ID = tmpID(app.UIFigure.UserData.ScatterPlot.YData >= app.UIFigure.UserData.ThresholdLine.Value);
         Result = tmpResult(app.UIFigure.UserData.ScatterPlot.YData >= app.UIFigure.UserData.ThresholdLine.Value);
         Type = tmpType(app.UIFigure.UserData.ScatterPlot.YData >= app.UIFigure.UserData.ThresholdLine.Value); 
-        ID = cell(size(Index)); ID(:, :) = {''};
+
         Remark = cell(size(Index)); Remark(:, :) = {''};
         tableData = table(Index, ID, Result, Type, Remark);
         app.UITable.Data = tableData;
-        app.UITable.ColumnEditable = [false, true, false, false, true];
+        app.UITable.ColumnEditable = [false, false, false, false, true];
+        alignRight = uistyle('HorizontalAlignment', 'right');
+        addStyle(app.UITable, alignRight);
+
     end
 
 

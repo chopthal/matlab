@@ -392,7 +392,8 @@ function DataAddMenuSelected(app, ~, event)
         return
     end
     
-    app.UIFigure.UserData.RawCurves = [app.UIFigure.UserData.RawCurves; app.UIFigure.UserData.AddCurves];
+    app.UIFigure.UserData.RawCurves =...
+        [app.UIFigure.UserData.RawCurves; app.UIFigure.UserData.AddCurves];
     app.UIFigure.UserData.DisplayCurves = app.UIFigure.UserData.RawCurves;
     AddTableData(app);
     CalculateDisplayCurves(app);
