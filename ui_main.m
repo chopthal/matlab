@@ -105,18 +105,6 @@ app.CheckBox.Layout.Row = 1;
 app.CheckBox.Layout.Column = 6;
 app.CheckBox.Value = 1;
 
-% Create DownButton
-% app.DownButton = uibutton(app.TableButtonGridLayout, 'push');
-% app.DownButton.Layout.Row = 1;
-% app.DownButton.Layout.Column = 5;
-% app.DownButton.Text = '▼';
-
-% Create UpButton
-% app.UpButton = uibutton(app.TableButtonGridLayout, 'push');
-% app.UpButton.Layout.Row = 1;
-% app.UpButton.Layout.Column = 4;
-% app.UpButton.Text = '▲';
-
 % Create DelButton
 app.DelButton = uibutton(app.TableButtonGridLayout, 'push');
 app.DelButton.Layout.Row = 1;
@@ -137,6 +125,12 @@ app.UITable.Layout.Row = 2;
 app.UITable.Layout.Column = 1;
 alignRight = uistyle('HorizontalAlignment', 'right');
 addStyle(app.UITable, alignRight);
+
+% Create ContextMenu to UITable
+app.UIContextMenuUITable = uicontextmenu(app.UIFigure);
+app.UIMenuUITable = uimenu(app.UIContextMenuUITable, "Text", 'Numbering index from selected row');
+app.UITable.ContextMenu = app.UIContextMenuUITable;
+
 
 % Create LeftGridLayout
 app.LeftGridLayout = uigridlayout(app.MainGridLayout);
@@ -353,6 +347,7 @@ app.DelButton.ButtonPushedFcn = @(src, event) DelButtonPushed(app, src, event);
 app.RunButton.ButtonPushedFcn = @(src, event) RunButtonPushed(app, src, event);
 app.DetailedviewButton.ButtonPushedFcn = @(src, event) DetailedViewButtonPushed(app, src, event);
 app.ApplyButton.ButtonPushedFcn = @(src, event) ApplyButtonPushed(app, src, event);
+app.UIMenuUITable.MenuSelectedFcn = @(src, event) UIMenuUITableSelected(app, src, event);
 
 
 %% Start up
@@ -675,6 +670,21 @@ function ApplyButtonPushed(app, ~, ~)
     AdjustBaseline(app);
     PlotCurves(app);
     SetPlotVisibility(app);
+end
+
+
+function UIMenuUITableSelected(app, ~, ~)
+if isempty(app.UITable.Selection)
+    return
+end
+
+startIdx = app.UITable.Selection(1, 1);
+startNo = app.UITable.Data{startIdx, strcmp(app.UITable.ColumnName, 'Index')};
+
+app.UITable.Data(startIdx:end, strcmp(app.UITable.ColumnName, 'Index')) = ...
+    num2cell(startNo:startNo + size(app.UITable.Data, 1)-startIdx)';
+
+RenumberingID(app);
 end
 
 
