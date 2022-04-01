@@ -2,6 +2,7 @@ function app = ui_add(parentApp, dataType)
 
 % Create StartUpUIFigure and hide until all components are created
 app.UIFigure = uifigure(2);
+clf(app.UIFigure);
 app.UIFigure.Visible = 'off';
 app.UIFigure.Position = [100 100 546 241];
 app.UIFigure.Name = 'Add Data';

@@ -2,6 +2,7 @@ function app = ui_detailed_view(parentApp)
 
 % Create UIFigure and hide until all components are created
 app.UIFigure = uifigure(4);
+clf(app.UIFigure);
 app.UIFigure.Visible = 'off';
 app.UIFigure.Position = [100 100 1092 695];
 app.UIFigure.Name = 'Detailed view';    
@@ -208,6 +209,7 @@ if isdeployed; app.UIFigure.WindowStyle = 'modal'; end
 
 xData = parentApp.UIFigure.UserData.ScatterPlot.XData;
 yData = parentApp.UIFigure.UserData.ScatterPlot.YData;
+app.UIFigure.UserData.DisplayIdx = [];
 
 cla(app.UIAxes)
 app.UIFigure.UserData.ScatterPlot = scatter(app.UIAxes, xData, yData, 'filled', 'SizeData', 5);
@@ -264,12 +266,15 @@ ApplyButtonPushed(app, [], [])
         app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(2).Value = tmpID;
         app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(3).Value = tmpResult;
         app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(4).Value = tmpType;
-        
+                
+        app.UIFigure.UserData.DisplayIdx =...
+            app.UIFigure.UserData.ScatterPlot.YData >= app.UIFigure.UserData.ThresholdLine.Value;
+
         % Display table data
-        Index = tmpIdx(app.UIFigure.UserData.ScatterPlot.YData >= app.UIFigure.UserData.ThresholdLine.Value);
-        ID = tmpID(app.UIFigure.UserData.ScatterPlot.YData >= app.UIFigure.UserData.ThresholdLine.Value);
-        Result = tmpResult(app.UIFigure.UserData.ScatterPlot.YData >= app.UIFigure.UserData.ThresholdLine.Value);
-        Type = tmpType(app.UIFigure.UserData.ScatterPlot.YData >= app.UIFigure.UserData.ThresholdLine.Value); 
+        Index = tmpIdx(app.UIFigure.UserData.DisplayIdx);
+        ID = tmpID(app.UIFigure.UserData.DisplayIdx);
+        Result = tmpResult(app.UIFigure.UserData.DisplayIdx);
+        Type = tmpType(app.UIFigure.UserData.DisplayIdx);
 
         Remark = cell(size(Index)); Remark(:, :) = {''};
         tableData = table(Index, ID, Result, Type, Remark);
@@ -289,23 +294,12 @@ ApplyButtonPushed(app, [], [])
 
 
     function UITableCellSelection(app, ~, event)
-        %TODO : miss matched points with selected row
         if isempty(event.Indices); return; end
         sizeData = ones(size(app.UIFigure.UserData.ScatterPlot.YData)) * app.MarkerSizeSpinner.Value;
         for i = 1:size(event.Indices, 1)
             if event.Indices(i, 2) ~= 1; continue; end
-            selectedIndex = app.UITable.Data.Index(event.Indices(i, 1));
-%             selectedOrder = app.UIFigure.UserData.ScatterPlot.XData(app.UIFigure.UserData.ScatterPlot.XData == selectedIndex);            
-            xMatchedIdx = find(app.UIFigure.UserData.ScatterPlot.XData == selectedIndex);
-            yMatchedIdx = find(strcmp(app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(3).Value,...
-                    app.UITable.Data{selectedIndex, 3}))';            
-            matchedIdx = xMatchedIdx(xMatchedIdx == yMatchedIdx);
-
-            for ii = xMatchedIdx
-                yMatchedIdx == ii
-            end
-            sizeData(matchedIdx) = app.MarkerSizeSpinner.Value * 5;
-
+            idx = find(app.UIFigure.UserData.DisplayIdx);
+            sizeData(idx(event.Indices(i, 1))) = app.MarkerSizeSpinner.Value * 5;
         end
         app.UIFigure.UserData.ScatterPlot.SizeData = sizeData;        
     end

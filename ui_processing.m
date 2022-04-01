@@ -2,6 +2,7 @@ function app = ui_processing(parentApp, dataType)
 
 % Create UIFigure and hide until all components are created
 app.UIFigure = uifigure(3);
+clf(app.UIFigure);
 app.UIFigure.Visible = 'off';
 app.UIFigure.Position = [100 100 826 511];
 app.UIFigure.Name = 'Data processing';

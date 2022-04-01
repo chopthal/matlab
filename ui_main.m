@@ -1,6 +1,7 @@
 close force all
 % Create UIFigure and hide until all components are created
 app.UIFigure = uifigure(1);
+clf(app.UIFigure);
 app.UIFigure.Visible = 'off';
 app.UIFigure.Position = [100 100 1083 665];
 app.UIFigure.Name = 'iMPick';
