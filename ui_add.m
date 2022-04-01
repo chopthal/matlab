@@ -113,6 +113,7 @@ app.NextButton.ButtonPushedFcn = @(src, event)NextButtonPushed(app, src, event);
 app.UIFigure.CloseRequestFcn = @(src, event)UIFigureCloseRequest(app, src, event);
 
 %% Start up
+if isdeployed; app.UIFigure.WindowStyle = 'modal'; end
 if strcmp(dataType, parentApp.UIFigure.UserData.DataType.mini)
     app.RefDataButton.Enable = 'on';
     app.LogFileButton.Enable = 'on';

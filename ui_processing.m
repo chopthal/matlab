@@ -4,7 +4,7 @@ function app = ui_processing(parentApp, dataType)
 app.UIFigure = uifigure(3);
 app.UIFigure.Visible = 'off';
 app.UIFigure.Position = [100 100 826 511];
-app.UIFigure.Name = 'iMDataProcessing';
+app.UIFigure.Name = 'Data processing';
 
 % Create MainGridLayout
 app.MainGridLayout = uigridlayout(app.UIFigure);
@@ -145,6 +145,7 @@ app.TargetSpinner.ValueChangedFcn = @(src, event) AddSpinnerValueChanged(app, sr
 app.RefSpinner.ValueChangedFcn = @(src, event) AddSpinnerValueChanged(app, src, event);
 
 %% Start up
+if isdeployed; app.UIFigure.WindowStyle = 'modal'; end
 
 if strcmp(dataType, parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.DataType.mini)
     % iMSPR-mini Data

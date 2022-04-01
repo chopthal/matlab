@@ -1,9 +1,10 @@
 function app = ui_detailed_view(parentApp)
 
 % Create UIFigure and hide until all components are created
-app.UIFigure = uifigure('Visible', 'off');
+app.UIFigure = uifigure(4);
+app.UIFigure.Visible = 'off';
 app.UIFigure.Position = [100 100 1092 695];
-app.UIFigure.Name = 'MATLAB App';    
+app.UIFigure.Name = 'Detailed view';    
 
 % Create GridLayout
 app.GridLayout = uigridlayout(app.UIFigure);
@@ -203,9 +204,7 @@ app.UITable.CellSelectionCallback = @(src, event) UITableCellSelection(app, src,
 app.ExportDataButton.ButtonPushedFcn = @(src, event) ExportDataButtonPushed(app, src, event);
 
 %% Start up
-if isdeployed
-    app.UIFigure.WindowStyle = 'modal';
-end
+if isdeployed; app.UIFigure.WindowStyle = 'modal'; end
 
 xData = parentApp.UIFigure.UserData.ScatterPlot.XData;
 yData = parentApp.UIFigure.UserData.ScatterPlot.YData;
@@ -290,14 +289,23 @@ ApplyButtonPushed(app, [], [])
 
 
     function UITableCellSelection(app, ~, event)
+        %TODO : miss matched points with selected row
+        if isempty(event.Indices); return; end
         sizeData = ones(size(app.UIFigure.UserData.ScatterPlot.YData)) * app.MarkerSizeSpinner.Value;
         for i = 1:size(event.Indices, 1)
-            if event.Indices(i, 2) ~= 1
-                continue;
-            end
+            if event.Indices(i, 2) ~= 1; continue; end
             selectedIndex = app.UITable.Data.Index(event.Indices(i, 1));
-            selectedOrder = app.UIFigure.UserData.ScatterPlot.XData(app.UIFigure.UserData.ScatterPlot.XData == selectedIndex);
-            sizeData(selectedOrder) = app.MarkerSizeSpinner.Value * 5;
+%             selectedOrder = app.UIFigure.UserData.ScatterPlot.XData(app.UIFigure.UserData.ScatterPlot.XData == selectedIndex);            
+            xMatchedIdx = find(app.UIFigure.UserData.ScatterPlot.XData == selectedIndex);
+            yMatchedIdx = find(strcmp(app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(3).Value,...
+                    app.UITable.Data{selectedIndex, 3}))';            
+            matchedIdx = xMatchedIdx(xMatchedIdx == yMatchedIdx);
+
+            for ii = xMatchedIdx
+                yMatchedIdx == ii
+            end
+            sizeData(matchedIdx) = app.MarkerSizeSpinner.Value * 5;
+
         end
         app.UIFigure.UserData.ScatterPlot.SizeData = sizeData;        
     end

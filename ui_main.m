@@ -3,7 +3,7 @@ close force all
 app.UIFigure = uifigure(1);
 app.UIFigure.Visible = 'off';
 app.UIFigure.Position = [100 100 1083 665];
-app.UIFigure.Name = 'MATLAB App';
+app.UIFigure.Name = 'iMPick';
 
 % Create FileMenu
 app.FileMenu = uimenu(app.UIFigure);
@@ -517,9 +517,7 @@ end
 
 
 function UITableCellSelection(app, ~, event)
-    if isempty(event.Indices)
-        return
-    end
+    if isempty(event.Indices); return; end
     indices = event.Indices;
     for i = 1:length(app.UIFigure.UserData.CurrentLinePlot)
         app.UIFigure.UserData.CurrentLinePlot{i, 1}.LineWidth = app.UIFigure.UserData.DefaultLineWidth;
