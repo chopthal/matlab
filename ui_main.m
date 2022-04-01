@@ -421,7 +421,7 @@ function ExportMenuSelected(app, ~, event)
         return
     end
 
-    isDisplay = [app.UITable.Data{:, 3}];
+    isDisplay = [app.UITable.Data{:, strcmp(app.UITable.ColumnName, 'Display')}];
     if strcmp(event.Source.Text, app.AllSensorgramsMenu.Text)
         isDisplay(:) = true;
     end
@@ -455,7 +455,7 @@ function ExportMenuSelected(app, ~, event)
     ID = [app.UITable.Data{:, strcmp(app.UITable.ColumnName, 'ID')}]';
     ID = ID(isDisplay);
     barData = [num2cell(app.UIFigure.UserData.Result(isDisplay, 1)),...
-        ID,...
+        num2cell(ID),...
         num2cell(app.UIFigure.UserData.Result(isDisplay, 1)),...
         type];    
     indexCell = {'Index', 'ID', 'Result', 'Type'};
