@@ -55,7 +55,7 @@ app.MidGridLayout.Layout.Column = 1;
 
 % Create AddtionalTimeBeforeEachInjectionsPanel
 app.AddtionalTimeBeforeEachInjectionsPanel = uipanel(app.MidGridLayout);
-app.AddtionalTimeBeforeEachInjectionsPanel.Title = 'Addtional time before each injections (s)';
+app.AddtionalTimeBeforeEachInjectionsPanel.Title = 'X-shift to the left (s)';
 app.AddtionalTimeBeforeEachInjectionsPanel.Layout.Row = 1;
 app.AddtionalTimeBeforeEachInjectionsPanel.Layout.Column = 1;
 
@@ -76,7 +76,7 @@ app.AddSpinner = uispinner(app.AddGridLayout);
 app.AddSpinner.ValueDisplayFormat = '%.0f';
 app.AddSpinner.Layout.Row = 1;
 app.AddSpinner.Layout.Column = 2;
-app.AddSpinner.Limits = [0 10];
+app.AddSpinner.Limits = [0 60];
 
 % Create stInjectionstartpointsPanel
 app.stInjectionstartpointsPanel = uipanel(app.MidGridLayout);
@@ -320,6 +320,7 @@ parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
         injectionStartTime = injectionStartTime - tmpStartTime + correctedInjectionStartTime;
         injectionStartTime = injectionStartTime - app.AddSpinner.Value;
         stabilizationEndTime = stabilizationEndTime - tmpStartTime + correctedInjectionStartTime;
+        stabilizationEndTime = stabilizationEndTime - app.AddSpinner.Value;
         
         % Cut data from InjectionStart to StabilizationEnd
         cyclePeriod = round(mean(stabilizationEndTime - injectionStartTime));
