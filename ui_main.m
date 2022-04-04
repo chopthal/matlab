@@ -543,6 +543,7 @@ function ReferencingDropDownValueChanged(app, ~, ~)
     CalculateDisplayCurves(app);
     AdjustBaseline(app);
     PlotCurves(app);
+    SetPlotVisibility(app);
 end
 
 
@@ -615,7 +616,7 @@ function RunButtonPushed(app, ~, ~)
         end
     end
 
-    positiveIndex = find(ismember(app.UITable.Data(:, strcmp(app.UITable.ColumnName, 'Target')),...
+    positiveIndex = find(ismember(app.UITable.Data(:, strcmp(app.UITable.ColumnName, 'Type')),...
         'Positive')); 
 
     tmpResult = result(:, 2);
