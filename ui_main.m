@@ -334,31 +334,37 @@ app.TPTPButton.Position = [11 5 80 22];
 app.UIFigure.Visible = 'on';
 
 % Define Callback
+% Menu
 app.iMSPRminiDataMenu.MenuSelectedFcn = @(src, event) DataAddMenuSelected(app, src, event);
 app.iMSPRProDataMenu.MenuSelectedFcn = @(src, event) DataAddMenuSelected(app, src, event);
 app.BiacoreDataMenu.MenuSelectedFcn = @(src, event) DataAddMenuSelected(app, src, event);
 app.AllSensorgramsMenu.MenuSelectedFcn = @(src, event) ExportMenuSelected(app, src, event);
 app.DisplayedSensorgramsMenu.MenuSelectedFcn = @(src, event) ExportMenuSelected(app, src, event);
-app.SortButton.ButtonPushedFcn = @(src, event) SortButtonPushed(app, src, event);
-app.UITable.CellEditCallback = @(src, event) UITableCellEdit(app, src, event);
-app.UITable.CellSelectionCallback = @(src, event) UITableCellSelection(app, src, event);
-app.CheckBox.ValueChangedFcn = @(src, event) CheckBoxValueChanged(app, src, event);
-app.ReferencingDropDown.ValueChangedFcn = @(src, event) ReferencingDropDownValueChanged(app, src, event);
+app.SaveProjectMenu.MenuSelectedFcn = @(src, event) SaveProjectMenuSelected(app, src, event);
+app.LoadProjectMenu.MenuSelectedFcn = @(src, event) LoadProjectMenuSelected(app, src, event);
+app.WebsiteMenu.MenuSelectedFcn = @(src, event) WebsiteMenuSelected(app, src, event);
+app.ExitMenu.MenuSelectedFcn = @(src, event) ExitMenuSelected(app, src, event);
+% Button
 app.DelButton.ButtonPushedFcn = @(src, event) DelButtonPushed(app, src, event);
 app.RunButton.ButtonPushedFcn = @(src, event) RunButtonPushed(app, src, event);
 app.DetailedviewButton.ButtonPushedFcn = @(src, event) DetailedViewButtonPushed(app, src, event);
 app.ApplyButton.ButtonPushedFcn = @(src, event) ApplyButtonPushed(app, src, event);
+app.SortButton.ButtonPushedFcn = @(src, event) SortButtonPushed(app, src, event);
+% Others
+app.UITable.CellEditCallback = @(src, event) UITableCellEdit(app, src, event);
+app.UITable.CellSelectionCallback = @(src, event) UITableCellSelection(app, src, event);
+app.CheckBox.ValueChangedFcn = @(src, event) CheckBoxValueChanged(app, src, event);
+app.ReferencingDropDown.ValueChangedFcn = @(src, event) ReferencingDropDownValueChanged(app, src, event);
 app.UIMenuUITable.MenuSelectedFcn = @(src, event) UIMenuUITableSelected(app, src, event);
 
 
 %% Start up
 % Variable
+app.UIFigure.UserData.URL = 'www.icluebio.com';
 app.UIFigure.UserData.DefaultScatterSize = 10;
 app.UIFigure.UserData.HighlightedScatterSize = 50;
 app.UIFigure.UserData.DefaultLineWidth = 0.2;
 app.UIFigure.UserData.HighlightedLineWidth = 10;
-app.UIFigure.UserData.MainApp.UIFigure.UserData.Curves = [];
-app.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
 app.UIFigure.UserData.CurrentPath = pwd;
 app.UIFigure.UserData.RawCurves = [];
 app.UIFigure.UserData.DisplayCurves = [];
@@ -371,6 +377,57 @@ app.UIFigure.UserData.Result = [];
 
 %% Function
 % Callback
+function SaveProjectMenuSelected(app, ~, ~)        
+    project = struct;
+    project.rawCurves = app.UIFigure.UserData.RawCurves;
+    project.displayCurves = app.UIFigure.UserData.DisplayCurves;    
+    project.tableData = app.UITable.Data;
+    project.baseline = app.BaselineSpinner.Value;
+    defaultFile = fullfile(app.UIFigure.UserData.CurrentPath, 'screening_project.mat');    
+    [file, path] = uiputfile('*.mat', 'Project File', defaultFile);
+    if isequal(file,0) || isequal(path,0); return; end
+    save(fullfile(path, file), 'project');
+    app.UIFigure.UserData.CurrentPath = path;
+end
+
+
+function LoadProjectMenuSelected(app, ~, ~)
+    [file, path] = uigetfile('*.mat', 'Project File');
+    if isequal(file,0) || isequal(path,0); return; end
+    loadVar = load(fullfile(path, file));
+    app.UIFigure.UserData.RawCurves = loadVar.project.rawCurves;
+    app.UIFigure.UserData.DisplayCurves = loadVar.project.displayCurves;
+    app.UITable.Data = loadVar.project.tableData;
+    app.BaselineSpinner.Value = loadVar.project.baseline;
+    TableBasicSetting(app, [], []);
+    CalculateDisplayCurves(app);
+    AdjustBaseline(app);
+    PlotCurves(app);
+    SetPlotVisibility(app);
+    SetSpinnerLimits(app);
+    cla(app.PreviewUIAxes);
+    app.UIFigure.UserData.ScatterPlot = [];
+    app.UIFigure.UserData.Result = [];
+end
+
+function WebsiteMenuSelected(app, ~, ~)
+    try
+        web(app.UIFigure.UserData.URL);
+    catch
+        disp('Web open error');
+    end
+end
+
+
+function ExitMenuSelected(app, ~, ~)
+    try    
+        delete(app.UIFigure);
+    catch
+        close force all
+    end
+end
+
+
 function DataAddMenuSelected(app, ~, event)
     
     app.UIFigure.UserData.AddCurves = [];
@@ -380,7 +437,7 @@ function DataAddMenuSelected(app, ~, event)
     elseif strcmp(event.Source.Text, app.UIFigure.UserData.DataType.Pro)
         addApp = ui_add(app, app.UIFigure.UserData.DataType.Pro);
     elseif strcmp(event.Source.Text, app.UIFigure.UserData.DataType.Biacore)
-        addApp = ui_add(app, app.UIFigure.UserData.DataType.Biacore);
+        addApp = ui_add(app, app.UIFigure.UserData.DataType.Biacore);    
     end
     
     waitfor(addApp.UIFigure);
@@ -729,14 +786,9 @@ function AddTableData(app)
     newID = newIdx;
 
     newData = cat(2, num2cell(newIdx), num2cell(newID), newTypeData, num2cell(newIsDisplay));
-    type = {'Target', 'Positive', 'Negative'};  
-    columnname =   {'Index', 'ID', 'Type', 'Display'};
-    columnformat = {'numeric','char', type, 'logical'};
-    columneditable = [true, false, true, true]; 
     app.UITable.Data = [prevData; newData];
-    app.UITable.ColumnName = columnname;
-    app.UITable.ColumnFormat = columnformat;
-    app.UITable.ColumnEditable = columneditable;
+    TableBasicSetting(app, [], []);
+    
 end
 
 
@@ -836,4 +888,15 @@ function RenumberingID(app)
     tmpTargetID = 1:sum(targetIdx);
     tmpID(targetIdx) = tmpTargetID;
     app.UITable.Data(:, strcmp(app.UITable.ColumnName, 'ID')) = num2cell(tmpID);
+end
+
+
+function TableBasicSetting(app, ~, ~)
+    type = {'Target', 'Positive', 'Negative'};  
+    columnname =   {'Index', 'ID', 'Type', 'Display'};
+    columnformat = {'numeric','char', type, 'logical'};
+    columneditable = [true, false, true, true];     
+    app.UITable.ColumnName = columnname;
+    app.UITable.ColumnFormat = columnformat;
+    app.UITable.ColumnEditable = columneditable;
 end
