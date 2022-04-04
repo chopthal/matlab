@@ -1,5 +1,7 @@
 function screeningData = parsingScreeningInfo(parentPath)
 
+screeningData = [];
+
 dataMinLength = 20;
 dataPath = 'RU';
 dataFileName = 'ch1-ch2.txt';
@@ -8,17 +10,16 @@ listContents = {parentPathContents.name};
 
 try
     info = load(fullfile(parentPath, 'Info.mat'));
-catch
-    screeningData = [];
+catch    
     return;
 end
 expFieldName = 'ExpProc';
 immobApplication = 'Immobilization';
 applicationName = info.(expFieldName).App;
 
-% if ~strcmp(applicationName, 'Screening')
-%     return
-% end
+if ~strcmp(applicationName, 'Screening')
+    return
+end
 
 listFolder = listContents([parentPathContents.isdir]);
 listFolder = listFolder(~(matches(listFolder, '.')|matches(listFolder, '..')));
