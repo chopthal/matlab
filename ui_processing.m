@@ -225,6 +225,10 @@ parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
             curves = app.UIFigure.UserData.targetYApplied;
         end
         
+        for i = 1:size(curves, 1)
+            xData = (1:size(curves{i, 1}, 1))';
+            curves{i, 1} = [xData curves{i, 1}];
+        end
         parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = curves;        
         UIFigureCloseRequestFcn(app, [], []);
     end

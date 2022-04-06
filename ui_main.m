@@ -129,9 +129,9 @@ addStyle(app.UITable, alignRight);
 
 % Create ContextMenu to UITable
 app.UIContextMenuUITable = uicontextmenu(app.UIFigure);
-app.UIMenuUITable = uimenu(app.UIContextMenuUITable, "Text", 'Numbering index from selected row');
+app.UITableContextMenuNumbering = uimenu(app.UIContextMenuUITable, "Text", 'Numbering indx from selected row');
+app.UITableContextMenuMove = uimenu(app.UIContextMenuUITable, "Text", "Move this curve");
 app.UITable.ContextMenu = app.UIContextMenuUITable;
-
 
 % Create LeftGridLayout
 app.LeftGridLayout = uigridlayout(app.MainGridLayout);
@@ -181,6 +181,7 @@ app.BaselineSpinnerLabel.Text = 'Base line :';
 % Create BaselineSpinner
 app.BaselineSpinner = uispinner(app.ReferencingGridLayout);
 app.BaselineSpinner.ValueDisplayFormat = '%.0f';
+app.BaselineSpinner.RoundFractionalValues = 'on';
 app.BaselineSpinner.HorizontalAlignment = 'right';
 app.BaselineSpinner.Layout.Row = 1;
 app.BaselineSpinner.Layout.Column = 2;
@@ -355,7 +356,8 @@ app.UITable.CellEditCallback = @(src, event) UITableCellEdit(app, src, event);
 app.UITable.CellSelectionCallback = @(src, event) UITableCellSelection(app, src, event);
 app.CheckBox.ValueChangedFcn = @(src, event) CheckBoxValueChanged(app, src, event);
 app.ReferencingDropDown.ValueChangedFcn = @(src, event) ReferencingDropDownValueChanged(app, src, event);
-app.UIMenuUITable.MenuSelectedFcn = @(src, event) UIMenuUITableSelected(app, src, event);
+app.UITableContextMenuNumbering.MenuSelectedFcn = @(src, event) UITableContextMenuNumberingSelected(app, src, event);
+app.UITableContextMenuMove.MenuSelectedFcn = @(src, event) UITableContextMenuMoveSelected(app, src, event);
 
 
 %% Start up
@@ -410,6 +412,7 @@ function LoadProjectMenuSelected(app, ~, ~)
     app.UIFigure.UserData.Result = [];
 end
 
+
 function WebsiteMenuSelected(app, ~, ~)
     try
         web(app.UIFigure.UserData.URL);
@@ -446,7 +449,7 @@ function DataAddMenuSelected(app, ~, event)
     if isempty(app.UIFigure.UserData.AddCurves)
         return
     end
-    
+
     prevRawCurve = app.UIFigure.UserData.RawCurves;
     prevDisplayCurve = app.UIFigure.UserData.DisplayCurves;
 
@@ -483,12 +486,17 @@ function ExportMenuSelected(app, ~, event)
         isDisplay(:) = true;
     end
     numCurve = sum(isDisplay);
-    lenData = size(app.UIFigure.UserData.CurrentLinePlot{1, 1}.YData, 2);
-    curveData = zeros(lenData, numCurve);
+    
+    tmpLen = zeros(size(app.UIFigure.UserData.CurrentLinePlot, 1), 1);
+    for i = 1:size(app.UIFigure.UserData.CurrentLinePlot, 1)
+        tmpLen(i) = size(app.UIFigure.UserData.CurrentLinePlot{i, 1}.YData, 2);
+    end
+    lenData = max(tmpLen);
+    curveData = nan(lenData, numCurve);
     displayedLinePlot = app.UIFigure.UserData.CurrentLinePlot(isDisplay);
     
     for i = 1:size(curveData, 2)
-        curveData(:, i) = displayedLinePlot{i, 1}.YData;
+        curveData(1:size(displayedLinePlot{i, 1}.YData, 2), i) = displayedLinePlot{i, 1}.YData;
     end
 
     colNames = arrayfun(@num2str, [app.UITable.Data{:, 1}], 'UniformOutput', 0);
@@ -574,9 +582,9 @@ function CheckBoxValueChanged(app, ~, ~)
 end
 
 
-function UITableCellSelection(app, ~, event)
-    if isempty(event.Indices); return; end
-    indices = event.Indices;
+function UITableCellSelection(app, ~, ~)
+    if isempty(app.UITable.Selection); return; end
+    indices = app.UITable.Selection;
     for i = 1:length(app.UIFigure.UserData.CurrentLinePlot)
         app.UIFigure.UserData.CurrentLinePlot{i, 1}.LineWidth = app.UIFigure.UserData.DefaultLineWidth;
     end
@@ -639,37 +647,43 @@ function DelButtonPushed(app, ~, ~)
 end
 
 
-function RunButtonPushed(app, ~, ~)
+function RunButtonPushed(app, ~, ~) %TODO : x, y move
 
     if isempty(app.UIFigure.UserData.DisplayCurves)
         return;
     end
     
-    minLength = min(cellfun(@length, app.UIFigure.UserData.DisplayCurves));
-    if minLength < app.EndPointSpinner.Value || minLength < app.StartPointSpinner.Value
-        msg = sprintf('Out of range (%d)', minLength);
-        uialert(app.UIFigure, msg, 'Error');
-        return;
-    end
+%     minLength = min(cellfun(@length, app.UIFigure.UserData.DisplayCurves));
+%     if minLength < app.EndPointSpinner.Value || minLength < app.StartPointSpinner.Value
+%         msg = sprintf('Out of range (%d)', minLength);
+%         uialert(app.UIFigure, msg, 'Error');
+%         return;
+%     end
 
-    result = zeros(size(app.UIFigure.UserData.DisplayCurves, 1), 2);
+    result = nan(size(app.UIFigure.UserData.DisplayCurves, 1), 2);
     for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1)
         result(i, 1) = app.UITable.Data{i, strcmp(app.UITable.ColumnName, 'Index')};
+        yData = app.UIFigure.UserData.DisplayCurves{i, 1}(:, 2);
+        startIdx = find(app.StartPointSpinner.Value == app.UIFigure.UserData.DisplayCurves{i, 1}(:, 1));
+        endIdx = find(app.EndPointSpinner.Value == app.UIFigure.UserData.DisplayCurves{i, 1}(:, 1));
+        if isempty(startIdx) || isempty(endIdx)
+            continue;
+        end
         if strcmp(app.MethodButtonGroup.SelectedObject.Text(1), 'Δ') % Delta RU
-            result(i, 2) =...
-                app.UIFigure.UserData.DisplayCurves{i, 1}(app.EndPointSpinner.Value) - ...
-                app.UIFigure.UserData.DisplayCurves{i, 1}(app.StartPointSpinner.Value);
+            result(i, 2) = yData(endIdx) - yData(startIdx);
         elseif strcmp(app.MethodButtonGroup.SelectedObject.Text(1), 'A') % Averaging
-            result(i, 2) =...
-                mean(app.UIFigure.UserData.DisplayCurves{i, 1}...
-                (app.StartPointSpinner.Value:app.EndPointSpinner.Value));                
+            result(i, 2) = mean(yData(startIdx:endIdx));
         elseif strcmp(app.MethodButtonGroup.SelectedObject.Text(1), 'D') % Drift
-            x = app.StartPointSpinner.Value:app.EndPointSpinner.Value;
-            y = app.UIFigure.UserData.DisplayCurves{i, 1}...
-                (app.StartPointSpinner.Value:app.EndPointSpinner.Value);
-            p = polyfit(x, y, 1);
-            yfit = polyval(p, x);
-            result(i, 2) = yfit(end) - yfit(1);
+            try
+                x = app.StartPointSpinner.Value:app.EndPointSpinner.Value;
+                y = yData(app.StartPointSpinner.Value:app.EndPointSpinner.Value);
+                p = polyfit(x, y, 1);
+                yfit = polyval(p, x);
+                result(i, 2) = yfit(end) - yfit(1);
+            catch
+                disp('RunButtonPushed - Linear fit error')
+                continue;
+            end
         end
     end
 
@@ -719,7 +733,7 @@ function DetailedViewButtonPushed(app, ~, ~)
     if isempty(app.UIFigure.UserData.ScatterPlot.YData); return; end
     detailApp = ui_detailed_view(app);
     waitfor(detailApp.UIFigure);
-    disp('Detailed view exit')
+    disp('Detailed view closed')
 end
 
 
@@ -727,21 +741,44 @@ function ApplyButtonPushed(app, ~, ~)
     AdjustBaseline(app);
     PlotCurves(app);
     SetPlotVisibility(app);
+    UITableCellSelection(app, [], app.UITable);
 end
 
 
-function UIMenuUITableSelected(app, ~, ~)
-if isempty(app.UITable.Selection)
-    return
+function UITableContextMenuNumberingSelected(app, ~, ~)
+    if isempty(app.UITable.Selection); return; end
+    startIdx = app.UITable.Selection(1, 1);
+    startNo = app.UITable.Data{startIdx, strcmp(app.UITable.ColumnName, 'Index')};
+    app.UITable.Data(startIdx:end, strcmp(app.UITable.ColumnName, 'Index')) = ...
+        num2cell(startNo:startNo + size(app.UITable.Data, 1)-startIdx)';
+    RenumberingID(app);
 end
 
-startIdx = app.UITable.Selection(1, 1);
-startNo = app.UITable.Data{startIdx, strcmp(app.UITable.ColumnName, 'Index')};
 
-app.UITable.Data(startIdx:end, strcmp(app.UITable.ColumnName, 'Index')) = ...
-    num2cell(startNo:startNo + size(app.UITable.Data, 1)-startIdx)';
+function UITableContextMenuMoveSelected(app, ~, ~)
+    moveApp = ui_move_curve(app);
+    waitfor(moveApp.UIFigure);
+    disp('Move app closed')
+    if isempty(app.UIFigure.UserData.MoveCurve)
+        return
+    end    
+    curveIdx = app.UITable.Selection(1, 1);
+    app.UIFigure.UserData.CurrentLinePlot{curveIdx}.XData =...
+        app.UIFigure.UserData.CurrentLinePlot{curveIdx}.XData +...
+        app.UIFigure.UserData.MoveCurve(1);
+    app.UIFigure.UserData.CurrentLinePlot{curveIdx}.YData =...
+        app.UIFigure.UserData.CurrentLinePlot{curveIdx}.YData +...
+        app.UIFigure.UserData.MoveCurve(2);    
+    
+    app.UIFigure.UserData.RawCurves{curveIdx}(:, 1) =...
+        app.UIFigure.UserData.RawCurves{curveIdx}(:, 1) +...
+        app.UIFigure.UserData.MoveCurve(1);
+    app.UIFigure.UserData.RawCurves{curveIdx}(:, 2) =...
+        app.UIFigure.UserData.RawCurves{curveIdx}(:, 2) +...
+        app.UIFigure.UserData.MoveCurve(2);
 
-RenumberingID(app);
+    CalculateDisplayCurves(app);
+    SetSpinnerLimits(app);
 end
 
 
@@ -754,8 +791,9 @@ function PlotCurves(app)
     for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1)        
         app.UIFigure.UserData.CurrentLinePlot{i, 1} =...
             plot(app.SensorgramUIAxes, ...
-            1:length(app.UIFigure.UserData.DisplayCurves{i, 1}), ...
-            app.UIFigure.UserData.DisplayCurves{i, 1}, 'LineWidth', app.UIFigure.UserData.DefaultLineWidth);                
+            app.UIFigure.UserData.DisplayCurves{i, 1}(:, 1), ...
+            app.UIFigure.UserData.DisplayCurves{i, 1}(:, 2), ...
+            'LineWidth', app.UIFigure.UserData.DefaultLineWidth);                
     end
     hold(app.SensorgramUIAxes, 'Off')
 end
@@ -788,31 +826,34 @@ function AddTableData(app)
     newData = cat(2, num2cell(newIdx), num2cell(newID), newTypeData, num2cell(newIsDisplay));
     app.UITable.Data = [prevData; newData];
     TableBasicSetting(app, [], []);
-    
 end
 
 
-function CalculateDisplayCurves(app)
+function CalculateDisplayCurves(app) %TODO : find x index
     if isempty(app.UITable.Data)
         return;
     end
     
     negativeIndex = find(ismember(...
         app.UITable.Data(:, strcmp(app.UITable.ColumnName, 'Type')), 'Negative'));
-    if isempty(negativeIndex)
-        return
-    end
+%     if isempty(negativeIndex)
+%         return
+%     end
     app.UIFigure.UserData.DisplayCurves = app.UIFigure.UserData.RawCurves;
 
     if strcmp(app.ReferencingDropDown.Value, 'T-N-T-N')
         for i = 1:size(negativeIndex, 1)
             if i == 1
                 for j = 1:negativeIndex(i)
-                    app.UIFigure.UserData.DisplayCurves{j, 1} = app.UIFigure.UserData.RawCurves{j, 1} - app.UIFigure.UserData.RawCurves{negativeIndex(i), 1};
+                    app.UIFigure.UserData.DisplayCurves{j, 1}(:, 2) =...
+                        app.UIFigure.UserData.RawCurves{j, 1}(:, 2) -...
+                        app.UIFigure.UserData.RawCurves{negativeIndex(i), 1}(:, 2);                        
                 end
             else
                 for j = negativeIndex(i-1)+1:negativeIndex(i)
-                    app.UIFigure.UserData.DisplayCurves{j, 1} = app.UIFigure.UserData.RawCurves{j, 1} - app.UIFigure.UserData.RawCurves{negativeIndex(i), 1};
+                    app.UIFigure.UserData.DisplayCurves{j, 1}(:, 2) =...
+                        app.UIFigure.UserData.RawCurves{j, 1}(:, 2) -...
+                        app.UIFigure.UserData.RawCurves{negativeIndex(i), 1}(:, 2);                        
                 end
             end
         end
@@ -820,11 +861,15 @@ function CalculateDisplayCurves(app)
         for i = 1:size(negativeIndex, 1)
             if i == size(negativeIndex, 1)
                 for j = negativeIndex(i):size(app.UIFigure.UserData.DisplayCurves, 1)
-                    app.UIFigure.UserData.DisplayCurves{j, 1} = app.UIFigure.UserData.RawCurves{j, 1} - app.UIFigure.UserData.RawCurves{negativeIndex(i), 1};
+                    app.UIFigure.UserData.DisplayCurves{j, 1}(:, 2) =...
+                        app.UIFigure.UserData.RawCurves{j, 1}(:, 2) -...
+                        app.UIFigure.UserData.RawCurves{negativeIndex(i), 1}(:, 2);                        
                 end
             else
                 for j = negativeIndex(i):negativeIndex(i+1)
-                    app.UIFigure.UserData.DisplayCurves{j, 1} = app.UIFigure.UserData.RawCurves{j, 1} - app.UIFigure.UserData.RawCurves{negativeIndex(i), 1};
+                    app.UIFigure.UserData.DisplayCurves{j, 1}(:, 2) =...
+                        app.UIFigure.UserData.RawCurves{j, 1}(:, 2) -...
+                        app.UIFigure.UserData.RawCurves{negativeIndex(i), 1}(:, 2);                        
                 end
             end
         end
@@ -837,9 +882,20 @@ function AdjustBaseline(app)
         if size(app.UIFigure.UserData.DisplayCurves{i, 1}, 1) < app.BaselineSpinner.Value
             continue;
         end
-        app.UIFigure.UserData.DisplayCurves{i, 1} =...
-            app.UIFigure.UserData.DisplayCurves{i, 1} -...
-            app.UIFigure.UserData.DisplayCurves{i, 1}(app.BaselineSpinner.Value);
+                
+        isBase = app.UIFigure.UserData.DisplayCurves{i, 1}(:, 1) == app.BaselineSpinner.Value;
+        if sum(isBase) == 0
+            continue;
+        end
+        
+        subVal = app.UIFigure.UserData.DisplayCurves{i, 1}(isBase, 2);
+        if isnan(subVal)
+            continue;
+        end
+
+        app.UIFigure.UserData.DisplayCurves{i, 1}(:, 2) =...
+            app.UIFigure.UserData.DisplayCurves{i, 1}(:, 2) -...
+            app.UIFigure.UserData.DisplayCurves{i, 1}(isBase, 2);        
     end
 end
 
@@ -871,8 +927,16 @@ end
 function SetSpinnerLimits(app)
     if isempty(app.UIFigure.UserData.DisplayCurves); return; end
     if isempty(app.UIFigure.UserData.DisplayCurves{1, 1}); return; end
-    minVal = 1;
-    maxVal = size(app.UIFigure.UserData.DisplayCurves{1, 1}, 1);
+    
+    tmpMin = zeros(size(app.UIFigure.UserData.DisplayCurves, 1), 1);
+    tmpMax = zeros(size(app.UIFigure.UserData.DisplayCurves, 1), 1);    
+    for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1)
+        tmpMin(i, 1) = min(app.UIFigure.UserData.DisplayCurves{i, 1}(:, 1));
+        tmpMax(i, 1) = max(app.UIFigure.UserData.DisplayCurves{i, 1}(:, 1));
+    end
+
+    minVal = min(tmpMin);
+    maxVal = max(tmpMax);
     app.BaselineSpinner.Limits = [minVal, maxVal];
     app.StartPointSpinner.Limits = [minVal, maxVal];
     app.EndPointSpinner.Limits = [minVal, maxVal];
