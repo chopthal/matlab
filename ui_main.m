@@ -507,7 +507,7 @@ function ExportMenuSelected(app, ~, event)
     dateStr = datestr(now, formatOut);
     extension = 'txt';
     
-    curveFileName = strcat('Processed_curve', dateStr, '.', extension);
+    curveFileName = strcat('curve_data', '_', dateStr, '.', extension);
     fullFile = fullfile(selPath, curveFileName);
     writetable(curveTable, fullFile, 'Delimiter', 'tab')
 
@@ -521,12 +521,11 @@ function ExportMenuSelected(app, ~, event)
     ID = ID(isDisplay);
     barData = [num2cell(app.UIFigure.UserData.Result(isDisplay, 1)),...
         num2cell(ID),...
-        num2cell(app.UIFigure.UserData.Result(isDisplay, 1)),...
         type];    
-    indexCell = {'Index', 'ID', 'Result', 'Type'};
+    indexCell = {'Index', 'ID', 'Type'};
     barTable = cell2table(barData, 'VariableNames', indexCell);
     
-    resultFileName = strcat('Screening_result', dateStr, '.', extension);
+    resultFileName = strcat('table_data', '_', dateStr, '.', extension);
     fullFile = fullfile(selPath, resultFileName);
     writetable(barTable, fullFile, 'Delimiter', 'tab')
     app.currentPath = selPath;

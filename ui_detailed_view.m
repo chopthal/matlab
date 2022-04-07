@@ -213,7 +213,12 @@ app.UIFigure.UserData.DisplayIdx = [];
 
 cla(app.UIAxes)
 app.UIFigure.UserData.ScatterPlot = scatter(app.UIAxes, xData, yData, 'filled', 'SizeData', 5);
-app.RUEditField.Value = mean(yData);
+app.RUEditField.Value = 0;
+yDataMean = mean(yData, 'omitnan');
+if ~isnan(yDataMean)
+    app.RUEditField.Value = yDataMean;
+end
+
 app.UIFigure.UserData.ThresholdLine = yline(app.UIAxes, mean(yData), 'LineWidth', 2, 'LineStyle', ':');
 
 ApplyButtonPushed(app, [], [])
