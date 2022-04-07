@@ -559,6 +559,7 @@ function UITableCellEdit(app, ~, event)
         CalculateDisplayCurves(app);
         AdjustBaseline(app);
         PlotCurves(app);
+        SetPlotVisibility(app);
         RenumberingID(app);
     elseif indices(1, 2) == find(strcmp(app.UITable.ColumnName, 'Display'))
         SetPlotVisibility(app);
@@ -586,12 +587,18 @@ function UITableCellSelection(app, ~, ~)
     if isempty(app.UITable.Selection); return; end
     indices = app.UITable.Selection;
     for i = 1:length(app.UIFigure.UserData.CurrentLinePlot)
+        if isempty(app.UIFigure.UserData.CurrentLinePlot{i, 1})
+            continue;
+        end
         app.UIFigure.UserData.CurrentLinePlot{i, 1}.LineWidth = app.UIFigure.UserData.DefaultLineWidth;
     end
     if indices(1, 2) ~= 1
         return;
     end
-    app.UIFigure.UserData.CurrentLinePlot{indices(1), 1}.LineWidth = app.UIFigure.UserData.HighlightedLineWidth;
+    if ~isempty(app.UIFigure.UserData.CurrentLinePlot{indices(1), 1})
+        app.UIFigure.UserData.CurrentLinePlot{indices(1), 1}.LineWidth =...
+            app.UIFigure.UserData.HighlightedLineWidth;
+    end
     
     if isempty(app.UIFigure.UserData.ScatterPlot); return; end
     if size(app.UIFigure.UserData.ScatterPlot.XData, 2) < indices(1, 1); return; end
@@ -609,6 +616,7 @@ function ReferencingDropDownValueChanged(app, ~, ~)
     AdjustBaseline(app);
     PlotCurves(app);
     SetPlotVisibility(app);
+    SetSpinnerLimits(app);
 end
 
 
@@ -649,20 +657,15 @@ end
 
 function RunButtonPushed(app, ~, ~)
     if isempty(app.UIFigure.UserData.DisplayCurves); return; end
-    
-%     minLength = min(cellfun(@length, app.UIFigure.UserData.DisplayCurves));
-%     if minLength < app.EndPointSpinner.Value || minLength < app.StartPointSpinner.Value
-%         msg = sprintf('Out of range (%d)', minLength);
-%         uialert(app.UIFigure, msg, 'Error');
-%         return;
-%     end
-
     result = nan(size(app.UIFigure.UserData.DisplayCurves, 1), 2);
     for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1)
-        result(i, 1) = app.UITable.Data{i, strcmp(app.UITable.ColumnName, 'Index')};
-        yData = app.UIFigure.UserData.DisplayCurves{i, 1}(:, 2);
-        startIdx = find(app.StartPointSpinner.Value == app.UIFigure.UserData.DisplayCurves{i, 1}(:, 1));
-        endIdx = find(app.EndPointSpinner.Value == app.UIFigure.UserData.DisplayCurves{i, 1}(:, 1));
+        startIdx = []; endIdx = [];
+        result(i, 1) = app.UITable.Data{i, strcmp(app.UITable.ColumnName, 'Index')};        
+        if size(app.UIFigure.UserData.DisplayCurves{i, 1}, 2) == 2
+            yData = app.UIFigure.UserData.DisplayCurves{i, 1}(:, 2);
+            startIdx = find(app.StartPointSpinner.Value == app.UIFigure.UserData.DisplayCurves{i, 1}(:, 1));
+            endIdx = find(app.EndPointSpinner.Value == app.UIFigure.UserData.DisplayCurves{i, 1}(:, 1));
+        end
         if isempty(startIdx) || isempty(endIdx)
             continue;
         end
@@ -830,7 +833,7 @@ function AddTableData(app)
 end
 
 
-function CalculateDisplayCurves(app) %TODO : find x index
+function CalculateDisplayCurves(app)
     if isempty(app.UITable.Data); return; end
     
     negativeIndex = find(ismember(...
@@ -890,8 +893,10 @@ function AdjustBaseline(app)
         if size(app.UIFigure.UserData.DisplayCurves{i, 1}, 1) < app.BaselineSpinner.Value
             continue;
         end
-                
-        isBase = app.UIFigure.UserData.DisplayCurves{i, 1}(:, 1) == app.BaselineSpinner.Value;
+        isBase = 0;
+        if size(app.UIFigure.UserData.DisplayCurves{i, 1}, 2) == 2
+            isBase = app.UIFigure.UserData.DisplayCurves{i, 1}(:, 1) == app.BaselineSpinner.Value;
+        end
         if sum(isBase) == 0
             continue;
         end
@@ -936,15 +941,23 @@ function SetSpinnerLimits(app)
     if isempty(app.UIFigure.UserData.DisplayCurves); return; end
     if isempty(app.UIFigure.UserData.DisplayCurves{1, 1}); return; end
     
-    tmpMin = zeros(size(app.UIFigure.UserData.DisplayCurves, 1), 1);
-    tmpMax = zeros(size(app.UIFigure.UserData.DisplayCurves, 1), 1);    
+    tmpMin = nan(size(app.UIFigure.UserData.DisplayCurves, 1), 1);
+    tmpMax = nan(size(app.UIFigure.UserData.DisplayCurves, 1), 1);    
     for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1)
-        tmpMin(i, 1) = min(app.UIFigure.UserData.DisplayCurves{i, 1}(:, 1));
-        tmpMax(i, 1) = max(app.UIFigure.UserData.DisplayCurves{i, 1}(:, 1));
+        if size(app.UIFigure.UserData.DisplayCurves{i, 1}, 2) == 2
+            tmpMin(i, 1) = min(app.UIFigure.UserData.DisplayCurves{i, 1}(:, 1));
+            tmpMax(i, 1) = max(app.UIFigure.UserData.DisplayCurves{i, 1}(:, 1));
+        end
     end
 
     minVal = min(tmpMin);
     maxVal = max(tmpMax);
+
+    if isnan(minVal) || isnan(maxVal)
+        uialert(app.UIFigure, "Invalid x-axis data")
+        minVal = 0; maxVal = 0;        
+    end
+
     app.BaselineSpinner.Limits = [minVal, maxVal];
     app.StartPointSpinner.Limits = [minVal, maxVal];
     app.EndPointSpinner.Limits = [minVal, maxVal];
