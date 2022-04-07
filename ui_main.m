@@ -647,11 +647,8 @@ function DelButtonPushed(app, ~, ~)
 end
 
 
-function RunButtonPushed(app, ~, ~) %TODO : x, y move
-
-    if isempty(app.UIFigure.UserData.DisplayCurves)
-        return;
-    end
+function RunButtonPushed(app, ~, ~)
+    if isempty(app.UIFigure.UserData.DisplayCurves); return; end
     
 %     minLength = min(cellfun(@length, app.UIFigure.UserData.DisplayCurves));
 %     if minLength < app.EndPointSpinner.Value || minLength < app.StartPointSpinner.Value
@@ -788,11 +785,15 @@ function PlotCurves(app)
     app.UIFigure.UserData.CurrentLinePlot = cell(size(app.UIFigure.UserData.DisplayCurves));
     
     hold(app.SensorgramUIAxes, 'On')
-    for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1)        
+    for i = 1:size(app.UIFigure.UserData.DisplayCurves, 1)
+        x = []; y = [];
+        if size(app.UIFigure.UserData.DisplayCurves{i, 1}, 2) == 2
+            x = app.UIFigure.UserData.DisplayCurves{i, 1}(:, 1);
+            y = app.UIFigure.UserData.DisplayCurves{i, 1}(:, 2);            
+        end
         app.UIFigure.UserData.CurrentLinePlot{i, 1} =...
             plot(app.SensorgramUIAxes, ...
-            app.UIFigure.UserData.DisplayCurves{i, 1}(:, 1), ...
-            app.UIFigure.UserData.DisplayCurves{i, 1}(:, 2), ...
+            x, y, ...
             'LineWidth', app.UIFigure.UserData.DefaultLineWidth);                
     end
     hold(app.SensorgramUIAxes, 'Off')
@@ -830,30 +831,31 @@ end
 
 
 function CalculateDisplayCurves(app) %TODO : find x index
-    if isempty(app.UITable.Data)
-        return;
-    end
+    if isempty(app.UITable.Data); return; end
     
     negativeIndex = find(ismember(...
         app.UITable.Data(:, strcmp(app.UITable.ColumnName, 'Type')), 'Negative'));
-%     if isempty(negativeIndex)
-%         return
-%     end
     app.UIFigure.UserData.DisplayCurves = app.UIFigure.UserData.RawCurves;
 
     if strcmp(app.ReferencingDropDown.Value, 'T-N-T-N')
         for i = 1:size(negativeIndex, 1)
             if i == 1
                 for j = 1:negativeIndex(i)
-                    app.UIFigure.UserData.DisplayCurves{j, 1}(:, 2) =...
-                        app.UIFigure.UserData.RawCurves{j, 1}(:, 2) -...
-                        app.UIFigure.UserData.RawCurves{negativeIndex(i), 1}(:, 2);                        
+                    resultCurve = ...
+                        SubstractReferenceCurve(...
+                            app.UIFigure.UserData.RawCurves{j, 1}, ...
+                            app.UIFigure.UserData.RawCurves{negativeIndex(i), 1}...
+                            );
+                    app.UIFigure.UserData.DisplayCurves{j, 1} = resultCurve;
                 end
             else
                 for j = negativeIndex(i-1)+1:negativeIndex(i)
-                    app.UIFigure.UserData.DisplayCurves{j, 1}(:, 2) =...
-                        app.UIFigure.UserData.RawCurves{j, 1}(:, 2) -...
-                        app.UIFigure.UserData.RawCurves{negativeIndex(i), 1}(:, 2);                        
+                    resultCurve = ...
+                        SubstractReferenceCurve(...
+                            app.UIFigure.UserData.RawCurves{j, 1}, ...
+                            app.UIFigure.UserData.RawCurves{negativeIndex(i), 1}...
+                            );
+                    app.UIFigure.UserData.DisplayCurves{j, 1} = resultCurve;
                 end
             end
         end
@@ -861,15 +863,21 @@ function CalculateDisplayCurves(app) %TODO : find x index
         for i = 1:size(negativeIndex, 1)
             if i == size(negativeIndex, 1)
                 for j = negativeIndex(i):size(app.UIFigure.UserData.DisplayCurves, 1)
-                    app.UIFigure.UserData.DisplayCurves{j, 1}(:, 2) =...
-                        app.UIFigure.UserData.RawCurves{j, 1}(:, 2) -...
-                        app.UIFigure.UserData.RawCurves{negativeIndex(i), 1}(:, 2);                        
+                    resultCurve = ...
+                        SubstractReferenceCurve(...
+                            app.UIFigure.UserData.RawCurves{j, 1}, ...
+                            app.UIFigure.UserData.RawCurves{negativeIndex(i), 1}...
+                            );
+                    app.UIFigure.UserData.DisplayCurves{j, 1} = resultCurve;
                 end
             else
                 for j = negativeIndex(i):negativeIndex(i+1)
-                    app.UIFigure.UserData.DisplayCurves{j, 1}(:, 2) =...
-                        app.UIFigure.UserData.RawCurves{j, 1}(:, 2) -...
-                        app.UIFigure.UserData.RawCurves{negativeIndex(i), 1}(:, 2);                        
+                    resultCurve = ...
+                        SubstractReferenceCurve(...
+                            app.UIFigure.UserData.RawCurves{j, 1}, ...
+                            app.UIFigure.UserData.RawCurves{negativeIndex(i), 1}...
+                            );
+                    app.UIFigure.UserData.DisplayCurves{j, 1} = resultCurve;
                 end
             end
         end
@@ -963,4 +971,18 @@ function TableBasicSetting(app, ~, ~)
     app.UITable.ColumnName = columnname;
     app.UITable.ColumnFormat = columnformat;
     app.UITable.ColumnEditable = columneditable;
+end
+
+function resultCurve = SubstractReferenceCurve(rawCurve, referenceCurve)
+    resultCurve = [];
+    isMemberRaw = ismember(rawCurve(:, 1), referenceCurve(:, 1));
+    isMemberNeg = ismember(referenceCurve(:, 1), rawCurve(:, 1));
+    if sum(isMemberRaw) == 0 || sum(isMemberNeg) == 0
+        return;
+    end
+    xRaw = rawCurve(isMemberRaw, 1);
+    yRaw = rawCurve(isMemberRaw, 2);
+    xNeg = referenceCurve(isMemberNeg, 1);
+    yNeg = referenceCurve(isMemberNeg, 2);                    
+    resultCurve = [xRaw, yRaw - yNeg];                                    
 end
