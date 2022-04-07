@@ -318,7 +318,7 @@ ApplyButtonPushed(app, [], [])
         dateStr = datestr(now, formatOut);
         extension = 'txt';
         
-        fileName = strcat('Processed_curve', dateStr, '.', extension);
+        fileName = strcat('screening_result', '_', dateStr, '.', extension);
         fullFile = fullfile(selPath, fileName);
         writetable(app.UITable.Data, fullFile, 'Delimiter', 'tab')
     end
