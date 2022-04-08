@@ -134,6 +134,9 @@ app.UIFigure.UserData.LogData = [];
 app.UIFigure.UserData.referenceX = [];
 app.UIFigure.UserData.referenceY = [];
 app.UIFigure.UserData.referenceY = [];
+app.UIFigure.UserData.InjectionStartLine = [];
+app.UIFigure.UserData.StabilizationEndLine = [];
+app.UIFigure.UserData.Legend = [];
 
 % Define Callback
 app.ResetButton.ButtonPushedFcn = @(src, event) ResetButtonPushed(app, src, event);
@@ -268,12 +271,25 @@ parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
     
     
     function TargetRefButtonPushed(app, ~, ~)
-        app.UIFigure.UserData.ProcessedY{1, 1} = app.UIFigure.UserData.targetYApplied{1, 1} - app.UIFigure.UserData.referenceYApplied{1, 1};
+        app.UIFigure.UserData.ProcessedY{1, 1} =...
+            app.UIFigure.UserData.targetYApplied{1, 1} -...
+            app.UIFigure.UserData.referenceYApplied{1, 1};
                     
-        cla(app.UIAxes)
-        plot(app.UIAxes, app.UIFigure.UserData.ProcessedY{1, 1})    
+        cla(app.UIAxes);
+        plot(app.UIAxes, app.UIFigure.UserData.ProcessedY{1, 1});
+        delete(app.UIFigure.UserData.Legend);
+
+        [injectionStartTime, stabilizationEndTime] = ParseLogFile(app);        
+        xShift = app.AddSpinner.Value;   
+        delete(app.UIFigure.UserData.InjectionStartLine);        
+        delete(app.UIFigure.UserData.StabilizationEndLine);
+        if isempty(injectionStartTime) || isempty(stabilizationEndTime)
+            return
+        end
+        app.UIFigure.UserData.InjectionStartLine = xline(app.UIAxes, injectionStartTime-xShift, 'Color', 'Red');
+        app.UIFigure.UserData.StabilizationEndLine = xline(app.UIAxes, stabilizationEndTime-xShift, 'Color', 'Green');
     end
-    
+
     
     function UIFigureCloseRequestFcn(app, ~, ~)
         delete(app.UIFigure);
@@ -290,42 +306,13 @@ parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
 
 
     % Business logic
-    % TODO
     function curves = SplitCurve(app)
     
-        curves = [];
-    
-        timingData = parentApp.UIFigure.UserData.LogData;
-        divideString = ' : ';
-        tmpEvent = split(timingData, divideString);
-        
-        [x, ~] = find(ismember(tmpEvent, 'Injection Start'));
-        tmpTimeStr = tmpEvent(x, 2);
-        
-        injectionStartTime = zeros(size(tmpTimeStr));
-        for i = 1:size(tmpTimeStr, 1)
-            tmpSplit = split(tmpTimeStr{i, 1}, ' ');
-            injectionStartTime(i) = str2double(tmpSplit{1});
+        curves = [];        
+        [injectionStartTime, stabilizationEndTime] = ParseLogFile(app);
+        if isempty(injectionStartTime) || isempty(stabilizationEndTime)
+            return;
         end
-        
-        [x, ~] = find(ismember(tmpEvent, 'Stabilization End'));
-        tmpTimeStr = tmpEvent(x, 2);
-        
-        stabilizationEndTime = zeros(size(tmpTimeStr));
-        for i = 1:size(tmpTimeStr, 1)
-            tmpSplit = split(tmpTimeStr{i, 1}, ' ');
-            stabilizationEndTime(i) = str2double(tmpSplit{1});
-        end
-        
-        if size(injectionStartTime, 1) ~= size(stabilizationEndTime, 1); return; end
-        
-        correctedInjectionStartTime = app.TargetSpinner.Value;
-        tmpStartTime = injectionStartTime(1);
-        injectionStartTime = injectionStartTime - tmpStartTime + correctedInjectionStartTime;
-        injectionStartTime = injectionStartTime - app.AddSpinner.Value;
-        stabilizationEndTime = stabilizationEndTime - tmpStartTime + correctedInjectionStartTime;
-        stabilizationEndTime = stabilizationEndTime - app.AddSpinner.Value;
-        
         % Cut data from InjectionStart to StabilizationEnd
         cyclePeriod = round(mean(stabilizationEndTime - injectionStartTime));
         
@@ -367,9 +354,50 @@ parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
             hold(app.UIAxes, 'on')    
             if strcmp(dataType, parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.DataType.mini)
                 plot(app.UIAxes, app.UIFigure.UserData.referenceYApplied{i, 1})
-                legend(app.UIAxes, 'Target', 'Reference')
+                app.UIFigure.UserData.Legend = legend(app.UIAxes, 'Target', 'Reference');
             end
         end    
         hold(app.UIAxes, 'off');
+    end
+
+    
+    function [injectionStartTime, stabilizationEndTime] = ParseLogFile(app)
+        injectionStartTime = [];
+        stabilizationEndTime = [];
+
+        timingData = parentApp.UIFigure.UserData.LogData;
+        divideString = ' : ';
+        tmpEvent = split(timingData, divideString);
+        
+        [x, ~] = find(ismember(tmpEvent, 'Injection Start'));
+        tmpTimeStr = tmpEvent(x, 2);
+
+        if isempty(x); return; end
+        
+        injectionStartTime = zeros(size(tmpTimeStr));
+        for i = 1:size(tmpTimeStr, 1)
+            tmpSplit = split(tmpTimeStr{i, 1}, ' ');
+            injectionStartTime(i) = str2double(tmpSplit{1});
+        end
+        
+        [x, ~] = find(ismember(tmpEvent, 'Stabilization End'));
+        tmpTimeStr = tmpEvent(x, 2);
+
+        if isempty(x); return; end
+        
+        stabilizationEndTime = zeros(size(tmpTimeStr));
+        for i = 1:size(tmpTimeStr, 1)
+            tmpSplit = split(tmpTimeStr{i, 1}, ' ');
+            stabilizationEndTime(i) = str2double(tmpSplit{1});
+        end
+        
+        if size(injectionStartTime, 1) ~= size(stabilizationEndTime, 1); return; end
+        
+        correctedInjectionStartTime = app.TargetSpinner.Value;
+        tmpStartTime = injectionStartTime(1);
+        injectionStartTime = injectionStartTime - tmpStartTime + correctedInjectionStartTime;
+        injectionStartTime = injectionStartTime - app.AddSpinner.Value;
+        stabilizationEndTime = stabilizationEndTime - tmpStartTime + correctedInjectionStartTime;
+        stabilizationEndTime = stabilizationEndTime - app.AddSpinner.Value;
     end
 end

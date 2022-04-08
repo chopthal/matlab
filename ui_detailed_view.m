@@ -262,7 +262,6 @@ ApplyButtonPushed(app, [], [])
         tmpTargetID = 1:sum(targetIdx);
         tmpID(targetIdx) = tmpTargetID;
 
-        % TODO : sort w/o Negative, positive
         app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(1).Label = 'Index';
         app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(2).Label = 'ID';
         app.UIFigure.UserData.ScatterPlot.DataTipTemplate.DataTipRows(3).Label = 'Res';

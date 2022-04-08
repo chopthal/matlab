@@ -309,25 +309,25 @@ app.DriftLinearfitButton = uiradiobutton(app.MethodButtonGroup);
 app.DriftLinearfitButton.Text = 'Drift (Linear fit)';
 app.DriftLinearfitButton.Position = [11 53 101 22];
 
-% Create NormalizationButtonGroup
-app.NormalizationButtonGroup = uibuttongroup(app.SettingGridLayout);
-app.NormalizationButtonGroup.Title = 'Normalization';
-app.NormalizationButtonGroup.Layout.Row = 4;
-app.NormalizationButtonGroup.Layout.Column = [1 2];
+% Create CorrectionButtonGroup
+app.CorrectionButtonGroup = uibuttongroup(app.SettingGridLayout);
+app.CorrectionButtonGroup.Title = 'Correction';
+app.CorrectionButtonGroup.Layout.Row = 4;
+app.CorrectionButtonGroup.Layout.Column = [1 2];
 
 % Create NoneButton
-app.NoneButton = uiradiobutton(app.NormalizationButtonGroup);
+app.NoneButton = uiradiobutton(app.CorrectionButtonGroup);
 app.NoneButton.Text = 'None';
 app.NoneButton.Position = [11 49 58 22];
 app.NoneButton.Value = true;
 
 % Create byPositiveButton
-app.byPTPTButton = uiradiobutton(app.NormalizationButtonGroup);
+app.byPTPTButton = uiradiobutton(app.CorrectionButtonGroup);
 app.byPTPTButton.Text = 'P-T-P-T';
 app.byPTPTButton.Position = [11 27 80 22];
 
 % Create byPositiveButton
-app.TPTPButton = uiradiobutton(app.NormalizationButtonGroup);
+app.TPTPButton = uiradiobutton(app.CorrectionButtonGroup);
 app.TPTPButton.Text = 'T-P-T-P';
 app.TPTPButton.Position = [11 5 80 22];
 
@@ -687,26 +687,28 @@ function RunButtonPushed(app, ~, ~)
     end
 
     positiveIndex = find(ismember(app.UITable.Data(:, strcmp(app.UITable.ColumnName, 'Type')),...
-        'Positive')); 
-
+        'Positive'));     
     tmpResult = result(:, 2);
     if ~isempty(positiveIndex)
-        if strcmp(app.NormalizationButtonGroup.SelectedObject.Text, 'P-T-P-T')
+        if strcmp(app.CorrectionButtonGroup.SelectedObject.Text, 'P-T-P-T')
             for i = 1:size(positiveIndex, 1)
                 if i == size(positiveIndex, 1)
-                    tmpResult(positiveIndex(end):end) = tmpResult(positiveIndex(end):end)/tmpResult(positiveIndex(end));
+                    tmpResult(positiveIndex(end) : end) =...
+                        tmpResult(positiveIndex(end) : end) - tmpResult(positiveIndex(end));
                 else
-                    tmpResult(positiveIndex(i):positiveIndex(i+1)) =...
-                        tmpResult(positiveIndex(i):positiveIndex(i+1))/tmpResult(positiveIndex(i));
+                    tmpResult(positiveIndex(i) : positiveIndex(i+1)-1) =...
+                        tmpResult(positiveIndex(i) : positiveIndex(i+1)-1) - tmpResult(positiveIndex(i));
                 end
             end
             result(:, 2) = tmpResult;
-        elseif strcmp(app.NormalizationButtonGroup.SelectedObject.Text, 'T-P-T-P')
+        elseif strcmp(app.CorrectionButtonGroup.SelectedObject.Text, 'T-P-T-P')
             for i = 1:size(positiveIndex, 1)
                 if i == 1
-                    tmpResult(1:positiveIndex(1)) = tmpResult(1:positiveIndex(1)) / tmpResult(positiveIndex(1));
+                    tmpResult(1 : positiveIndex(1)) =...
+                        tmpResult(1 : positiveIndex(1)) - tmpResult(positiveIndex(1));
                 else
-                    tmpResult(positiveIndex(i-1):positiveIndex(i)) = tmpResult(positiveIndex(i-1):positiveIndex(i)) / tmpResult(positiveIndex(i));
+                    tmpResult(positiveIndex(i-1)+1 : positiveIndex(i)) =...
+                        tmpResult(positiveIndex(i-1)+1 : positiveIndex(i)) - tmpResult(positiveIndex(i));
                 end
             end
             result(:, 2) = tmpResult;
