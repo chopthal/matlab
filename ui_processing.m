@@ -26,23 +26,23 @@ app.UIAxes.Layout.Column = 1;
 
 % Create BottomGridLayout
 app.BottomGridLayout = uigridlayout(app.MainGridLayout);
-app.BottomGridLayout.ColumnWidth = {'1x', 100, 100, 100};
+app.BottomGridLayout.ColumnWidth = {'1x', 120, 120};
 app.BottomGridLayout.RowHeight = {'1x'};
 app.BottomGridLayout.Padding = [0 0 0 0];
 app.BottomGridLayout.Layout.Row = 3;
 app.BottomGridLayout.Layout.Column = 1;
 
-% Create ResetButton
-app.ResetButton = uibutton(app.BottomGridLayout, 'push');
-app.ResetButton.Layout.Row = 1;
-app.ResetButton.Layout.Column = 3;
-app.ResetButton.Text = 'Reset';
-
 % Create NextButton
 app.NextButton = uibutton(app.BottomGridLayout, 'push');
 app.NextButton.Layout.Row = 1;
-app.NextButton.Layout.Column = 4;
+app.NextButton.Layout.Column = 2;
 app.NextButton.Text = 'Next';
+
+% Create CancelButton
+app.CancelButton = uibutton(app.BottomGridLayout, 'push');
+app.CancelButton.Layout.Row = 1;
+app.CancelButton.Layout.Column = 3;
+app.CancelButton.Text = 'Cancel';
 
 % Create MidGridLayout
 app.MidGridLayout = uigridlayout(app.MainGridLayout);
@@ -123,11 +123,11 @@ app.ApplyButton.Layout.Row = 1;
 app.ApplyButton.Layout.Column = 3;
 app.ApplyButton.Text = 'Apply';
 
-% Create TargetRefButton
-app.TargetRefButton = uibutton(app.MidGridLayout, 'push');
-app.TargetRefButton.Layout.Row = 1;
-app.TargetRefButton.Layout.Column = 4;
-app.TargetRefButton.Text = 'Target - Ref.';
+% Create ResetButton
+app.ResetButton = uibutton(app.MidGridLayout, 'push');
+app.ResetButton.Layout.Row = 1;
+app.ResetButton.Layout.Column = 4;
+app.ResetButton.Text = 'Reset';
 
 % Variable
 app.UIFigure.UserData.LogData = [];
@@ -142,11 +142,11 @@ app.UIFigure.UserData.Legend = [];
 app.ResetButton.ButtonPushedFcn = @(src, event) ResetButtonPushed(app, src, event);
 app.NextButton.ButtonPushedFcn = @(src, event) NextButtonPushed(app, src, event);
 app.ApplyButton.ButtonPushedFcn = @(src, event) ApplyButtonPushed(app, src, event);
-app.TargetRefButton.ButtonPushedFcn = @(src, event) TargetRefButtonPushed(app, src, event);
 app.UIFigure.CloseRequestFcn = @(src, event) UIFigureCloseRequestFcn(app, src, event);
 app.AddSpinner.ValueChangedFcn = @(src, event) AddSpinnerValueChanged(app, src, event);
 app.TargetSpinner.ValueChangedFcn = @(src, event) AddSpinnerValueChanged(app, src, event);
 app.RefSpinner.ValueChangedFcn = @(src, event) AddSpinnerValueChanged(app, src, event);
+app.CancelButton.ButtonPushedFcn = @(src, event) CancelButtonPushed(app, src, event);
 
 %% Start up
 if isdeployed; app.UIFigure.WindowStyle = 'modal'; end
@@ -157,8 +157,7 @@ if strcmp(dataType, parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.DataTy
     app.stInjectionstartpointsPanel.Title = '1st Injection start point (s)';
     app.AddtionalTimeBeforeEachInjectionsPanel.Enable = 'on';
     app.TargetLabel.Text = 'Target :';
-    app.RefSpinnerLabel.Text = 'Ref :';
-    app.TargetRefButton.Enable = 'on';    
+    app.RefSpinnerLabel.Text = 'Ref :';    
     % Data        
     app.UIFigure.UserData.targetX{1, 1} = parentApp.UIFigure.UserData.TargetData.data(:, 1);
     app.UIFigure.UserData.targetY{1, 1} = parentApp.UIFigure.UserData.TargetData.data(:, 2);
@@ -175,7 +174,6 @@ else
     app.TargetLabel.Text = 'Start :';
     app.RefSpinnerLabel.Text = 'End :';
     app.AddtionalTimeBeforeEachInjectionsPanel.Enable = 'off';
-    app.TargetRefButton.Enable = 'off';    
     % Data
     for col = 1:size(parentApp.UIFigure.UserData.TargetData.data, 2)/2
         app.UIFigure.UserData.targetX{col, 1} = parentApp.UIFigure.UserData.TargetData.data(:, col);
@@ -235,6 +233,11 @@ parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
         parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = curves;        
         UIFigureCloseRequestFcn(app, [], []);
     end
+
+
+    function CancelButtonPushed(app, ~, ~)
+        UIFigureCloseRequestFcn(app, [], []);
+    end
     
     
     function ApplyButtonPushed(app, ~, ~)
@@ -267,27 +270,7 @@ parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
             app.UIFigure.UserData.ProcessedY = app.UIFigure.UserData.targetYApplied;
         end                 
         PlotData(app);
-    end
-    
-    
-    function TargetRefButtonPushed(app, ~, ~)
-        app.UIFigure.UserData.ProcessedY{1, 1} =...
-            app.UIFigure.UserData.targetYApplied{1, 1} -...
-            app.UIFigure.UserData.referenceYApplied{1, 1};
-                    
-        cla(app.UIAxes);
-        plot(app.UIAxes, app.UIFigure.UserData.ProcessedY{1, 1});
-        delete(app.UIFigure.UserData.Legend);
-
-        [injectionStartTime, stabilizationEndTime] = ParseLogFile(app);        
-        xShift = app.AddSpinner.Value;   
-        delete(app.UIFigure.UserData.InjectionStartLine);        
-        delete(app.UIFigure.UserData.StabilizationEndLine);
-        if isempty(injectionStartTime) || isempty(stabilizationEndTime)
-            return
-        end
-        app.UIFigure.UserData.InjectionStartLine = xline(app.UIAxes, injectionStartTime-xShift, 'Color', 'Red');
-        app.UIFigure.UserData.StabilizationEndLine = xline(app.UIAxes, stabilizationEndTime-xShift, 'Color', 'Green');
+        SubtractTargetRef(app);
     end
 
     
@@ -399,5 +382,26 @@ parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
         injectionStartTime = injectionStartTime - app.AddSpinner.Value;
         stabilizationEndTime = stabilizationEndTime - tmpStartTime + correctedInjectionStartTime;
         stabilizationEndTime = stabilizationEndTime - app.AddSpinner.Value;
+    end
+
+
+    function SubtractTargetRef(app)
+        app.UIFigure.UserData.ProcessedY{1, 1} =...
+            app.UIFigure.UserData.targetYApplied{1, 1} -...
+            app.UIFigure.UserData.referenceYApplied{1, 1};
+                    
+        cla(app.UIAxes);
+        plot(app.UIAxes, app.UIFigure.UserData.ProcessedY{1, 1});
+        delete(app.UIFigure.UserData.Legend);
+
+        [injectionStartTime, stabilizationEndTime] = ParseLogFile(app);        
+        xShift = app.AddSpinner.Value;   
+        delete(app.UIFigure.UserData.InjectionStartLine);        
+        delete(app.UIFigure.UserData.StabilizationEndLine);
+        if isempty(injectionStartTime) || isempty(stabilizationEndTime)
+            return
+        end
+        app.UIFigure.UserData.InjectionStartLine = xline(app.UIAxes, injectionStartTime-xShift, 'Color', 'Red');
+        app.UIFigure.UserData.StabilizationEndLine = xline(app.UIAxes, stabilizationEndTime-xShift, 'Color', 'Green');
     end
 end
