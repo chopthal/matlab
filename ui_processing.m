@@ -15,7 +15,6 @@ app.MainGridLayout.ColumnSpacing = 5;
 app.MainGridLayout.RowSpacing = 15;
 
 % Create UIAxes
-% app.UIAxes = uiaxes(app.MainGridLayout);
 app.UIAxes = uiaxes(app.MainGridLayout);
 title(app.UIAxes, 'Title')
 xlabel(app.UIAxes, 'X')

@@ -386,7 +386,7 @@ function SaveProjectMenuSelected(app, ~, ~)
     project.tableData = app.UITable.Data;
     project.baseline = app.BaselineSpinner.Value;
     defaultFile = fullfile(app.UIFigure.UserData.CurrentPath, 'screening_project.mat');    
-    [file, path] = uiputfile('*.mat', 'Project File', defaultFile);
+    [file, path] = uiputfile('*.mat', 'Project File', defaultFile); figure(app.UIFigure);
     if isequal(file,0) || isequal(path,0); return; end
     save(fullfile(path, file), 'project');
     app.UIFigure.UserData.CurrentPath = path;
@@ -394,7 +394,7 @@ end
 
 
 function LoadProjectMenuSelected(app, ~, ~)
-    [file, path] = uigetfile('*.mat', 'Project File');
+    [file, path] = uigetfile('*.mat', 'Project File'); figure(app.UIFigure);    
     if isequal(file,0) || isequal(path,0); return; end
     loadVar = load(fullfile(path, file));
     app.UIFigure.UserData.RawCurves = loadVar.project.rawCurves;
@@ -473,7 +473,7 @@ end
 
 
 function ExportMenuSelected(app, ~, event)
-    selPath = uigetdir(app.UIFigure.UserData.CurrentPath, 'Save folder');            
+    selPath = uigetdir(app.UIFigure.UserData.CurrentPath, 'Save folder'); figure(app.UIFigure);
     if isequal(selPath, 0); return; end
 
     if isempty(app.UITable.Data)

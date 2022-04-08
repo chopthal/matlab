@@ -135,6 +135,7 @@ app.UIFigure.Visible = 'on';
     function LoadButtonPushed(app, ~, event)        
         if strcmp(dataType, parentApp.UIFigure.UserData.DataType.Pro)
             pathName = uigetdir(parentApp.UIFigure.UserData.CurrentPath, 'Please select a parent folder.');
+            figure(app.UIFigure);
             if isequal(pathName, 0); return; end
             file = '';
             screeningData = parsingScreeningInfo(pathName);
@@ -144,6 +145,7 @@ app.UIFigure.Visible = 'on';
             loadedData.data = screeningData.Data;            
         else
             [file, pathName] = uigetfile('*.txt', 'Please select a txt file.', parentApp.UIFigure.UserData.CurrentPath);
+            figure(app.UIFigure);
             if isequal(file, 0); return; end
             loadedData = importdata(fullfile(pathName, file));
         end
