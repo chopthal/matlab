@@ -149,7 +149,7 @@ app.CancelButton.ButtonPushedFcn = @(src, event) CancelButtonPushed(app, src, ev
 
 %% Start up
 if isdeployed; app.UIFigure.WindowStyle = 'modal'; end
-
+WindowPositionToCenter(app.UIFigure, parentApp.UIFigure);
 if strcmp(dataType, parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.DataType.mini)
     % iMSPR-mini Data
     % UI Setting
@@ -269,7 +269,9 @@ parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.AddCurves = [];
             app.UIFigure.UserData.ProcessedY = app.UIFigure.UserData.targetYApplied;
         end                 
         PlotData(app);
-        SubtractTargetRef(app);
+        if strcmp(dataType, parentApp.UIFigure.UserData.MainApp.UIFigure.UserData.DataType.mini)
+            SubtractTargetRef(app);
+        end
     end
 
     

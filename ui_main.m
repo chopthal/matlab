@@ -129,7 +129,7 @@ addStyle(app.UITable, alignRight);
 
 % Create ContextMenu to UITable
 app.UIContextMenuUITable = uicontextmenu(app.UIFigure);
-app.UITableContextMenuNumbering = uimenu(app.UIContextMenuUITable, "Text", 'Numbering indx from selected row');
+app.UITableContextMenuNumbering = uimenu(app.UIContextMenuUITable, "Text", 'Numbering index from selected row');
 app.UITableContextMenuMove = uimenu(app.UIContextMenuUITable, "Text", "Move this curve");
 app.UITable.ContextMenu = app.UIContextMenuUITable;
 
@@ -343,6 +343,7 @@ app.AllSensorgramsMenu.MenuSelectedFcn = @(src, event) ExportMenuSelected(app, s
 app.DisplayedSensorgramsMenu.MenuSelectedFcn = @(src, event) ExportMenuSelected(app, src, event);
 app.SaveProjectMenu.MenuSelectedFcn = @(src, event) SaveProjectMenuSelected(app, src, event);
 app.LoadProjectMenu.MenuSelectedFcn = @(src, event) LoadProjectMenuSelected(app, src, event);
+app.HelpMenu.MenuSelectedFcn = @(src, event) HelpMenuSelected(app, src, event);
 app.WebsiteMenu.MenuSelectedFcn = @(src, event) WebsiteMenuSelected(app, src, event);
 app.ExitMenu.MenuSelectedFcn = @(src, event) ExitMenuSelected(app, src, event);
 % Button
@@ -361,6 +362,7 @@ app.UITableContextMenuMove.MenuSelectedFcn = @(src, event) UITableContextMenuMov
 
 
 %% Start up
+WindowPositionToCenter(app.UIFigure, []);
 % Variable
 app.UIFigure.UserData.URL = 'www.icluebio.com';
 app.UIFigure.UserData.DefaultScatterSize = 10;
@@ -530,6 +532,11 @@ function ExportMenuSelected(app, ~, event)
     writetable(barTable, fullFile, 'Delimiter', 'tab')
     app.currentPath = selPath;
     
+end
+
+
+function HelpMenuSelected(~, ~, ~)
+    winopen('User Manua d5e86.html');
 end
 
 
@@ -757,6 +764,7 @@ end
 
 
 function UITableContextMenuMoveSelected(app, ~, ~)
+    if isempty(app.UITable.Selection); return; end
     moveApp = ui_move_curve(app);
     waitfor(moveApp.UIFigure);
     disp('Move app closed')
@@ -986,6 +994,7 @@ function TableBasicSetting(app, ~, ~)
     app.UITable.ColumnFormat = columnformat;
     app.UITable.ColumnEditable = columneditable;
 end
+
 
 function resultCurve = SubstractReferenceCurve(rawCurve, referenceCurve)
     resultCurve = [];

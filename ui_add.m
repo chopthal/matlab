@@ -126,6 +126,7 @@ else
     app.RefDataButton.Enable = 'off';
     app.LogFileButton.Enable = 'off';
 end
+WindowPositionToCenter(app.UIFigure, parentApp.UIFigure)
 % Show the figure after all components are created
 app.UIFigure.Visible = 'on';
 
@@ -189,5 +190,4 @@ app.UIFigure.Visible = 'on';
     function UIFigureCloseRequest(app, ~, ~)
         delete(app.UIFigure)
     end
-
 end

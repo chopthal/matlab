@@ -206,6 +206,7 @@ app.ExportDataButton.ButtonPushedFcn = @(src, event) ExportDataButtonPushed(app,
 
 %% Start up
 if isdeployed; app.UIFigure.WindowStyle = 'modal'; end
+WindowPositionToCenter(app.UIFigure, parentApp.UIFigure);
 
 xData = parentApp.UIFigure.UserData.ScatterPlot.XData;
 yData = parentApp.UIFigure.UserData.ScatterPlot.YData;

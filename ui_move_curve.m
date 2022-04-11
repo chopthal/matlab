@@ -39,6 +39,7 @@ app.YEditField.Position = [248 69 100 22];
 app.UIFigure.Visible = 'on';
 
 % Start-up
+WindowPositionToCenter(app.UIFigure, parentApp.UIFigure)
 parentApp.UIFigure.UserData.MoveCurve = [];
 app.UIFigure.UserData.ParentApp = parentApp;
 
