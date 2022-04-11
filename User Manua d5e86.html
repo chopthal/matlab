@@ -1,0 +1,670 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>User Manual</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-opaquegray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="fe21686f-3062-4b42-9913-f33d8fa8cba8" class="page sans"><header><h1 class="page-title">User Manual</h1></header><div class="page-body"><h2 id="6013bed5-e49f-42e2-92e4-de2a1e6d223b" class="">Main Window</h2><h3 id="00f17cf6-2666-4bd5-8725-8fcc32ad5d4d" class="">초기 실행</h3><figure id="d5e86d1e-d264-4550-9f94-1f64f5378094" class="image"><a href="User%20Manua%20d5e86/Untitled.png"><img style="width:1085px" src="User%20Manua%20d5e86/Untitled.png"/></a></figure><h3 id="41738af8-3a3f-41f0-bef0-445c3f9f53b7" class="">데이터 추가 후</h3><figure id="8d70be7e-c4ba-4b5f-85e5-375dc16ebdf9" class="image"><a href="User%20Manua%20d5e86/Untitled%201.png"><img style="width:1085px" src="User%20Manua%20d5e86/Untitled%201.png"/></a></figure><h2 id="efe0a380-6a02-4d7e-afbe-2fe6b784085a" class="">Menu</h2><h3 id="3581db55-d7bd-4c81-88ef-6c0ae8e16f91" class="">File</h3><ul id="e1c4efc9-be96-41bd-8bc0-b5d2995efd48" class="bulleted-list"><li style="list-style-type:disc">Save Project : 현재 프로젝트를 저장합니다. 불러온 sensorgram curve들과 작업한 테이블 내용이 저장됩니다.</li></ul><ul id="d8ec7de0-5fb2-4556-8ac1-ad3997bd8350" class="bulleted-list"><li style="list-style-type:disc">Load Project : 저장된 프로젝트를 불러옵니다.</li></ul><ul id="83344aeb-5874-4ee0-8ee7-f3967fe52caa" class="bulleted-list"><li style="list-style-type:disc">Exit : 프로그램을 종료합니다.</li></ul><h3 id="1aaae101-c678-4a12-9a39-2f409f789b8b" class="">Data</h3><ul id="849a65a1-0b8c-49f8-9295-f0630a04ab5a" class="bulleted-list"><li style="list-style-type:disc">Add<ul id="b887c2a7-b542-4e1a-a4c2-f43f27030a73" class="bulleted-list"><li style="list-style-type:circle">iMSPR-mini Data : iMSPR-mini로 실험한 결과를 불러옵니다. 이 경우 Target, Reference, Log 3개의 파일을 각각 선택해야 합니다.</li></ul><ul id="09a2f99c-1fa9-45f3-8200-f4023a4d965b" class="bulleted-list"><li style="list-style-type:circle">iMSPR-mini Data를 선택한 경우, Next 버튼을 누르면 Data Processing 창이 나타납니다. (Data Processing 항목 설명 참조)<figure id="336d8f67-197b-4ff4-a42c-211305a0bfd0" class="image"><a href="User%20Manua%20d5e86/Untitled%202.png"><img style="width:548px" src="User%20Manua%20d5e86/Untitled%202.png"/></a></figure></li></ul><ul id="18259b82-659c-4a95-804b-6a712f6eb9ad" class="bulleted-list"><li style="list-style-type:circle">iMSPR-Pro Data : iMSPR-Pro로 실험한 결과를 불러옵니다. 이 경우 실험 결과와 Info.mat 파일이 있는 부모 폴더를 선택해야 합니다.<figure id="ca34f9eb-8c91-4704-b528-2be33fb43e32" class="image"><a href="User%20Manua%20d5e86/Untitled%203.png"><img style="width:548px" src="User%20Manua%20d5e86/Untitled%203.png"/></a></figure></li></ul><ul id="ae6c391e-414f-47c7-be70-2406c47467f6" class="bulleted-list"><li style="list-style-type:circle">Biacore Data : Biacore 장치로 실험한 결과를 불러옵니다. ‘.ble’ 파일은 불러올 수 없으며, referencing 된 결과를 하나의 txt 파일로 저장한 후 불러올 수 있습니다.</li></ul></li></ul><ul id="9739c30b-ecd2-4f28-b8ef-a477ce9cb095" class="bulleted-list"><li style="list-style-type:disc">Export<ul id="9964da3c-1a09-4b05-986a-2fa6f3f75406" class="bulleted-list"><li style="list-style-type:circle">Display Sensorgram(s) : 우측 테이블에서 display 체크 박스가 활성화 된 sensorgram curve 데이터를 내보낼 수 있으며, 형식은 ‘.txt’ 파일입니다.</li></ul><ul id="1196590b-5b6b-4a55-971e-591e653d33cd" class="bulleted-list"><li style="list-style-type:circle">All Sensorgrams : 모든 sensorgram curve 데이터를 내보냅니다.</li></ul></li></ul><h3 id="466bffed-b514-484d-873f-537f5deb3e0b" class="">About</h3><ul id="3f22852b-fbce-49a7-bca1-13f17a5de252" class="bulleted-list"><li style="list-style-type:disc">Help : 도움말 페이지를 실행합니다.</li></ul><ul id="6fdab204-2904-4b25-89a9-61a7a6f36ddd" class="bulleted-list"><li style="list-style-type:disc">Version : 현재 소프트웨어 버전을 보여줍니다.</li></ul><ul id="99ad4fb1-1789-47e0-8c6d-fe05f2f75deb" class="bulleted-list"><li style="list-style-type:disc">Website : icluebio 웹사이트로 연결됩니다.</li></ul><h2 id="5e752095-57d7-45d1-8bab-575ea0cb54dc" class="">Main</h2><h3 id="c2a54154-c0d1-48f6-b9c0-6bee38944f33" class="">Base line</h3><ul id="93937de8-b13f-4bc7-b50a-6acb0bc349e7" class="bulleted-list"><li style="list-style-type:disc">Base line 기준 점 (시간)을 결정할 수 있습니다.</li></ul><ul id="9f2564b2-8505-4c13-855c-ab3585f7f2e9" class="bulleted-list"><li style="list-style-type:disc">모든 sensorgram curve들이 y축 방향으로 평행이동 하여 입력된 시점의 y값을 0으로 일치시킵니다.</li></ul><h3 id="c3a4b694-c33d-4476-b6e7-84e6444b5b9a" class="">Referencing</h3><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="edf0dd66-54f5-4df8-ac02-0c2f63e333d4"><div style="font-size:1.5em"><span class="icon">💡</span></div><div style="width:100%">모든 sensorgram curve들을 negative curve로 referencing을 수행합니다.</div></figure><ul id="247cdefb-257a-4606-8208-448379762691" class="bulleted-list"><li style="list-style-type:disc">None : Referencing을 수행하지 않습니다.</li></ul><ul id="c3686e1f-a9db-426f-bbea-fcd7e59a312d" class="bulleted-list"><li style="list-style-type:disc">N-T-N-T<ul id="a6b26a55-8fd7-475d-ad53-2ce36b0151cc" class="bulleted-list"><li style="list-style-type:circle">Table을 기준으로 샘플의 배치 순서가 Negative - target - negative - target - ... 인 경우에 선택하세요.</li></ul><ul id="3f7d0c31-137f-423a-9792-0d670afe0ee8" class="bulleted-list"><li style="list-style-type:circle">첫 번째 샘플은 반드시 Negative여야 합니다.</li></ul></li></ul><ul id="3407d0f5-e08c-4618-b9d9-c0e11b20bdfa" class="bulleted-list"><li style="list-style-type:disc">T-N-T-N<ul id="b87e32f7-aea2-4148-a53b-80ff078b40fd" class="bulleted-list"><li style="list-style-type:circle">Table을 기준으로 샘플의 배치 순서가 Target - negative - target - negative - ... 인 경우에 선택하세요.</li></ul><ul id="6bc8f51f-ec8e-42db-806b-71fa6e918f57" class="bulleted-list"><li style="list-style-type:circle">마지막 샘플은 반드시 Negative여야 합니다.</li></ul></li></ul><h3 id="52c1e669-7313-49ba-ac12-372fea32facd" class="">Sensorgram</h3><ul id="62f4030c-3bb6-4c28-a3aa-a6205070afae" class="bulleted-list"><li style="list-style-type:disc">Display 항목이 체크된 sensorgram curve들을 표시합니다.</li></ul><h3 id="c572bab4-76b9-4328-a858-e0e180ca3679" class="">Start/End Point</h3><ul id="086cb169-95a1-49f2-9c3a-240870d9c71d" class="bulleted-list"><li style="list-style-type:disc">Start Point : 결과를 분석하기 위한 초기 위치 를 설정합니다.</li></ul><ul id="2277d82e-63cb-43e4-8b73-5e4bf6087bc5" class="bulleted-list"><li style="list-style-type:disc">End Point :  결과를 분석하기 위한 마지막 위치 를 설정합니다.</li></ul><h3 id="30474106-a9cb-4314-aa1a-4b81d9550167" class="">Method</h3><ul id="64246d37-498d-4362-8c89-cedcae88f751" class="bulleted-list"><li style="list-style-type:disc">ΔRU (Yend - Ystart) : 마지막 위치 (End point)의 Y값 (Yend) 에서 초기 위치 (Start point)의 Y값 (Ystart) 을 뺀 결과를 표시합니다.</li></ul><ul id="88e641fe-53a3-406e-a061-408904a21def" class="bulleted-list"><li style="list-style-type:disc">Averaging (Ystart - Yend) : 초기 위치에서 마지막 위치 까지의 Y값들의 평균 값을 표시합니다.</li></ul><ul id="d2f8272a-ba63-4704-bea4-cb59e279c69a" class="bulleted-list"><li style="list-style-type:disc">Drift (Linear fit) : 초기 위치와 마지막 위치의 Y값을 기준으로 선형 fitting을 수행하여 기울기 값을 표시합니다.</li></ul><h3 id="49ac3df4-2347-4fa4-9dc2-70cc9661c1c5" class="">Correction</h3><ul id="4f1fce9c-0b73-4129-ad7a-4b60fd2b328e" class="bulleted-list"><li style="list-style-type:disc">Screening 결과들의 편차를 Positive 항목을 기준으로 보정합니다.</li></ul><ul id="e1e20a8a-b550-43eb-a73d-cc67f504c426" class="bulleted-list"><li style="list-style-type:disc">None  : 결과 보정을 수행하지 않습니다.</li></ul><ul id="466d74b4-6633-4987-956c-06bd3cc3bf97" class="bulleted-list"><li style="list-style-type:disc">P-T-P-T<ul id="e4587c82-3a83-4db4-a3f1-9b7b5f02814b" class="bulleted-list"><li style="list-style-type:circle">Table을 기준으로 샘플의 배치 순서가 Positive - target - positive - target - ... 인 경우에 선택하세요.</li></ul><ul id="762f6a63-0692-4786-91a4-8a2c5abae9f7" class="bulleted-list"><li style="list-style-type:circle">첫 번째 샘플은 반드시 Positive여야 합니다.</li></ul></li></ul><ul id="3c276d3c-267e-4ebd-9cab-ed9957825db0" class="bulleted-list"><li style="list-style-type:disc">T-P-T-P<ul id="ac3a61d0-97b0-4f92-9d64-fc303ca9967a" class="bulleted-list"><li style="list-style-type:circle">Table을 기준으로 샘플의 배치 순서가 Target - positive - target - positive - ... 인 경우에 선택하세요.</li></ul><ul id="6138af4c-87ec-4e7c-b60a-3287cd2a49e3" class="bulleted-list"><li style="list-style-type:circle">마지막 샘플은 반드시 Positive여야 합니다.</li></ul></li></ul><h3 id="fd1f200f-ff4f-4624-abdb-afec605b41fc" class="">Preview</h3><ul id="bd660410-9b7b-40f9-b411-9cc49fa0714a" class="bulleted-list"><li style="list-style-type:disc">&gt;&gt; (Run) : Start/end point, Method, Correction 설정을 반영하여 결과를 분석합니다.</li></ul><ul id="e631bde6-6686-4dc6-ba41-b6d1f01e879b" class="bulleted-list"><li style="list-style-type:disc">Detailed view : 분석된 결과를 detailed view 창에서 자세히 확인 할 수 있습니다.</li></ul><h3 id="c857680c-455d-4b6b-be6d-7c007e61660d" class="">Table</h3><ul id="fc40d5ad-415e-4007-9d3e-8a4c71150e89" class="bulleted-list"><li style="list-style-type:disc">Sort (1, 2, 3) : Index 순서로 항목들을 재배치합니다.</li></ul><ul id="4aa012af-9c97-4f6f-a3c2-4f16969fe1af" class="bulleted-list"><li style="list-style-type:disc">Delete : 선택된 항목을 삭제합니다.</li></ul><ul id="10214861-276b-400a-89ba-29a24e9bccf0" class="bulleted-list"><li style="list-style-type:disc">Check : Display 열의 체크 박스를 일괄 선택 또는 해제 합니다.</li></ul><ul id="8572f6ab-e0c2-4418-a6cd-912079c5cc64" class="bulleted-list"><li style="list-style-type:disc">Table Contents<ul id="9dcac83a-1fe1-451c-a77d-c3eed3ba3432" class="bulleted-list"><li style="list-style-type:circle">Index <ul id="59c4f0be-28bd-4687-a412-0fd35880d8d5" class="bulleted-list"><li style="list-style-type:square">항목의 순서를 결정합니다. 해당 항목을 더블 클릭하여 수정 가능합니다.</li></ul><ul id="8e5c77c9-fee4-4e16-a832-54b5b9dad03c" class="bulleted-list"><li style="list-style-type:square">하나의 index 셀을 선택한 후 마우스 우클릭 - Numbering index from selected row를 선택하면 선택된 셀의 index를 시작으로 하위 셀 index 숫자 자동 채우기를 수행합니다.</li></ul></li></ul><ul id="de1ad74a-4b78-4c40-b3d9-28459ff4c490" class="bulleted-list"><li style="list-style-type:circle">ID : Type이 Target인 항목의 순서를 자동으로 결정합니다. 이 항목은 수정 불가능하며 Index, Sort, Type 등의 기능을 수행하면 자동으로 채워집니다.</li></ul><ul id="a6b41cf5-20dd-423c-8039-bb2aa5e9b627" class="bulleted-list"><li style="list-style-type:circle">Type : 선택된 항목의 속성을 결정합니다. Target, Positive, Negative중 하나를 선택할 수 있습니다.</li></ul><ul id="3e3c131c-59d5-4b1f-aa8c-1727809548d5" class="bulleted-list"><li style="list-style-type:circle">Display : 현재 항목이 좌측 Sensorgram 및 Preview 축에 보여질 지 여부를 선택합니다.</li></ul></li></ul><h2 id="a2b5a4d1-a030-45a3-a793-c3260105d8d9" class="">Detailed view</h2><figure id="2f6e69ab-a1bb-4c95-93b4-f98f375eb670" class="image"><a href="User%20Manua%20d5e86/Untitled%204.png"><img style="width:1094px" src="User%20Manua%20d5e86/Untitled%204.png"/></a></figure><ul id="020db76b-fe29-4527-a597-4a8676cca444" class="bulleted-list"><li style="list-style-type:disc">Axes : Main window에서 얻은 결과들이 표시됩니다.</li></ul><ul id="0b63b136-6237-49fe-864e-9fbaf61edf20" class="bulleted-list"><li style="list-style-type:disc">가로 방향의 dotted-line은 설정된 threshold 값을 표시합니다.</li></ul><ul id="0696c60c-f1be-4edd-a8e8-d727cb4f43c8" class="bulleted-list"><li style="list-style-type:disc">우측 하단의 table에는 threshold 이상의 값을 갖는 결과 항목들을 표시합니다.</li></ul><h3 id="d0418dc6-99ec-4a7f-afd7-99bb46197643" class="">Marker</h3><ul id="d343b73c-38ca-45df-8df6-3ad7dbcdbf66" class="bulleted-list"><li style="list-style-type:disc">Marker size : axes에 표시되는 마커의 크기를 입력합니다.</li></ul><ul id="803015ed-6047-430c-9cb5-e183a19f6199" class="bulleted-list"><li style="list-style-type:disc">Marker : 마커의 색상을 결정합니다.</li></ul><ul id="89333e94-e48a-4c50-9fa8-bc9dd3efe00e" class="bulleted-list"><li style="list-style-type:disc">Positive : Positive 결과의 마커 색상을 결정합니다.</li></ul><ul id="74e9b335-389a-4fa2-9ed0-b922c3028dd6" class="bulleted-list"><li style="list-style-type:disc">Negative : Negative 결과의 마커 색상을 결정합니다.</li></ul><ul id="3a81b7ab-b1de-41f5-91e3-5e7648057bc9" class="bulleted-list"><li style="list-style-type:disc">Threshold : Threshold 이상의 값을 가지는 결과의 마커 색상을 결정합니다.</li></ul><h3 id="701390c8-c8ac-478c-bd7e-6377158e04e9" class="">Threshold</h3><ul id="4157fea8-1e03-4592-b392-5fc4393906ce" class="bulleted-list"><li style="list-style-type:disc">RU : Threshold 기준 값 (Y값, RU)을 설정합니다.</li></ul><ul id="a2f91fc2-8dc3-482e-bf85-72fc4b23854d" class="bulleted-list"><li style="list-style-type:disc">Axes에 표시되는 점선의 색상을 설정합니다.</li></ul><h3 id="865a5595-d4c9-468c-a67a-0009a68580eb" class="">Export Data</h3><ul id="d28c0512-157a-4a26-b384-e999bd54d8d7" class="bulleted-list"><li style="list-style-type:disc">현재 테이블에 표시된 값들을 ‘.txt’파일로 내보냅니다.</li></ul><h2 id="556abb7d-9ddf-453c-aed2-bba0198c9b2c" class="">Data Processing</h2><figure id="9063f755-db43-4804-835f-052e95df59df" class="image"><a href="User%20Manua%20d5e86/Untitled%205.png"><img style="width:828px" src="User%20Manua%20d5e86/Untitled%205.png"/></a></figure><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="9a9f40f0-b69b-4455-be71-6200f40fe583"><div style="font-size:1.5em"><span class="icon">💡</span></div><div style="width:100%">iMSPR-mini Data를 추가하는 경우에 나타나는 설정 창입니다.<p id="e5284869-9217-4427-b472-5f847787d8e4" class="">Target과 Reference 데이터의 첫 번째 주입 시점을 설정합니다.</p></div></figure><h3 id="22416d31-9ad6-4cfc-9ab2-66634d84ed2c" class="">1st Injection start point (s)</h3><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="2385be80-9881-4f32-87d5-02167ab61ffd"><div style="font-size:1.5em"><span class="icon">💡</span></div><div style="width:100%">Zoom 기능을 활용하여 첫번째 주입 시점 영역을 확대한 후 data-tip을 찍어 주입 시간을 확인합니다.</div></figure><ul id="04135eea-b9b4-4476-9c9a-b91636123249" class="bulleted-list"><li style="list-style-type:disc">Target : Target 데이터의 첫번째 주입 시점을 입력합니다.</li></ul><ul id="128a4efe-dca1-43a3-a5ff-5f5f97b70b8b" class="bulleted-list"><li style="list-style-type:disc">Ref : Reference 데이터의 첫번째 주입 시점을 입력합니다.</li></ul><figure id="83af0303-1712-4f30-be90-21bf298b2b2f" class="image"><a href="User%20Manua%20d5e86/Untitled%206.png"><img style="width:828px" src="User%20Manua%20d5e86/Untitled%206.png"/></a></figure><h3 id="7ce08c73-a43f-4d1f-9edc-96b1a7f48181" class="">X-shift to the left (s)</h3><ul id="f6dc8e42-4f8a-409c-93e8-6e7fe4985588" class="bulleted-list"><li style="list-style-type:disc">1st injection start point 항목에서 결정된 주입 시간 범위를 그래프 상의 왼쪽으로 이동시킬 시간을 입력합니다.</li></ul><ul id="fe721081-c599-4a4c-9e0a-352d8c16c668" class="bulleted-list"><li style="list-style-type:disc">1st injection start point 를 설정하여 결과를 관찰한 다음 Base line을 잡을 수 있는 범위만큼 설정해 주는 것이 좋습니다.</li></ul><ul id="946b1e35-d722-407b-9112-9f336653840a" class="bulleted-list"><li style="list-style-type:disc">아래의 예시처럼 Target = 1989, Ref = 1981을 입력한 후 Apply 버튼을 눌러 injection timing을 결정하였을 때, 설정된 Injection 영역이 실제 영역을 벗어나는 경우가 발생할 수 있습니다.<figure id="1ce4d60d-44dd-41f7-a404-6fdb38e96333" class="image"><a href="User%20Manua%20d5e86/Untitled%207.png"><img style="width:828px" src="User%20Manua%20d5e86/Untitled%207.png"/></a></figure></li></ul><ul id="253a94bf-9738-4e40-88f5-adc64401a4a1" class="bulleted-list"><li style="list-style-type:disc">이 때는 아래와 같이 X-shift add 값을 추가하여 범위를 좌측으로 이동할 수 있습니다.<figure id="89839ecf-6476-45c6-8795-c55b2b38f987" class="image"><a href="User%20Manua%20d5e86/Untitled%208.png"><img style="width:828px" src="User%20Manua%20d5e86/Untitled%208.png"/></a></figure></li></ul><h3 id="30965494-f1a5-4653-936c-e26e729c2133" class="">Buttons</h3><ul id="16227f29-6adf-43c0-8b7d-73431d91b87a" class="bulleted-list"><li style="list-style-type:disc">Apply : Add, Target, Ref 설정 값을 반영하여 평행 이동 및 referencing을 수행합니다.</li></ul><ul id="a869a6d7-7875-4719-bb25-5e8cb68da848" class="bulleted-list"><li style="list-style-type:disc">Reset : 평행 이동 및 referencing 이전으로 결과를 되돌립니다.</li></ul><ul id="0c8289c7-0786-4e45-9008-01f467fc7b5e" class="bulleted-list"><li style="list-style-type:disc">Next : 다음 단계로 진행합니다.</li></ul><ul id="c1cfcd81-2766-4d22-9be6-db8237f370db" class="bulleted-list"><li style="list-style-type:disc">Cancel : Data processing 과정을 취소합니다.</li></ul><p id="740695d8-efe4-48a5-9cc8-a506204c3510" class="">
+</p></div></article></body></html>
