@@ -99,6 +99,7 @@ app.NextButton.Layout.Column = 2;
 app.NextButton.Text = 'Next';
 
 % Variable
+app.UIFigure.UserData.ProcessApp = [];
 app.UIFigure.UserData.TargetData = [];
 app.UIFigure.UserData.ReferenceData = [];
 app.UIFigure.UserData.LogData = [];
@@ -177,8 +178,9 @@ app.UIFigure.Visible = 'on';
         end
         
         app.UIFigure.Visible = 'off';
-        processingApp = ui_processing(app, dataType);
-        waitfor(processingApp.UIFigure);
+        app.UIFigure.UserData.ProcessApp = ui_processing(app, dataType);
+        waitfor(app.UIFigure.UserData.ProcessApp.UIFigure);
+        app.UIFigure.UserData.ProcessApp = [];
         disp('Processing app closed')
         app.UIFigure.Visible = 'on';
     

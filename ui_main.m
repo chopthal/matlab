@@ -364,6 +364,9 @@ app.UITableContextMenuMove.MenuSelectedFcn = @(src, event) UITableContextMenuMov
 %% Start up
 WindowPositionToCenter(app.UIFigure, []);
 % Variable
+app.UIFigure.UserData.AddApp = [];
+app.UIFigure.UserData.DetailApp = [];
+app.UIFigure.UserData.MoveApp = [];
 app.UIFigure.UserData.URL = 'www.icluebio.com';
 app.UIFigure.UserData.DefaultScatterSize = 10;
 app.UIFigure.UserData.HighlightedScatterSize = 50;
@@ -434,18 +437,18 @@ end
 
 
 function DataAddMenuSelected(app, ~, event)
-    
+    if ~isempty(app.UIFigure.UserData.AddApp); return; end    
     app.UIFigure.UserData.AddCurves = [];
-
     if strcmp(event.Source.Text, app.UIFigure.UserData.DataType.mini)
-        addApp = ui_add(app, app.UIFigure.UserData.DataType.mini);
+        app.UIFigure.UserData.AddApp = ui_add(app, app.UIFigure.UserData.DataType.mini);
     elseif strcmp(event.Source.Text, app.UIFigure.UserData.DataType.Pro)
-        addApp = ui_add(app, app.UIFigure.UserData.DataType.Pro);
+        app.UIFigure.UserData.AddApp = ui_add(app, app.UIFigure.UserData.DataType.Pro);
     elseif strcmp(event.Source.Text, app.UIFigure.UserData.DataType.Biacore)
-        addApp = ui_add(app, app.UIFigure.UserData.DataType.Biacore);    
+        app.UIFigure.UserData.AddApp = ui_add(app, app.UIFigure.UserData.DataType.Biacore);    
     end
     
-    waitfor(addApp.UIFigure);
+    waitfor(app.UIFigure.UserData.AddApp.UIFigure);
+    app.UIFigure.UserData.AddApp = [];
     disp('Add app closed')
     
     if isempty(app.UIFigure.UserData.AddCurves)
@@ -739,9 +742,11 @@ end
 function DetailedViewButtonPushed(app, ~, ~)
     if isempty(app.UIFigure.UserData.ScatterPlot); return; end
     if isempty(app.UIFigure.UserData.ScatterPlot.YData); return; end
-    detailApp = ui_detailed_view(app);
-    waitfor(detailApp.UIFigure);
-    disp('Detailed view closed')
+    if ~isempty(app.UIFigure.UserData.DetailApp); return; end
+    app.UIFigure.UserData.DetailApp = ui_detailed_view(app);
+    waitfor(app.UIFigure.UserData.DetailApp.UIFigure);
+    app.UIFigure.UserData.DetailApp = [];
+    disp('Detailed view closed');
 end
 
 
@@ -765,12 +770,12 @@ end
 
 function UITableContextMenuMoveSelected(app, ~, ~)
     if isempty(app.UITable.Selection); return; end
-    moveApp = ui_move_curve(app);
-    waitfor(moveApp.UIFigure);
+    if ~isempty(app.UIFigure.UserData.MoveApp); return; end
+    app.UIFigure.UserData.MoveApp = ui_move_curve(app);
+    waitfor(app.UIFigure.UserData.MoveApp.UIFigure);
+    app.UIFigure.UserData.MoveApp = [];
     disp('Move app closed')
-    if isempty(app.UIFigure.UserData.MoveCurve)
-        return
-    end    
+    if isempty(app.UIFigure.UserData.MoveCurve); return; end
     curveIdx = app.UITable.Selection(1, 1);
     app.UIFigure.UserData.CurrentLinePlot{curveIdx}.XData =...
         app.UIFigure.UserData.CurrentLinePlot{curveIdx}.XData +...
