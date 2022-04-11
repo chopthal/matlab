@@ -176,7 +176,7 @@ app.BaselineSpinnerLabel = uilabel(app.ReferencingGridLayout);
 app.BaselineSpinnerLabel.HorizontalAlignment = 'right';
 app.BaselineSpinnerLabel.Layout.Row = 1;
 app.BaselineSpinnerLabel.Layout.Column = 1;
-app.BaselineSpinnerLabel.Text = 'Base line :';
+app.BaselineSpinnerLabel.Text = 'Base line (s) :';
 
 % Create BaselineSpinner
 app.BaselineSpinner = uispinner(app.ReferencingGridLayout);
@@ -264,7 +264,7 @@ app.StartPointSpinnerLabel = uilabel(app.SettingGridLayout);
 app.StartPointSpinnerLabel.HorizontalAlignment = 'right';
 app.StartPointSpinnerLabel.Layout.Row = 1;
 app.StartPointSpinnerLabel.Layout.Column = 1;
-app.StartPointSpinnerLabel.Text = 'Start Point :';
+app.StartPointSpinnerLabel.Text = 'Start Point (s) :';
 
 % Create StartPointSpinner
 app.StartPointSpinner = uispinner(app.SettingGridLayout);
@@ -278,7 +278,7 @@ app.EndPointSpinnerLabel = uilabel(app.SettingGridLayout);
 app.EndPointSpinnerLabel.HorizontalAlignment = 'right';
 app.EndPointSpinnerLabel.Layout.Row = 2;
 app.EndPointSpinnerLabel.Layout.Column = 1;
-app.EndPointSpinnerLabel.Text = 'End Point :';
+app.EndPointSpinnerLabel.Text = 'End Point (s) :';
 
 % Create EndPointSpinner
 app.EndPointSpinner = uispinner(app.SettingGridLayout);
