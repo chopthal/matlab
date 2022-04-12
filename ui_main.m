@@ -359,11 +359,18 @@ app.CheckBox.ValueChangedFcn = @(src, event) CheckBoxValueChanged(app, src, even
 app.ReferencingDropDown.ValueChangedFcn = @(src, event) ReferencingDropDownValueChanged(app, src, event);
 app.UITableContextMenuNumbering.MenuSelectedFcn = @(src, event) UITableContextMenuNumberingSelected(app, src, event);
 app.UITableContextMenuMove.MenuSelectedFcn = @(src, event) UITableContextMenuMoveSelected(app, src, event);
+app.UIFigure.CloseRequestFcn = @(src, event) UIFigureCloseRequest(app, [], []);
 
-
-%% Start up
-WindowPositionToCenter(app.UIFigure, []);
-% Variable
+%% Variable
+app.UIFigure.UserData.CurrentFolder = 'C:/iCLUEB!O/iMPick';
+app.UIFigure.UserData.ErrorLog = struct;
+app.UIFigure.UserData.ErrorLog.FileName = 'iMPick_error_log';
+app.UIFigure.UserData.ErrorLog.FileFolder = 'C:\iCLUEB!O\iMPick\error_logs';
+app.UIFigure.UserData.ErrorLog.FilePath =...
+    fullfile(app.UIFigure.UserData.ErrorLog.FileFolder,...
+    strcat(app.UIFigure.UserData.ErrorLog.FileName,...
+    '(', datestr(now, 'yyyy-mm-dd HH-MM-SS'), ')', '.txt'));
+app.UIFigure.UserData.LogFileExpireDuration = 3 * 30 * 24;
 app.UIFigure.UserData.AddApp = [];
 app.UIFigure.UserData.DetailApp = [];
 app.UIFigure.UserData.MoveApp = [];
@@ -381,6 +388,20 @@ app.UIFigure.UserData.DataType.mini = 'iMSPR-mini Data';
 app.UIFigure.UserData.DataType.Pro = 'iMSPR-Pro Data';
 app.UIFigure.UserData.DataType.Biacore = 'Biacore Data';
 app.UIFigure.UserData.Result = [];
+
+%% Start up
+WindowPositionToCenter(app.UIFigure, []);
+
+% Make Current Folder            
+status = mkdir(app.UIFigure.UserData.CurrentFolder);
+if status == 0
+    disp('UI_iMPick_StartUp.mlapp make current folder')
+end
+try
+    MakeErrorLogFolder(app)
+catch
+    disp('MakeErrorLogFolder Error')
+end
 
 %% Function
 % Callback
@@ -428,11 +449,7 @@ end
 
 
 function ExitMenuSelected(app, ~, ~)
-    try    
-        delete(app.UIFigure);
-    catch
-        close force all
-    end
+    UIFigureCloseRequest(app, [], []);    
 end
 
 
@@ -796,6 +813,16 @@ function UITableContextMenuMoveSelected(app, ~, ~)
 end
 
 
+function UIFigureCloseRequest(app, ~, ~)
+    try
+        SaveErrorLogFile(app);
+        delete(app.UIFigure);
+    catch
+        close force all
+    end
+end
+
+
 % Business logic
 function PlotCurves(app)
     cla(app.SensorgramUIAxes);
@@ -1013,4 +1040,48 @@ function resultCurve = SubstractReferenceCurve(rawCurve, referenceCurve)
     xNeg = referenceCurve(isMemberNeg, 1);
     yNeg = referenceCurve(isMemberNeg, 2);                    
     resultCurve = [xRaw, yRaw - yNeg];                                    
+end
+
+
+function MakeErrorLogFolder(app)
+    if isfile(app.UIFigure.UserData.ErrorLog.FileName)    
+        fileattrib(app.UIFigure.UserData.ErrorLog.FileName, '+h');                    
+    end
+       
+    status = mkdir(app.UIFigure.UserData.ErrorLog.FileFolder);
+    if status == 0
+        disp('Make Error Log folder')
+    end
+    
+    logFolderContent = dir(app.UIFigure.UserData.ErrorLog.FileFolder);
+    tmpDate = [logFolderContent.datenum];
+    tmpName = {logFolderContent.name};
+    tmpDate = tmpDate([logFolderContent.isdir] == 0);
+    tmpName = tmpName([logFolderContent.isdir] == 0);
+    tmpDate = tmpDate(contains(tmpName, app.UIFigure.UserData.ErrorLog.FileName));      
+    tmpName = tmpName(contains(tmpName, app.UIFigure.UserData.ErrorLog.FileName));
+    
+    timeLimit = datenum(duration(app.UIFigure.UserData.LogFileExpireDuration, 0, 0));
+    expiredIdx = now - tmpDate > timeLimit;
+    
+    targetFile = tmpName(expiredIdx);
+    for i = 1: length(targetFile)
+        delete(fullfile(app.UIFigure.UserData.ErrorLog, targetFile{i}))
+    end
+end 
+
+
+function SaveErrorLogFile(app)
+    if isfile(app.UIFigure.UserData.ErrorLog.FileName)
+        if ~isfolder(app.UIFigure.UserData.ErrorLog.FileFolder)
+            mkdir(app.UIFigure.UserData.ErrorLog.FileFolder);
+        end        
+        try 
+            copyfile(app.UIFigure.UserData.ErrorLog.FileName, app.UIFigure.UserData.ErrorLog.FilePath);
+            fileattrib(app.UIFigure.UserData.ErrorLog.FilePath, '-h');
+            delete(fullfile(pwd, app.UIFigure.UserData.ErrorLog.FileName));
+        catch
+            disp('Log file saving Error')
+        end
+    end
 end
