@@ -2,12 +2,19 @@ function chamberArea = CalculateChamberArea(chipType, measuredCoordinate)
 
 if strcmp(chipType, 'WellPlate') % left, right, top, bottom
 
-    wellDiameter = zeros(8, 1);
+    idxOddRow = false(size(measuredCoordinate, 1), 1);
+    idxOddRow(1:2:end) = true;
+    idxEvenRow = ~idxOddRow;    
+    oddCoor = measuredCoordinate(idxOddRow, :);
+    evenCoor = measuredCoordinate(idxEvenRow, :);    
+    wellDiameter = sqrt(sum((evenCoor - oddCoor).^2, 2));
 
-    for i = 1:8
-        distMatrix = squareform(pdist(measuredCoordinate));
-        wellDiameter(i, 1) = distMatrix(2*i, 2*i-1);
-    end
+%     wellDiameter = zeros(8, 1);
+% 
+%     for i = 1:8
+%         distMatrix = squareform(pdist(measuredCoordinate));
+%         wellDiameter(i, 1) = distMatrix(2*i, 2*i-1);
+%     end
     wellDiameterAvg = mean(wellDiameter, 'all');
     chamberArea = ones(1, 2) * wellDiameterAvg*cos(deg2rad(45));
 
