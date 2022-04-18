@@ -177,7 +177,8 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
             cla(montageFig);
             monFM = montage(fullfile(savDir, imgNameFM),...
                 'Size', flip(currentChipInform.FrameNum), ...
-                'ThumbnailSize', thumbnailSize);
+                'ThumbnailSize', thumbnailSize, ...
+                'Parent', monFM);
             imwrite(monFM.CData, fullfile(savDir, 'Stitched_FM.png'))
             delete(montageFig);
             
