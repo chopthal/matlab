@@ -57,4 +57,5 @@ vid.TriggerRepeat = Inf;
 src = getselectedsource(vid);
 src.AutoFunctionROISelector = 'ROI1';
 src.AutoFunctionROIUseBrightness = 'False';
-src.ReverseY = 'True';
+src.ReverseX = 'True';
+src.ReverseY = 'False';
