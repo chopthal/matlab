@@ -44,7 +44,8 @@ else
 
 end
 
-vid = videoinput('gentl', dev_IDs.DeviceIDs{1, cam_i}, 'Mono12');  
+% vid = videoinput('gentl', dev_IDs.DeviceIDs{1, cam_i}, 'Mono12');  
+vid = videoinput('gentl', dev_IDs.DeviceIDs{1, cam_i}, 'Mono8');  
 vid.ROIPosition = ROIPosition;
 vidRes = [ROIPosition(3) ROIPosition(4)];
 

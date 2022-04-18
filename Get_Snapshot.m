@@ -1,13 +1,5 @@
-% 2021. 08. 20
-
-% easySCAN_v1.1.4 -> easySCAN_v2.0.0
-
-% Don't display time for scanning anymore.
-
-
 function Img = Get_Snapshot(MainApp, ch)
 
-% global vid src CamName ROIPosition CamInform
 global vid src CamName CamInform CurrentChip ChipInform
 
 Progress = [];
@@ -18,7 +10,8 @@ while 1
 
         if src.LineStatusAll == 14
 
-            Img = Snap_Img * 2^4;         
+%             Img = Snap_Img * 2^4;         
+            Img = Snap_Img;
 
             if ~isempty(Progress)&&isvalid(Progress)
 
@@ -37,7 +30,6 @@ while 1
 
             end
 
-%             [cam_err, tmpVid, tmpSrc, vidRes, CamInform] = CamConnect(CamName, ROIPosition);
             [cam_err, tmpVid, tmpSrc, vidRes, CamInform] = CamConnect(CamName, ChipInform(CurrentChip).ROI);
 
             if cam_err == 0
@@ -64,7 +56,6 @@ while 1
 
         end
 
-%         [cam_err, tmpVid, tmpSrc, vidRes, CamInform] = CamConnect(CamName, ROIPosition);
         [cam_err, tmpVid, tmpSrc, vidRes, CamInform] = CamConnect(CamName, ChipInform(CurrentChip).ROI);
         
 
@@ -90,19 +81,15 @@ end
 end
 
 
+
 function Img = Snap_Img
 
-% startSnap = tic;
-
-global CamInform vid
-
-pause(CamInform.Exp.AdaptTime-toc(CamInform.Exp.Tic));
-pause(CamInform.Pos.AdaptTime-toc(CamInform.Pos.Tic));
-trigger(vid);
-wait(vid, vid.Timeout, 'logging');
-Img = getdata(vid);
-
-% timeSnap = toc(startSnap);
-% fprintf('Time for Snap = %d\n', timeSnap)
+    global CamInform vid
+    
+    pause(CamInform.Exp.AdaptTime-toc(CamInform.Exp.Tic));
+    pause(CamInform.Pos.AdaptTime-toc(CamInform.Pos.Tic));
+    trigger(vid);
+    wait(vid, vid.Timeout, 'logging');
+    Img = getdata(vid);
 
 end
