@@ -118,6 +118,7 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
 
         end
         
+        %TODO : 1/3 chamber -> 1/1 chamber
         mainApp.ScanProgDlg.Message = sprintf(...
             'Auto Scanning...\n - Chamber : %d / %d\n - Image : %d / %d',...
             chambNo, currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2),...
@@ -184,9 +185,10 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
             
         end
         
-    catch
+    catch ME
         
-        disp('Cannot stitch images!')        
+        disp('Cannot stitch images!');
+        disp(ME.message);
         
     end
     
