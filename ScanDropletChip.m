@@ -56,6 +56,8 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
     childDir = sprintf('%s_%d', currentChipInform.Name, chambNo);
     savDir = strcat(parentDir, '\', childDir);
     mkdir(savDir)
+
+    ordResult = zeros(currentChipInform.FrameNum(1)*currentChipInform.FrameNum(2), 2);
     
     for horNo = 1:currentChipInform.FrameNum(1) % Horizontal
         
@@ -66,11 +68,8 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
         end
         
         ordIdx = 1;
-        ordResult = zeros(currentChipInform.FrameNum(1)*currentChipInform.FrameNum(2), 2);
 
         for verNo = 1:currentChipInform.FrameNum(2) % Vertical
-            
-%             imNoOrdTmp(verNo, horNo) = (verNo-1) * currentChipInform.FrameNum(1) + horNo;
 
             scanCoorMat{verNo, horNo} = [currentChipInform.ChamberRange{chambNo, 1}(1) +...
                 gapFrame(1) * (horNo-1), currentChipInform.ChamberRange{chambNo, 2}(1) +...
@@ -169,17 +168,19 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
             imgNameFM = natsort(imgName(contains(imgName, 'FM')));
 
             montageFig = figure('Visible', 'Off');
+            montageAxes = axes(montageFig);
             % For save full size image, add 'ThumbnailSize', [H, W] option.            
             thumbnailSize = round([currentChipInform.ROI(4), currentChipInform.ROI(3)] / 5);
             monBM = montage(fullfile(savDir, imgNameBM),...
                 'Size', flip(currentChipInform.FrameNum),...
-                'ThumbnailSize', thumbnailSize);            
+                'ThumbnailSize', thumbnailSize, ...
+                'Parent', montageAxes);
             imwrite(monBM.CData, fullfile(savDir, 'Stitched_BM.png'))
-            cla(montageFig);
+            cla(montageAxes);
             monFM = montage(fullfile(savDir, imgNameFM),...
                 'Size', flip(currentChipInform.FrameNum), ...
                 'ThumbnailSize', thumbnailSize, ...
-                'Parent', monFM);
+                'Parent', montageAxes);
             imwrite(monFM.CData, fullfile(savDir, 'Stitched_FM.png'))
             delete(montageFig);
             
