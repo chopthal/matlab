@@ -50,7 +50,6 @@ LensMagDefault = 20;
 % lensMag = 20;
 
 logo_img = imread('logo.png');
-
 posFlag = 0;
 
 CompanyName = 'BIOROOTS';
