@@ -1,16 +1,4 @@
-% 2021. 08. 05
-
-% easySCAN_v1.1.5 -> easySCAN_v2.0.0
-
-% 
-
-% function ScanWellPlate(mainApp, selTogStr, selConStr, selTogNum, hidFig, grpName)
 function ScanWellPlate(mainApp, selTogStr, selConStr, selTogNum, hidFig, grpName)
-
-% global cur_Chip X_abs_um Y_abs_um vid step_Medium_X_um step_Medium_Y_um...
-%     FluorMode cur_Chamb AF_flag Z_abs_um  noFrame Run_flag refZ ResultApp...
-%     ResultStruct Ch2_Exp Ch2_Gamma Ch2_Gain Ch2_Inten im_no refZ2 scanCh...
-%     CamInform
 
 global X_abs_um Y_abs_um vid...
     FluorMode CurrentChamber AF_flag Z_abs_um Run_flag refZ ResultApp...
@@ -34,8 +22,8 @@ Run_flag = 1;
 sorted_selConStr = selConStr(sorted_selTogNum(:, 2));
 sorted_grpName = grpName(sorted_selTogNum(:, 2));
 sorted_selTogStr = selTogStr(sorted_selTogNum(:, 2));
-% noFrame = currentChipInform.FrameNum(1); % FrameNum(1) = FrameNum(2)
-noFrame = currentChipInform.FrameNum(max(currentChipInform.FrameNum));
+% TODO : width ~= height case
+noFrame = max(currentChipInform.FrameNum);
 
 resetPeroid = 5;
 
@@ -78,10 +66,6 @@ for i = 1:size(sorted_selTogNum, 1)
     togglebutton_Chamb_Act(mainApp, curChambStr, sorted_selTogNum(i, 1), currentChipInform);
 
     % TODO
-    % eval(sprintf('global C%d_Chamb%d_X_um C%d_Chamb%d_Y_um',...
-    %     cur_Chip, sorted_selTogNum(i, 1), cur_Chip, sorted_selTogNum(i, 1)));
-    % eval(sprintf('C_Chamb_X_um = C%d_Chamb%d_X_um;', cur_Chip, sorted_selTogNum(i, 1)));
-    % eval(sprintf('C_Chamb_Y_um = C%d_Chamb%d_Y_um;', cur_Chip, sorted_selTogNum(i, 1)));
     C_Chamb_X_um = currentChipInform.ChamberRange{sorted_selTogNum(i, 1), 1};
     C_Chamb_Y_um = currentChipInform.ChamberRange{sorted_selTogNum(i, 1), 2};
 
@@ -95,8 +79,6 @@ for i = 1:size(sorted_selTogNum, 1)
 
         for horNo = 1:noFrame % Horizontal        
 
-            % scanCoorMat{iii, ii} = [C_Chamb_X_um(1) + step_Medium_X_um * (iii-1),...
-            % C_Chamb_Y_um(1) + step_Medium_Y_um * (ii-1)];    
             scanCoorMat{verNo, horNo} = [C_Chamb_X_um(1) + gapFrame(1) * (verNo-1),...
             C_Chamb_Y_um(1) + gapFrame(2) * (horNo-1)];    
 
@@ -320,17 +302,6 @@ fclose(infoFileID);
 
 fileNameCodeNum = fullfile(parentDir, 'CodeNum.mat');
 save(fileNameCodeNum, 'CodeNum')
-
-% for i = 1:size(focInform, 2)
-%     
-%     tmp(3*i-2, :) = focInform(i).isBlock;
-%     tmp(3*i-1, :) = focInform(i).isCode;
-%     tmp(3*i, :) = focInform(i).Time;
-%     
-% end
-
-% fileNameScanInform = fullfile(parentDir, 'ScanInform.xls');
-% writematrix(tmp, fileNameScanInform)
 
 Run_flag = 0;
 
