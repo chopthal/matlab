@@ -14,7 +14,7 @@ if length(scanCh) >= 2
 
     im = Get_Snapshot(app, 2);   
 
-    im_colored = uint16(zeros([size(im), 3]));
+    im_colored = uint8(zeros([size(im), 3]));
 
     if strcmp(FluorMode, 'PE')
 
