@@ -305,7 +305,7 @@ else
 
     if lensMag == 4
     
-        defaultRefZ = 8600;
+        defaultRefZ = 2400;
 
     elseif lensMag == 10
 
