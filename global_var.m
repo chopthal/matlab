@@ -127,21 +127,13 @@ PS2Hole = 6500;
 
 Z_L_um = PSUp2Up - PSHole2Hole*(PSHoleUp-1) + PSHole2Hole*(PSHoleDn-1) - PS2Hole*2 - PSGuideLen;
 
-% chipROI = {[360 0 1200 1200]; % [X-offset, Y-offset, Width, Height]
-%     [0 0 1920 1200];
-%     [710 350 500 500]};  
-% ROIDefault = [0 0 1920 1200];
 chipROI = {[0 0 5496 3672]; % [X-offset, Y-offset, Width, Height]
     [0 0 5496 3672];
     [0 0 5496 3672]};  
 ROIDefault = [0 0 5496 3672];
 ObserveRateDefault = 1.0; 
 OverlabRateDefault = [0.1, 0.1]; % horizontal, vertical
-% pix2um = 250/774 * 1.2; % 20x lens
-% Pixel2umDefault = 250/774 * 1.2; % 20x lens
-% Pixel2umDefault = 1000/260 * 4/20; % 20x lens
-% Pixel2umDefault = 1000/630 * 4/20; % 20x lens
-Pixel2umDefault = 1000/866 * 4/20; % 20x lens
+Pixel2umDefault = 0.70 * 4/20; % 20x lens (0.72 -> 0.65 -> 0.717 -> 0.70)
 
 frame_W_um = 86000;
 frame_H_um = 128000;

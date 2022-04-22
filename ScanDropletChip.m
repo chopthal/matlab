@@ -29,7 +29,7 @@ parentDir(end-5) = '-';
 parentDir = strcat(pwd, '\', parentDir);
 mkdir(parentDir)
 
-ResetStage(mainApp, [1 1 0])
+% ResetStage(mainApp, [1 1 0])
 
 for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
     
@@ -73,19 +73,7 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
 
             scanCoorMat{verNo, horNo} = [currentChipInform.ChamberRange{chambNo, 1}(1) +...
                 gapFrame(1) * (horNo-1), currentChipInform.ChamberRange{chambNo, 2}(1) +...
-                gapFrame(2) * (verNo-1)]; 
-            
-            if mod(verNo, 2) == 0
-
-                for horNoOrd = flip(1:currentChipInform.FrameNum(1))
-
-                    ordResult(ordIdx, 1) = horNoOrd;
-                    ordResult(ordIdx, 2) = verNo;
-                    ordIdx = ordIdx+1;
-
-                end
-
-            else
+                gapFrame(2) * (verNo-1)];             
 
                 for horNoOrd = 1:currentChipInform.FrameNum(1)
 
@@ -94,8 +82,6 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
                     ordIdx = ordIdx+1;
 
                 end
-
-            end
 
         end
 
@@ -110,6 +96,10 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
     end    
     
     for imNo = 1:currentChipInform.FrameNum(1)*currentChipInform.FrameNum(2)
+
+        if mod(imNo, currentChipInform.FrameNum(1)) == 1
+            ResetStage(mainApp, [1 1 0]);
+        end
         
         if mainApp.ScanProgDlg.CancelRequested
         
