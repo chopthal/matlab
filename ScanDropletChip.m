@@ -162,30 +162,31 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
         
             pathContent = dir(savDir);
             imgName = {pathContent(~[pathContent.isdir]).name};
+            imgName = imgName(~contains(imgName, 'Stitched'));
             imgNameBM = natsort(imgName(contains(imgName, 'BM')));
             imgNameFM = natsort(imgName(contains(imgName, 'FM')));
 
-            montageFig = figure('Visible', 'Off');
-            montageAxes = axes(montageFig);
             % For save full size image, add 'ThumbnailSize', [H, W] option.            
-            thumbnailNum = currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2);
+            thumbnailNum = currentChipInform.FrameNum(1)*currentChipInform.FrameNum(2);
             maximumMontagePixel = 50*10^6;
             unitPixel = maximumMontagePixel / thumbnailNum;
             currentPixel = currentChipInform.ROI(4) * currentChipInform.ROI(3); % W x H
             scaleConst = sqrt(unitPixel/currentPixel);
             thumbnailSize = floor([currentChipInform.ROI(4), currentChipInform.ROI(3)] * scaleConst);
-            monBM = montage(fullfile(savDir, imgNameBM),...
-                'Size', flip(currentChipInform.FrameNum),...
-                'ThumbnailSize', thumbnailSize, ...
-                'Parent', montageAxes);
-            imwrite(monBM.CData, fullfile(savDir, 'Stitched_BM.png'))
-            cla(montageAxes);
-            monFM = montage(fullfile(savDir, imgNameFM),...
-                'Size', flip(currentChipInform.FrameNum), ...
-                'ThumbnailSize', thumbnailSize, ...
-                'Parent', montageAxes);
-            imwrite(monFM.CData, fullfile(savDir, 'Stitched_FM.png'))
-            delete(montageFig);
+            
+            if ~isempty(imgNameBM)                
+                monBM = montageWithoutImshow(fullfile(savDir, imgNameBM),...
+                    'Size', flip(currentChipInform.FrameNum),...
+                    'ThumbnailSize', thumbnailSize);                            
+                imwrite(monBM, fullfile(savDir, 'Stitched_BM.png'));
+            end
+            
+            if ~isempty(imgNameFM)                
+                monFM = montageWithoutImshow(fullfile(savDir, imgNameFM),...
+                    'Size', flip(currentChipInform.FrameNum), ...
+                    'ThumbnailSize', thumbnailSize);
+                imwrite(monFM, fullfile(savDir, 'Stitched_FM.png'));                
+            end
             
         end
         

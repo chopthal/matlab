@@ -3,6 +3,14 @@ function Capture_Image(app)
 global cap_folder cap_i cap_folder_flag cur_Channel NoofChannel vid...
     FluorMode scanCh CaptureFlag
 
+%TODO : Delete after optimaztion         
+if app.radiobutton_Off.Value; return; end
+if app.radiobutton_Ch1.Value
+    scanCh = 1;
+elseif app.radiobutton_Ch2.Value
+    scanCh = 2;
+end
+
 CaptureFlag = 1;
 
 for i = 1:NoofChannel
@@ -23,18 +31,12 @@ if isequal(cap_folder, 0)||(exist(cap_folder, 'dir')~=7)
     
 end
 
-%TODO : Delete after optimaztion
-if app.radiobutton_Ch1.Value
-    scanCh = 1;
-elseif app.radiobutton_Ch2.Value
-    scanCh = 2;
-end
-
 set(app.text_Status, 'Text', 'Please wait......');
 
 pause(0.05);
 
-temp_cur_Channel = cur_Channel;
+%TODO : Resotre after optimaztion
+% temp_cur_Channel = cur_Channel;
 
 chStr = {'BM' 'FM'};
 
