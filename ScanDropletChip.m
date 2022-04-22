@@ -1,21 +1,21 @@
-% function ScanDropletChip(mainApp, currentChipInform)
 function ScanDropletChip(mainApp, currentChipInform, selBtnNo)
 
-global CurrentChip CurrentChamber X_abs_um Y_abs_um vid FluorMode scanCh Run_flag
+global CurrentChip X_abs_um Y_abs_um vid FluorMode scanCh Run_flag
 
 Run_flag = 1;
 
+%TODO : Resotre after optimaztion
 if currentChipInform.FrameNum(1) * currentChipInform.FrameNum(2) == 0
     
-    [~] = comm2port(mainApp, 'Main_port', '$L#1#OFF', '$L#1#OFF#OK');
-    [~] = comm2port(mainApp, 'Main_port', '$L#2#OFF', '$L#2#OFF#OK');
+%     [~] = comm2port(mainApp, 'Main_port', '$L#1#OFF', '$L#1#OFF#OK');
+%     [~] = comm2port(mainApp, 'Main_port', '$L#2#OFF', '$L#2#OFF#OK');
 
     Run_flag = 0;
-    Ch_set(mainApp, 1)
+%     Ch_set(mainApp, 1)
 
-    set(mainApp.radiobutton_Off, 'Value', 1)
-    [~] = comm2port(mainApp, 'Main_port', '$L#1#OFF', '$L#1#OFF#OK');
-    [~] = comm2port(mainApp, 'Main_port', '$L#2#OFF', '$L#2#OFF#OK');
+%     set(mainApp.radiobutton_Off, 'Value', 1)
+%     [~] = comm2port(mainApp, 'Main_port', '$L#1#OFF', '$L#1#OFF#OK');
+%     [~] = comm2port(mainApp, 'Main_port', '$L#2#OFF', '$L#2#OFF#OK');
     set(mainApp.text_Status, 'Text', 'Check the frame numbers (observe, overlab rate)!')
 
     delete(mainApp.ScanProgDlg)
@@ -149,7 +149,6 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
 
         if mainApp.ScanProgDlg.CancelRequested == 0        
 
-%             ScanSaveImg(mainApp, vid, FluorMode, scanCh, savDir, imNo)
             ScanSaveImg(mainApp, vid, FluorMode, scanCh, savDir, imNoOrd(imNo))
 
         end
@@ -195,11 +194,13 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
     
 end
 
-[~] = comm2port(mainApp, 'Main_port', '$L#1#OFF', '$L#1#OFF#OK');
-[~] = comm2port(mainApp, 'Main_port', '$L#2#OFF', '$L#2#OFF#OK');
+%TODO : Resotre after optimaztion
+% [~] = comm2port(mainApp, 'Main_port', '$L#1#OFF', '$L#1#OFF#OK');
+% [~] = comm2port(mainApp, 'Main_port', '$L#2#OFF', '$L#2#OFF#OK');
 
 Run_flag = 0;
-Ch_set(mainApp, 1)
+%TODO : Resotre after optimaztion
+% Ch_set(mainApp, 1)
 
 set(mainApp.radiobutton_Off, 'Value', 1)
 [~] = comm2port(mainApp, 'Main_port', '$L#1#OFF', '$L#1#OFF#OK');

@@ -43,7 +43,6 @@ else
 
         if ch~=1
 
-%             im_colored = uint16(zeros([size(im), 3]));
             im_colored = uint8(zeros([size(im), 3]));
 
             if strcmp(FluorMode, 'PE')

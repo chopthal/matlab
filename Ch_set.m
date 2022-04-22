@@ -1,15 +1,5 @@
-% 2021. 08. 20
-
-% easySCAN_v1.1.4 -> easySCAN_v2.0.0
-
-% 
-
-
 function Ch_set(app, ch)
 
-% startChSet = tic;
-
-% global src Run_flag cur_Channel Z_abs_um vid CamName ROIPosition
 global src Run_flag cur_Channel Z_abs_um vid CamName CurrentChip ChipInform
 
 prev_ch = cur_Channel;
@@ -112,7 +102,6 @@ while 1
 
             end
 
-%             [cam_err, tmpVid, tmpSrc, vidRes] = CamConnect(CamName, ROIPosition);
             [cam_err, tmpVid, tmpSrc, vidRes] = CamConnect(CamName, ChipInform(CurrentChip).ROI);
 
             if cam_err == 0
@@ -137,7 +126,6 @@ while 1
 
         end
 
-%         [cam_err, tmpVid, tmpSrc, vidRes] = CamConnect(CamName, ROIPosition);
         [cam_err, tmpVid, tmpSrc, vidRes] = CamConnect(CamName, ChipInform(CurrentChip).ROI);
 
         if cam_err == 0
@@ -163,9 +151,6 @@ if Run_flag==0
     set(app.text_Status, 'Text', prvStr)
 
 end
-
-% timeChSet = toc(startChSet);
-% fprintf('Time for ChSet = %d\n', timeChSet)
 
 end
 

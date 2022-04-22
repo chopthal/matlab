@@ -1,13 +1,5 @@
-% 2020. 12. 07
-
-% iMeasy_Multi_v1.0.0 -> iMeasy_Multi_v1.0.7
-
-% Capture flag for CamKeyPressFcn.
-
 function Capture_Image(app)
 
-% global cap_folder cap_i cap_folder_flag cur_Channel NoofChannel vid...
-%     FluorMode scanCh
 global cap_folder cap_i cap_folder_flag cur_Channel NoofChannel vid...
     FluorMode scanCh CaptureFlag
 
@@ -29,6 +21,13 @@ if isequal(cap_folder, 0)||(exist(cap_folder, 'dir')~=7)
     
     return;
     
+end
+
+%TODO : Delete after optimaztion
+if app.radiobutton_Ch1.Value
+    scanCh = 1;
+elseif app.radiobutton_Ch2.Value
+    scanCh = 2;
 end
 
 set(app.text_Status, 'Text', 'Please wait......');
@@ -59,9 +58,10 @@ end
 
 ScanSaveImg(app, vid, FluorMode, scanCh, cap_folder, cap_i)
   
-radStr = sprintf('radiobutton_Ch%d', temp_cur_Channel);
-set(app.(radStr), 'Value', 1)
-Ch_set(app, temp_cur_Channel);
+%TODO : Resotre after optimaztion
+% radStr = sprintf('radiobutton_Ch%d', temp_cur_Channel);
+% set(app.(radStr), 'Value', 1)
+% Ch_set(app, temp_cur_Channel);
 
 stStr = sprintf('Directory: %s,   Name: %d_XM.png', cap_folder, cap_i);
 set(app.text_Status, 'Text', stStr)
