@@ -156,7 +156,6 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
     end
     
     % Image Stitching    
-    
     try
         
         if currentChipInform.FrameNum(1) > 1 || currentChipInform.FrameNum(2) > 1
@@ -169,7 +168,12 @@ for chambNo = 1:currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2)
             montageFig = figure('Visible', 'Off');
             montageAxes = axes(montageFig);
             % For save full size image, add 'ThumbnailSize', [H, W] option.            
-            thumbnailSize = round([currentChipInform.ROI(4), currentChipInform.ROI(3)] / 5);
+            thumbnailNum = currentChipInform.ChamberNum(1)*currentChipInform.ChamberNum(2);
+            maximumMontagePixel = 50*10^6;
+            unitPixel = maximumMontagePixel / thumbnailNum;
+            currentPixel = currentChipInform.ROI(4) * currentChipInform.ROI(3); % W x H
+            scaleConst = sqrt(unitPixel/currentPixel);
+            thumbnailSize = floor([currentChipInform.ROI(4), currentChipInform.ROI(3)] * scaleConst);
             monBM = montage(fullfile(savDir, imgNameBM),...
                 'Size', flip(currentChipInform.FrameNum),...
                 'ThumbnailSize', thumbnailSize, ...
