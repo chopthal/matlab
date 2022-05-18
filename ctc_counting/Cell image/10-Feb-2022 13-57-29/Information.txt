@@ -1,0 +1,6 @@
+Group 1 (Grp1)
+Grp1-U1(1) / U1(1) / C-12
+
+Analytes
+C1 : None(Human)
+
