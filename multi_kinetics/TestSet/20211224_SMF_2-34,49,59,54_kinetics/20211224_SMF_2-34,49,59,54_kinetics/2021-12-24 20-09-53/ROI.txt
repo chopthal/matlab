@@ -1,0 +1,3 @@
+               X        Y        Width    Height  
+Channel 1      1        230      1936     90      
+Channel 2      1        1085     1936     90      
