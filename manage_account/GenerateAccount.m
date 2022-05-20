@@ -1,4 +1,8 @@
-function GenerateAccount(id, password)
+function GenerateAccount(id, password, tier)
+
+% id : string
+% password : string
+% tier : string
 
 MIN_PASSWORD_LENGTH = 5;
 MAX_PASSWORD_LENGTH = 20;
@@ -30,6 +34,7 @@ if isfield(Accounts, id)
 end
 
 Accounts.(id).Password = hashedPassword;
+Accounts.(id).Tier = tier;
 save('accounts.mat', 'Accounts');
 
 end
