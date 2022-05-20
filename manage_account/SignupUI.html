@@ -12,8 +12,8 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        width: 250px;
-        height: 80px;
+        width: 280px;
+        height: 120px;
         position: relative;
       }
       .login {
@@ -32,10 +32,18 @@
         position: relative;
       }
       .login > div > input {
-        height: 35%;
+        height: 34%;
+      }
+
+      .login > div > select {
+        height: 32%;
       }
 
       #id-input {
+        margin-bottom: 5px;
+      }
+
+      #password-input {
         margin-bottom: 5px;
       }
 
@@ -66,9 +74,15 @@
         <div class="input-box">
           <input type="text" id="id-input" placeholder="User ID" />
           <input type="password" id="password-input" placeholder="Password" />
+          <select name="tier" id="tier-select" value="Staff">
+            <option value="Admin">Admin</option>
+            <option value="Manager">Manager</option>
+            <option value="Senior">Senior</option>
+            <option value="Staff" selected>Staff</option>
+          </select>
         </div>
         <div class="login-button-box">
-          <button class="login-button" id="login-button">Login</button>
+          <button class="login-button" id="login-button">Sign-up</button>
         </div>
       </form>
       <span class="login-status">ID, Password를 입력하십시오</span>
@@ -78,6 +92,7 @@
         const loginSubmit = document.querySelector(".login");
         const id = document.querySelector("#id-input");
         const password = document.querySelector("#password-input");
+        const tier = document.querySelector("#tier-select");
         const loginStatus = document.querySelector(".login-status");
         id.focus();
         loginSubmit.addEventListener("submit", function (event) {
@@ -90,7 +105,11 @@
             loginStatusText = "Password를 입력하십시오";
           } else {
             loginStatusText = "Good!";
-            htmlComponent.Data = [id.value, password.value];
+            htmlComponent.Data = [
+              id.value,
+              password.value,
+              tier.options[tier.options.selectedIndex].value,
+            ];
           }
           loginStatus.innerText = loginStatusText;
         });
