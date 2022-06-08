@@ -46,11 +46,13 @@ text = ['Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' ...
 %% Encrypt
 hexFullText = dec2hex(text);
 for i = 1:floor(size(hexFullText, 1)/INPUT_LENGTH)
+    tic
     hexText = hexFullText(INPUT_LENGTH*(i-1)+1:INPUT_LENGTH*(i-1)+INPUT_LENGTH, :);    
     tmp = cellstr(hexText);
     input = strcat(tmp{:});        
     output = UseCipher('Encrypt', input);
     resultEncrypt = [resultEncrypt, output];
+    toc
 end
 
 if isempty(i)
