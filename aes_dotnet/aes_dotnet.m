@@ -1,30 +1,25 @@
-% For windows only
-if ~NET.isNETSupported
-    disp('#NET is not supported in this system.')
-    return
-end
+if ~ispc; disp('Not supported on this platform.'); return; end % For windows only
+
+if ~NET.isNETSupported; disp('#NET is not supported in this system.'); return; end
 
 import System.*;
 
-key = 'zoic-voi_qawe.krnkosjdiod1fjasdf'; % length : 32
-iv = 'c8xpc3iojdx!pijr'; % length : 16
+KEY = '00000000000000000000111111111111'; % length : 32
+IV = '2222222222333333'; % length : 16
+BYTE_UNIT_LENGTH = 16;
 
-length(iv)
-
-str = char(floor(rand(1, 3948753) * (double('z') - double('A') + 1) + double('A')));
-% str = char(floor(rand(1, 58) * (126 - 32 + 1) + 32));
-% str = sprintf('cxiojaio -> \nsaodifjasodifasdfsioadjfioasjioj   asiodfjiopasdjfo iopasdjfiopasdjf  aipsdjfiopasdfjopasifj8924u9384 89 3#$#$#-> %%34984u398iojzo   '); 
-modStr = mod(length(str), 16);
-if modStr > 0
-    str = [str blanks(16 - modStr)]; % Dummy strings for encryption
-end
+% Generate random characters length of 1,000
+str = char(floor(rand(1, 1000) * (double('z') - double('A') + 1) + double('A')));
+modStr = mod(length(str), BYTE_UNIT_LENGTH);
+if modStr > 0; str = [str blanks(BYTE_UNIT_LENGTH - modStr)]; end % Dummy strings for encryption (fit to 16 bytes)
 disp(str);
-input = String(str);
-encrypted = AesEncrypt(input, key, iv);
+input = String(str); % System.String
+encrypted = AesEncrypt(input, KEY, IV);
+disp(encrypted);
 input = String(encrypted);
-decrypted = AesDecrypt(input, key, iv);
+decrypted = AesDecrypt(input, KEY, IV);
 disp(decrypted);
-strcmp(str, decrypted)
+disp(strcmp(str, decrypted)); % Compare original strings and decrypted strings.
 
 
 function output = AesEncrypt(input, key, iv)
