@@ -25,6 +25,7 @@ function msg = GenerateAuditMessage(app, event, srcName)
 
     eventName = event.EventName;    
     msg = sprintf('\n[%s] "%s" (%s/%s/%s) %s', dateStr, userName, srcName, srcType, eventName, remarks);
+    disp(msg)
     msg = EncrypteAuditMessage(msg);
 
     fprintf(app.FileId, msg);
